@@ -870,7 +870,9 @@ csmall2 {
 	
 	
 	
+	
 	 
+	
 	
 	
 	
@@ -899,6 +901,8 @@ csmall2 {
 	
 	
 	
+	
+	
 	:not
 	
 	
@@ -909,7 +913,9 @@ csmall2 {
 	
 	
 	
+	
 	 
+	
 	
 	
 	
@@ -930,7 +936,9 @@ csmall2 {
 	
 	
 	
+	
 	 
+	
 	
 	
 	
@@ -951,7 +959,9 @@ csmall2 {
 	
 	
 	
+	
 	 
+	
 	
 	
 	
@@ -972,7 +982,9 @@ csmall2 {
 	
 	
 	
+	
 	 
+	
 	
 	
 	
@@ -1003,6 +1015,8 @@ csmall2 {
 	
 	
 	
+	
+	
 	:
 	
 	
@@ -1013,7 +1027,9 @@ csmall2 {
 	
 	
 	
+	
 	 
+	
 	
 	
 	
@@ -1104,8 +1120,8 @@ csmall2 {
 .statsBadge {
 	padding: 5px 10px;
 	font-size: 40px;
-    margin-bottom: 15px;
-    	border: 1px solid rgba(0, 0, 0, 0.16);
+	margin-bottom: 15px;
+	border: 1px solid rgba(0, 0, 0, 0.16);
 }
 
 .statsBadgeColor1 {
@@ -1156,9 +1172,11 @@ csmall2 {
 .marginTop20 {
 	margin-top: 20px;
 }
+
 .marginTop23 {
-    margin-top: 23px;
+	margin-top: 23px;
 }
+
 .marginTop30 {
 	margin-top: 30px;
 }
@@ -1198,10 +1216,12 @@ csmall2 {
 .paddingBottom10 {
 	padding-bottom: 10px;
 }
-.paddingLeftRight0{
-	padding-left:0px;
-	padding-right:0px;
+
+.paddingLeftRight0 {
+	padding-left: 0px;
+	padding-right: 0px;
 }
+
 .theadSpace {
 	line-height: 40px !important;
 }
@@ -1344,12 +1364,15 @@ csmall2 {
 .marginRight20 {
 	margin-right: 20px
 }
-.marginRight40{
-	margin-right:40px;
+
+.marginRight40 {
+	margin-right: 40px;
 }
-.marginLeft40{
-	margin-left:40px;
+
+.marginLeft40 {
+	margin-left: 40px;
 }
+
 #exerciseInfo {
 	border: 1px solid rgba(0, 0, 0, 0.125);
 	padding-top: 10px;
@@ -2039,16 +2062,35 @@ a.dropdown-item {
 }
 
 .noResult {
-	    font-family: 'Lato', sans-serif;
-    font-size: 14px;
+	font-family: 'Lato', sans-serif;
+	font-size: 14px;
 }
-.marginTop34{
-	margin-top:34px;
+
+.marginTop34 {
+	margin-top: 34px;
 }
-.enableButtons{
-	    padding: 3px;
-	    margin-top: 7px;
+
+.enableButtons {
+	padding: 3px;
+	margin-top: 7px;
 }
-.enableOrg{
-	display:inline-block;
+
+.enableOrg {
+	display: inline-block;
+}
+
+.gatewayToggle {
+	
+}
+
+.gatewayToggle .toggle.btn.btn-default.off {
+	width: 100px !important;
+}
+
+.gatewayToggle .toggle.btn.btn-success {
+	width: 100px !important;
+}
+
+.gatewayRegion {
+	margin-top: 20px;
 }

@@ -17,7 +17,7 @@
  * limitations under the License.
  * 
  -->
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -52,6 +52,9 @@
 							<li ng-class="{'active' : visibility.organizations }"
 								ng-show="user.r == 0"><a class="navbarA"
 								href="#organizations">ORGS</a></li>
+							<li ng-show="user.r==0"
+								ng-class="{'active' : visibility.gateways }" class="ng-cloak"><a
+								class="navbarA" href="#gateways">SATELLITE GATEWAYS</a></li>
 							<li ng-show="user.r<=1 || user.r==4" class="ng-cloak"
 								ng-class="{'active' : visibility.users }"><a
 								class="navbarA" href="#users">USERS</a></li>
@@ -73,9 +76,7 @@
 							<li ng-show="user.r<=1 || user.r==4"
 								ng-class="{'active' : visibility.stats }" class="ng-cloak"><a
 								class="navbarA" href="#stats">STATS</a></li>
-							<li ng-show="user.r==0"
-								ng-class="{'active' : visibility.gateways }" class="ng-cloak"><a
-								class="navbarA" href="#gateways">REGIONS & GATEWAYS</a></li>
+
 							<li class="pull-right"><a class="navbarI" href=""
 								ng-click="logout()"><i class="fa fa-sign-out fa-lg"
 									aria-hidden="true"></i></a></li>
@@ -559,7 +560,8 @@
 										at-title="Organization">{{item.organization.name}}</td>
 
 									<td class="center" at-title="">
-										<button ng-click="getChallengeDetails(item.id)" class="btn btn-primary outline">Details</button>
+										<button ng-click="getChallengeDetails(item.id)"
+											class="btn btn-primary outline">Details</button>
 
 										<button class="btn btn-info outline marginLeft10">Edit
 										</button>
@@ -647,14 +649,14 @@
 								at-list="challengeDetails.users"
 								at-config="challengeTableConfig">
 								<thead>
-								
+
 								</thead>
 								<tbody>
 									<tr>
 										<td at-attribute="user" at-sortable at-title="User"><a
 											href="#/users/details/{{item.user}}">{{item.user}}</a></td>
-										<td at-initial-sorting="desc"
-											at-attribute="score" at-sortable at-title="Score">{{item.score}}</td>
+										<td at-initial-sorting="desc" at-attribute="score" at-sortable
+											at-title="Score">{{item.score}}</td>
 										<td at-attribute="runExercises" at-sortable
 											at-title="Exercises Run">{{(item.runExercises)}}</td>
 										<td at-attribute="team.name" at-sortable at-title="Team"><a
@@ -728,10 +730,10 @@
 									<td class="center" at-title="">
 										<button ng-click="getExerciseDetails(item.id)"
 											class="btn btn-primary outline">Details</button>
-										<button ng-show="user.r==0" class="btn btn-info outline marginLeft10">Edit
-										</button>
-										<button ng-show="user.r==0" class="marginLeft10 btn btn-danger outline">Delete
-										</button>
+										<button ng-show="user.r==0"
+											class="btn btn-info outline marginLeft10">Edit</button>
+										<button ng-show="user.r==0"
+											class="marginLeft10 btn btn-danger outline">Delete</button>
 									</td>
 								</tr>
 							</tbody>
@@ -930,6 +932,37 @@
 
 							</div>
 
+						</div>
+					</div>
+				</div>
+
+
+				<div class="modal fade" id="addRemoveRegionsModal" tabindex="-1"
+					role="dialog" aria-labelledby="myModalLabel">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal"
+									aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+								<h3 class="modal-title modalHeader">Add/Remove Exercise
+									Regions</h3>
+							</div>
+							<div class="modal-body">
+								<form name="addRemoveRegionsForm">
+									<div class="row">
+										<p ng-repeat="r in availableRegions | orderBy">- {{r}}</p>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default"
+									data-dismiss="modal">Close</button>
+								<button type="button"
+									ng-disabled="addRemoveRegionsForm.$error.required"
+									ng-click="saveExerciseRegions" class="btn btn-primary">Save</button>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -2160,6 +2193,136 @@
 				</div>
 			</div>
 		</div>
+		<div class="standalone ng-cloak" id="gateways"
+			ng-show="visibility.gateways" ng-controller="gateways">
+			<div class="container">
+				<div class="row ">
+					<button ng-click="addGatewayModal()"
+						class="backToOrgs btn btn-info btn-lg">Add Gateway</button>
+					<h2 class="eblue centered">Satellite Gateways</h2>
+					<div>
+						<div ng-show="masterGateways.length>0">
+							<div class="tableFilter">
+
+								<p class="lead inlineBlock">Filter:</p>
+								<input placeholder="Type to filter..."
+									ng-change="updateFilteredList()" ng-model="query"
+									class="queryInput">
+							</div>
+							<table at-table at-paginated at-list="filteredGatewaysList"
+								at-config="gatewaystableconfig" class="table table-hover">
+								<thead>
+								</thead>
+								<tbody>
+									<tr ng-class="{active: $index===selectedGatewayRow}">
+										<td at-attribute="name" at-sortable at-title="Name">{{item.name}}</td>
+										<td at-attribute="region" at-sortable at-title="Region">{{getRegionFromCode(item.region)}}</td>
+										<td at-attribute="active" at-sortable at-title="Status">{{item.active
+											&& 'Active' || "Not Active"}}</td>
+										<td at-attribute="fqdn" at-sortable at-title="FQDN">{{item.fqdn}}</td>
+										<td>
+											<button ng-click="editGateway(item)"
+												class="btn btn-info outline marginLeft10">Edit</button>
+											<button ng-click="deleteGateway(item.id)"
+												class="marginLeft10 btn btn-danger outline">Delete</button>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							<at-pagination class="inlineBlock" at-list="filteredGatewaysList"
+								at-config="gatewaystableconfig"></at-pagination>
+							<p class="lead tableFilterResultsPending">Showing
+								{{filteredGatewaysList.length}} out of {{masterGateways.length}}
+								{{ masterGateways.length==1 && 'satellite gateway' || 'satellite
+								gateways'}}.</p>
+						</div>
+						<div class="centered marginTop20"
+							ng-show="masterGateways.length<=0">
+							<p>There are no gateways. You won't be able to launch RTF
+								exercises.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="modal fade" id="addGatewayModal" tabindex="-1"
+				role="dialog" aria-labelledby="myModalLabel">
+				<div class="modal-dialog width1000" role="document">
+					<div class="modal-content">
+						<form class="left" name="newGatewayForm" novalidate
+							autocomplete="off">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal"
+									aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+								<h3 ng-show="!saveFlow" class="modal-title modalHeader">Add
+									Gateway</h3>
+								<h3 ng-show="saveFlow" class="modal-title modalHeader">Edit
+									Gateway</h3>
+							</div>
+							<div class="modal-body">
+								<div class="row">
+									<div class="col-md-3">
+										<h5>Name</h5>
+										<input placeholder="EU Satellite Gateway" class="fInput"
+											required type="text" ng-model="newGateway.name">
+									</div>
+
+
+									<div class="col-md-3">
+										<h5>Region</h5>
+										<p class="gatewayRegion" ng-show="saveFlow">
+											{{newGateway.region}} - <small>
+												{{getRegionFromCode(newGateway.region)}}</small>
+										</p>
+										<ol ng-show="!saveFlow" class="nya-bs-select" required
+											ng-model="newGateway.region" data-size="20"
+											data-live-search="true">
+											<li nya-bs-option="reg in awsRegions | orderBy:'name'"><a>
+													{{reg.code}} <small>{{reg.name}}</small> <span
+													class="glyphicon glyphicon-ok check-mark"></span>
+											</a></li>
+										</ol>
+
+									</div>
+									<div class="col-md-6">
+										<h5>FQDN</h5>
+										<input placeholder="eu-gw.remediatetheflag.com" class="fInput"
+											required type="text" ng-model="newGateway.fqdn">
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-12">
+										<h5>Status</h5>
+
+										<toggle class="gatewayToggle" onstyle="btn-success"
+											ng-model="newGateway.status" on="Enabled" off="Disabled"></toggle>
+
+									</div>
+
+								</div>
+
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default"
+									data-dismiss="modal">Close</button>
+								<button ng-show="!saveFlow" type="button"
+									ng-disabled="newGatewayForm.$error.required"
+									ng-click="addGateway()" class="btn btn-success">Add</button>
+								<button ng-show="saveFlow" type="button"
+									ng-disabled="newGatewayForm.$error.required"
+									ng-click="saveGateway()" class="btn btn-success">Save
+								</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+
 		<div class="standalone ng-cloak" id="settings"
 			ng-show="visibility.settings" ng-controller="settings">
 			<div class="container">
