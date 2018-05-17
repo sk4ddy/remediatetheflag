@@ -60,6 +60,7 @@ import com.remediatetheflag.global.model.RTFECSTaskDefinition;
 import com.remediatetheflag.global.model.RTFECSTaskDefinitionForExerciseInRegion;
 import com.remediatetheflag.global.model.RTFGateway;
 import com.remediatetheflag.global.model.RTFInstanceReservation;
+import com.remediatetheflag.global.model.SupportedAWSRegion;
 import com.remediatetheflag.global.model.Team;
 import com.remediatetheflag.global.model.Trophy;
 import com.remediatetheflag.global.model.User;
@@ -192,6 +193,25 @@ public class HibernatePersistenceFacade {
 			return null;
 		}
 	}
+	
+	public boolean updateGateway(Integer id, RTFGateway g) {
+		HibernateSessionTransactionWrapper hb = openSessionTransaction();
+		try {
+			RTFGateway o = hb.localSession.get( RTFGateway.class, id );
+			o.setActive(g.isActive());
+			o.setFqdn(g.getFqdn());
+			o.setName(g.getName());
+			o.setRegion(g.getRegionId());
+			hb.localSession.update(o);
+			closeSessionTransaction(hb);
+			return true;
+		}catch(Exception e){	
+			closeSessionTransaction(hb);
+			logger.error(e.getMessage());
+			return false;
+		}
+	}
+	
 	public boolean addManagedOrganization(User usr, Integer id) {
 		User user = getUserFromUserId(usr.getIdUser());
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
@@ -531,6 +551,19 @@ public class HibernatePersistenceFacade {
 		}
 	}
 	@SuppressWarnings("unchecked")
+	public List<SupportedAWSRegion> getAllSupportedAWSRegions(){
+		HibernateSessionTransactionWrapper hb = openSessionTransaction();
+		try{
+			List<SupportedAWSRegion> gws = hb.localSession.createQuery("from SupportedAWSRegion").getResultList();
+			closeSessionTransaction(hb);
+			return gws;
+		} catch(Exception e){	
+			closeSessionTransaction(hb);
+			logger.error(e.getMessage());		
+			return null;
+		}
+	}
+	@SuppressWarnings("unchecked")
 	public List<RTFGateway> getAllGateways(){
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
 		try{
@@ -682,6 +715,25 @@ public class HibernatePersistenceFacade {
 			closeSessionTransaction(hb);
 			logger.error(e.getMessage());		
 			return null;
+		}
+	}
+	@SuppressWarnings("unchecked")
+	public Boolean deleteGateway(Integer id) {
+		HibernateSessionTransactionWrapper hb = openSessionTransaction();
+		try {
+			RTFGateway gw = (RTFGateway) hb.localSession.load(RTFGateway.class,id);
+			List<RTFECSTaskDefinition> ecsTasks = hb.localSession.createQuery("from RTFECSTaskDefinition where region = :reg")
+						.setParameter("reg", gw.getRegionId())
+						.getResultList();
+			if(ecsTasks.size()>0)
+				return false;
+			hb.localSession.delete(gw);
+			closeSessionTransaction(hb);
+			return true;
+		}catch(Exception e){	
+			closeSessionTransaction(hb);
+			logger.error(e.getMessage());		
+			return false;
 		}
 	}
 	public Boolean deleteFlag(Integer idFlag) {
@@ -2205,4 +2257,6 @@ public class HibernatePersistenceFacade {
 			return new LinkedList<Challenge>();
 		}
 	}
+
+	
 }

@@ -26,37 +26,23 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.remediatetheflag.global.actions.IAction;
 import com.remediatetheflag.global.messages.MessageGenerator;
-import com.remediatetheflag.global.model.RTFGateway;
 import com.remediatetheflag.global.persistence.HibernatePersistenceFacade;
 import com.remediatetheflag.global.utils.Constants;
 
-public class UpdateSatelliteGatewayAction extends IAction {
+public class DeleteSatelliteGatewayAction extends IAction {
 
 	private HibernatePersistenceFacade hpc = new HibernatePersistenceFacade();
 
 	@Override
 	public void doAction(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		JsonObject json = (JsonObject) request.getAttribute(Constants.REQUEST_JSON);
 
+		JsonObject json = (JsonObject) request.getAttribute(Constants.REQUEST_JSON);
 		JsonElement idElement = json.get(Constants.ACTION_PARAM_ID);
-		JsonElement nameElement = json.get(Constants.ACTION_PARAM_NAME);
-		JsonElement fqdnElement = json.get(Constants.ACTION_PARAM_FQDN);
-		JsonElement statusElement = json.get(Constants.ACTION_PARAM_STATUS);
-		
 		Integer id = idElement.getAsInt();
-		String name = nameElement.getAsString();
-		String fqdn = fqdnElement.getAsString();
-		Boolean status = statusElement.getAsBoolean();
-		
-		RTFGateway g = new RTFGateway();
-		g.setName(name);
-		g.setFqdn(fqdn);
-		g.setActive(status);
-	
-		if(hpc.updateGateway(id,g))
+		if(hpc.deleteGateway(id))
 			MessageGenerator.sendSuccessMessage(response);
 		else
-			MessageGenerator.sendErrorMessage("Failed", response);
+			MessageGenerator.sendErrorMessage("Error", response);
 	}
+
 }

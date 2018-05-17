@@ -124,6 +124,9 @@ public class Constants {
 	public static final String ACTION_PARAM_CONTACT_PHONE= "contactPhone";
 	public static final String ACTION_PARAM_ALLOWED_DOMAINS = "allowedDomains";
 	public static final String ACTION_PARAM_EXERCISE = "exercise";
+	
+	public static final String ACTION_PARAM_FQDN = "fqdn";
+	public static final String ACTION_PARAM_STATUS = "status";
 
 	
 

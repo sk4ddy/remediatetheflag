@@ -32,6 +32,53 @@ public class AdminController extends ActionsController {
 
 	@SuppressWarnings({ "rawtypes", "serial" })
 	public AdminController(){
+
+		type2action.put("getAWSRegions", com.remediatetheflag.global.actions.auth.management.admin.GetAWSRegionsAction.class);
+		type2action.put("deleteGateway", com.remediatetheflag.global.actions.auth.management.admin.DeleteSatelliteGatewayAction.class);
+		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.DeleteSatelliteGatewayAction.class, new HashMap<String, Class[]>() {{
+			put(Constants.ACTION_PARAM_ID, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			});
+		}});
+		type2action.put("getGateways", com.remediatetheflag.global.actions.auth.management.admin.GetSatelliteGatewaysAction.class);
+		type2action.put("addGateway", com.remediatetheflag.global.actions.auth.management.admin.AddSatelliteGatewayAction.class);
+		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.AddSatelliteGatewayAction.class, new HashMap<String, Class[]>() {{
+			put(Constants.ACTION_PARAM_NAME, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_REGION, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_FQDN, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_STATUS, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorBoolean.class
+			}
+					);
+		}});
+		type2action.put("updateGateway", com.remediatetheflag.global.actions.auth.management.admin.UpdateSatelliteGatewayAction.class);
+		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.UpdateSatelliteGatewayAction.class, new HashMap<String, Class[]>() {{
+			put(Constants.ACTION_PARAM_ID, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			}
+					);
+			put(Constants.ACTION_PARAM_NAME, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_FQDN, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_STATUS, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorBoolean.class
+			}
+					);
+		}});
 		type2action.put("getOrganizations", com.remediatetheflag.global.actions.auth.management.admin.GetOrganizationsActions.class);
 		type2action.put("checkOrganizationNameAvailable", com.remediatetheflag.global.actions.auth.management.admin.CheckOrganizationNameAvailable.class);
 		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.CheckOrganizationNameAvailable.class, new HashMap<String, Class[]>() {{

@@ -19,16 +19,25 @@
  */
 package com.remediatetheflag.global.actions.auth.management.admin;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.remediatetheflag.global.actions.IAction;
+import com.remediatetheflag.global.messages.MessageGenerator;
+import com.remediatetheflag.global.model.SupportedAWSRegion;
+import com.remediatetheflag.global.persistence.HibernatePersistenceFacade;
 
-public class RemoveSatelliteGatewayAction extends IAction {
+public class GetAWSRegionsAction extends IAction {
+
+	private HibernatePersistenceFacade hpc = new HibernatePersistenceFacade();
 
 	@Override
 	public void doAction(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		// TODO Auto-generated method stub
+		
+		List<SupportedAWSRegion> regions = hpc.getAllSupportedAWSRegions();
+		MessageGenerator.sendAWSRegionsMessage(regions,response);
 
 	}
 

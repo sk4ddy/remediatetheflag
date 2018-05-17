@@ -62,8 +62,10 @@ import com.remediatetheflag.global.model.FlagQuestionHint;
 import com.remediatetheflag.global.model.Notification;
 import com.remediatetheflag.global.model.Organization;
 import com.remediatetheflag.global.model.PendingReview;
+import com.remediatetheflag.global.model.RTFGateway;
 import com.remediatetheflag.global.model.RTFInstanceReservation;
 import com.remediatetheflag.global.model.Stats;
+import com.remediatetheflag.global.model.SupportedAWSRegion;
 import com.remediatetheflag.global.model.Team;
 import com.remediatetheflag.global.model.TeamLeaderboard;
 import com.remediatetheflag.global.model.User;
@@ -194,7 +196,7 @@ public class MessageGenerator {
 			logger.error("HTTP Response. Exception: " + e.getMessage());
 		}
 	}
-	
+
 	public static void sendAllExercisesForOrgMessage(List<AvailableExercise> exercises, List<AvailableExercisesForOrganization> exercisesForOrg,
 			HttpServletResponse response) {
 		Gson exercisesGson = new GsonBuilder().addSerializationExclusionStrategy(excludedLazyObjects).excludeFieldsWithoutExposeAnnotation().create();
@@ -237,7 +239,7 @@ public class MessageGenerator {
 		send(json,response);
 	}
 
-	
+
 	public static void sendAllChallengesMessage(List<Challenge> challenges, HttpServletResponse response) {
 		Gson gson = new GsonBuilder().addSerializationExclusionStrategy(excludedLazyObjects).excludeFieldsWithoutExposeAnnotation().create();
 		String json = gson.toJson(challenges);
@@ -350,7 +352,7 @@ public class MessageGenerator {
 			logger.error("Failed to send pdf file: "+e.getMessage());
 		}
 	}
-	
+
 
 	public static void sendExerciseReferenceFileMessage(AvailableExercise exercise, HttpServletResponse response) {
 		AvailableExerciseReferenceFile referenceFile = exercise.getReferenceFile();
@@ -421,7 +423,7 @@ public class MessageGenerator {
 		send(json,response);
 
 	}
-	
+
 
 	public static void sendReviewedExercises(List<ExerciseInstance> exercises, HttpServletResponse response) {
 		List<CompletedReview> reviews = new LinkedList<CompletedReview>();
@@ -456,80 +458,71 @@ public class MessageGenerator {
 		String json = gson.toJson(reviews);
 		send(json,response);	
 	}
-
 	public static void sendUserFeedbackMessage(Feedback feedback, HttpServletResponse response) {
 		Gson gson = new GsonBuilder().addSerializationExclusionStrategy(excludedLazyObjects).excludeFieldsWithoutExposeAnnotation().create();
 		String json = gson.toJson(feedback);
 		send(json,response);
 	}
-
 	public static void sendOrganizationsMessage(List<Organization> organizations, HttpServletResponse response) {
 		Gson gson = new GsonBuilder().addSerializationExclusionStrategy(excludedLazyObjects).create();
 		String json = gson.toJson(organizations);
 		send(json,response);
-
 	}
-
+	public static void sendGatewaysMessage(List<RTFGateway> gateways, HttpServletResponse response) {
+		Gson gson = new GsonBuilder().addSerializationExclusionStrategy(excludedLazyObjects).create();
+		String json = gson.toJson(gateways);
+		send(json,response);
+	}
 	public static void sendNotificationsMessage(List<Notification> notifications, HttpServletResponse response) {
 		Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 		String json = gson.toJson(notifications);
 		send(json,response);
-
 	}
-
 	public static void sendUsersListAddTeam(List<User> users, HttpServletResponse response) {
 		Gson gson = new GsonBuilder().addSerializationExclusionStrategy(leadearboardUsers).create();
 		String json = gson.toJson(users);
 		send(json,response);
 	}
-
 	public static void sendNumberUpdatedMessage(Integer nrAdded, HttpServletResponse response) {
 		JsonObject msg = new JsonObject();
 		msg.addProperty(Constants.JSON_ATTRIBUTE_RESULT, nrAdded);
 		send(msg.toString(),response);
 	}
-
 	public static void sendTeamDetailsMessage(Team team, HttpServletResponse response) {
 		Gson gson = new GsonBuilder().addSerializationExclusionStrategy(teamManagers).create();
 		String json = gson.toJson(team);
 		send(json,response);
 	}
-
 	public static void sendAvailable(boolean b, HttpServletResponse response){
 		JsonObject msg = new JsonObject();
 		msg.addProperty(Constants.JSON_ATTRIBUTE_RESULT, b);
 		send(msg.toString(), response);
 	}
-
 	public static void sendCodeValid(boolean b, HttpServletResponse response) {
 		JsonObject msg = new JsonObject();
 		msg.addProperty(Constants.JSON_ATTRIBUTE_RESULT, b);
 		send(msg.toString(), response);
-		
 	}
 	public static void sendIsExerciseInChallengeMessage(boolean isInChallenge, HttpServletResponse response) {
 		JsonObject msg = new JsonObject();
 		msg.addProperty(Constants.JSON_ATTRIBUTE_RESULT, isInChallenge);
 		send(msg.toString(), response);
-		
-	}
 
+	}
 	public static void sendChallengeDetailsMessage(Challenge challenge, HttpServletResponse response) {
 		Gson gson = new GsonBuilder().addSerializationExclusionStrategy(challengeDetails).excludeFieldsWithoutExposeAnnotation().create();
 		String json = gson.toJson(challenge);
 		send(json,response);
 	}
-
 	public static void sendAllUserChallengesWithDetailsMessage(List<Challenge> challenges,
 			HttpServletResponse response) {
 		Gson gson = new GsonBuilder().addSerializationExclusionStrategy(challengeDetails).excludeFieldsWithoutExposeAnnotation().create();
 		String json = gson.toJson(challenges);
 		send(json,response);
 	}
-
-
-
-	
-
-
+	public static void sendAWSRegionsMessage(List<SupportedAWSRegion> regions, HttpServletResponse response) {
+		Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+		String json = gson.toJson(regions);
+		send(json,response);
+	}
 }

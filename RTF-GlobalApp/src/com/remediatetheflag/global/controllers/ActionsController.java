@@ -160,7 +160,6 @@ public abstract class ActionsController {
 			request.setAttribute(Constants.REQUEST_ATTRIBUTE_JSON, jsonObject);
 			action.doAction(request,response);	
 		} catch ( Exception  e) {
-			e.printStackTrace();
 			logger.error("Action Exception: " + e.getMessage()+ " for user: "+usr);
 			MessageGenerator.sendErrorMessage(Constants.JSON_VALUE_ERROR_ACTION_EXCEPTION, response);
 		}
