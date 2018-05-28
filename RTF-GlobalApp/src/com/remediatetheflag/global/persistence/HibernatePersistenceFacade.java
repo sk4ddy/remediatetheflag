@@ -1863,7 +1863,6 @@ public class HibernatePersistenceFacade {
 	}
 	public Boolean managementCleanCancelledInstance(Integer idFile, Integer idScore, List<Integer> idResults) {
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
-<<<<<<< HEAD
 		try {
 			ExerciseResultFile file = (ExerciseResultFile) hb.localSession.load( ExerciseResultFile.class, idFile );
 			hb.localSession.delete(file);
@@ -1879,17 +1878,6 @@ public class HibernatePersistenceFacade {
 			closeSessionTransaction(hb);
 			logger.error(e.getMessage());
 			return false;
-=======
-		if(idFile!=null){
-			ExerciseResultFile file = (ExerciseResultFile) hb.localSession.load( ExerciseResultFile.class, idFile );
-			hb.localSession.delete(file);
-		}
-		ExerciseScore score  = (ExerciseScore) hb.localSession.load( ExerciseScore.class, idScore );
-		hb.localSession.delete(score);
-		for(Integer idRes : idResults){
-			ExerciseResult result =   (ExerciseResult) hb.localSession.load( ExerciseResult.class, idRes );
-			hb.localSession.delete(result);
->>>>>>> 65b0314c303ddd88089d5a8e1a23ab05e3204c26
 		}
 	}
 	@SuppressWarnings({ "unchecked"})
