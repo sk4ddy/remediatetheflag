@@ -96,7 +96,7 @@
 										</div>
 									</a>
 								</div></li>
-						
+
 						</ul>
 					</div>
 				</div>
@@ -162,7 +162,8 @@
 									<div class="paddingTop5 paddingBottom5 card-header">{{ex.technology}}</div>
 									<div class="card-block paddingTop5">
 										<div ng-show="didTakeExercise(ex.id)" class="taken">Completed</div>
-										<div ng-show="!didTakeExercise(ex.id)" class="notTaken">Not Completed</div>
+										<div ng-show="!didTakeExercise(ex.id)" class="notTaken">Not
+											Completed</div>
 										<h4 class="card-title">{{ex.title}}</h4>
 										<h6 class="ellipsis card-subtitle text-muted">{{ex.subtitle}}</h6>
 									</div>
@@ -212,7 +213,7 @@
 					<h2 class="eblue">Exercise</h2>
 					<div class="card paddingBottom10">
 						<div class="card-header">{{exerciseDetails.technology}}</div>
-						<div class="col-md-8">
+						<div class="col-md-10">
 							<h4 class="card-title">{{exerciseDetails.title}}</h4>
 							<h6 class="card-subtitle text-muted">{{exerciseDetails.subtitle}}</h6>
 							<div class="">
@@ -222,14 +223,16 @@
 										{{exerciseDetails.duration}} minutes</small><small class="text-muted">
 										| Difficulty: {{exerciseDetails.difficulty}} </small>
 								</p>
+								<hr>
 								<div ng-show="exerciseDetails.res.length>0">
-									<h5>Resources:</h5>
+									<h5>Suggested Readings:</h5>
 									<p class="card-text">
 										<small ng-repeat="r in exerciseDetails.res">
 											{{r.name}} : <a target="_blank" href="{{r.url}}">Link</a><br />
 										</small>
 									</p>
 								</div>
+								<hr>
 								<form novalidate autocomplete="off" name="selectExerciseRegion">
 									<div ng-show="!exerciseStarted">
 										<h5>Available Regions</h5>
@@ -267,7 +270,7 @@
 								</div>
 							</div>
 						</div>
-						<div class="col-md-2 centered">
+						<div class="col-md-2 centered marginTop3P">
 							<h4>Score</h4>
 							<img class="awd100" ng-src="{{exerciseDetails.scoreImg}}">
 							<p class="card-text">
@@ -275,7 +278,7 @@
 									{{exerciseDetails.score}} points</small>
 							</p>
 						</div>
-						<div class="col-md-2 centered">
+						<div class="col-md-2 centered marginTop3P">
 							<h4>Trophy</h4>
 							<img class="awd100" ng-src="{{exerciseDetails.trophy.img}}">
 							<p class="card-text">
@@ -367,18 +370,19 @@
 															</td>
 															<td ng-show="!f.selfCheckName"></td>
 															<td
-																ng-show="f.selfCheckName && !isAvailable(f.selfCheckStatus)" class="center">
+																ng-show="f.selfCheckName && !isAvailable(f.selfCheckStatus)"
+																class="center">
 																<button ng-disabled="!exerciseStarted"
 																	ng-click="refreshResults(exerciseDetails.id)"
-																	class=" btn btn-sm btn-info outline refreshResults">Refresh Result</button>
+																	class=" btn btn-sm btn-info outline refreshResults">Refresh
+																	Result</button>
 
 															</td>
 															<td
 																ng-class="isAvailable(f.selfCheckStatus) && getRemedationTableClassFromSelfCheckName(f.selfCheckStatus)"
 																ng-show="isAvailable(f.selfCheckStatus)">{{getSelfChekResult(f.selfCheckStatus)}}</td>
 															<td>
-																<button
-																	ng-show="isAvailable(f.selfCheckStatus)"
+																<button ng-show="isAvailable(f.selfCheckStatus)"
 																	ng-disabled="!exerciseStarted"
 																	ng-click="refreshResults(exerciseDetails.id)"
 																	class="btn btn-sm btn-info outline refreshResults">Refresh</button>
@@ -390,7 +394,7 @@
 										</div>
 									</div>
 								</div>
-	
+
 								<div class="centered">
 									<img src="/assets/img/down.png" class="downloadReferenceIcon">
 									<p class="lead downloadReference">
@@ -500,16 +504,13 @@
 							</div>
 							<div class="modal-body modalStartExercise">
 								<p class="lead" ng-show="exerciseIsInChallenge">
-									<strong>This exercise is part of a challenge.</strong> Once started, it is
-									not possible to suspend the exercise.
+									<strong>This exercise is part of a challenge.</strong> Once
+									started, it is not possible to suspend the exercise.
 								</p>
-								<p class="lead">
-									The recommended duration of this exercise is
-									{{exerciseDetails.duration}} minutes.
-								</p>
-								<p class="lead" ng-show="!exerciseIsInChallenge">
-									Once started, it is 	not possible to suspend the exercise.
-								</p>
+								<p class="lead">The recommended duration of this exercise is
+									{{exerciseDetails.duration}} minutes.</p>
+								<p class="lead" ng-show="!exerciseIsInChallenge">Once
+									started, it is not possible to suspend the exercise.</p>
 							</div>
 							<div class="modal-footer">
 								<button type="button" class="btn btn-default"
@@ -697,8 +698,8 @@
 										<td at-attribute="country.name" at-sortable at-title="Country">{{item.country.name}}</td>
 										<td at-initial-sorting="desc" at-attribute="score" at-sortable
 											at-title="Score">{{item.score}}</td>
-										<td at-initial-sorting="desc" at-attribute="exercisesRun" at-sortable
-											at-title="Run Exercises">{{item.exercisesRun}}</td>
+										<td at-initial-sorting="desc" at-attribute="exercisesRun"
+											at-sortable at-title="Run Exercises">{{item.exercisesRun}}</td>
 									</tr>
 								</tbody>
 							</table>
@@ -731,7 +732,8 @@
 									ng-change="updateFilteredList()" ng-model="query"
 									class="queryInput">
 							</div>
-							<div ng-show="cancelledExercisesInHistory" class="centered toggleHideCancelled">
+							<div ng-show="cancelledExercisesInHistory"
+								class="centered toggleHideCancelled">
 								<toggle onstyle="btn-primary" ng-model="hideCancelled"
 									on="Hide Cancelled" off="Show Cancelled"></toggle>
 							</div>
@@ -928,25 +930,23 @@
 	 ***************************************************************************************************************** -->
 			<div class="standalone ng-cloak" id="achievements"
 				ng-show="visibility.achievements" ng-controller="achievements">
-			<div class="container">
+				<div class="container">
 					<div class="row centered">
-						
+
 						<div class="inlineBlock marginRight40">
-						<h2 class="eblue">Total Score</h2>
-						<span class="badge scoreBadge">{{achievementsData.score}}</span>
+							<h2 class="eblue">Total Score</h2>
+							<span class="badge scoreBadge">{{achievementsData.score}}</span>
 						</div>
 						<div class="inlineBlock marginLeft40">
-						<h2 class="eblue">Run Exercises</h2>
-						<span class="badge scoreBadge">{{achievementsData.exercisesRun}}</span>
+							<h2 class="eblue">Run Exercises</h2>
+							<span class="badge scoreBadge">{{achievementsData.exercisesRun}}</span>
 						</div>
 						<h2 class="eblue marginTop25">Trophies</h2>
 						<div ng-repeat="ta in trophies" class="card-deck-wrapper">
 							<div class="card-deck">
 								<div ng-repeat="t in ta"
 									ng-class="getTechnologyClass(t.technology)" class="card">
-									<div class="card-header">
-										{{t.trophy.technology}}
-									</div>
+									<div class="card-header">{{t.trophy.technology}}</div>
 									<img class="card-img-top height75" ng-src="{{t.trophy.img}}">
 									<div class="card-block">
 										<h4 class="card-title">{{t.trophy.name}}</h4>
@@ -1110,36 +1110,56 @@
 							</div>
 						</form>
 					</div>
+					<form class="left" name="deleteAccountForm" novalidate>
+
+						<div class="row marginTop20">
+								<div>
+									<h4>Delete Account</h4>
+								</div>
+							</div>
+						<div class="row marginTop20">
+
+							<button type="button" ng-click="openRemoveModal()"
+								class="btn btn-danger">Delete</button>
+						</div>
+					</form>
+				</div>
+			
+			<div id="userRemoveModal" class="modal fade" tabindex="-1"
+				role="dialog">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal"
+								aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+							<h4 class="modal-title">Delete Account</h4>
+						</div>
+						<div class="modal-body">
+							<p class="lead">You are about to delete your account. This
+								action is not reversible.</p>
+						</div>
+						<div class="modal-footer">
+							<button ng-click="removeUser()" type="button"
+								class="btn btn-danger" data-dismiss="modal">Delete
+								Account</button>
+							<button type="button" class="btn btn-default"
+								data-dismiss="modal">Close</button>
+						</div>
+					</div>
 				</div>
 			</div>
-			<!-- *****************************************************************************************************************
-	 CURRENT EXERCISE
-	 ***************************************************************************************************************** 
--->
-		</div>
-		<!-- *****************************************************************************************************************
+</div>
+		
+	<!-- *****************************************************************************************************************
 	 FOOTER
 	 ***************************************************************************************************************** -->
-		<div id="footerwrap">
-			<div class="container">
-				<p class="center">RTF - 2018</p>
-				<!-- <div class="row">
-					<div class="col-lg-8">
-						<h4>About</h4>
-						<div class="hline-w"></div>
-						<p>RTF is an open source platform to teach developers about
-							application security topics.</p>
-					</div>
-					<div class="col-lg-4">
-						<h4>Contacts</h4>
-						<div class="hline-w"></div>
-						<a class="emailContact"
-							href="mailto:support@remediatetheflag.com ">
-							support@remediatetheflag.com </a>
-					</div>
-				</div>-->
-			</div>
+	<div id="footerwrap">
+		<div class="container">
+			<p class="center">RTF - 2018</p>
 		</div>
+	</div>
 	</div>
 	<div class="waitLoader"></div>
 	<script src="/assets/js/jquery.min.js"></script>
@@ -1164,22 +1184,5 @@
 	<script src="/assets/js/Chart.PieceLabel.min.js"></script>
 	<script src="/assets/js/angular-chart.min.js"></script>
 	<script src="/user/js/user.js"></script>
-	<!-- 	<script type="text/javascript">
-			var _paq = _paq || [];
-			_paq.push([ 'trackPageView' ]);
-			_paq.push([ 'enableLinkTracking' ]);
-			(function() {
-				var u = "https://analytics.remediatetheflag.com/piwik/";
-				_paq.push([ 'setTrackerUrl', u + 'piwik.php' ]);
-				_paq.push([ 'setSiteId', '1' ]);
-				var d = document, g = d.createElement('script'), s = d
-						.getElementsByTagName('script')[0];
-				g.type = 'text/javascript';
-				g.async = true;
-				g.defer = true;
-				g.src = u + 'piwik.js';
-				s.parentNode.insertBefore(g, s);
-			})();
-		</script> -->
 </body>
 </html>

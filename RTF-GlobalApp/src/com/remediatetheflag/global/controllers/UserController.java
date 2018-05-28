@@ -40,6 +40,10 @@ public class UserController extends ActionsController{
 			}
 					);
 		}};
+		type2action.put("removeUser", com.remediatetheflag.global.actions.auth.user.RemoveUserAction.class);
+
+		type2action.put("getUserReservations", com.remediatetheflag.global.actions.auth.user.GetUserReservationsAction.class);
+
 		type2action.put("isExerciseInChallenge", com.remediatetheflag.global.actions.auth.user.IsExerciseInChallengeAction.class);
 		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.user.IsExerciseInChallengeAction.class, idNotNullInteger);
 		type2action.put("getReservationUpdate", com.remediatetheflag.global.actions.auth.user.PollReservationUpdate.class);

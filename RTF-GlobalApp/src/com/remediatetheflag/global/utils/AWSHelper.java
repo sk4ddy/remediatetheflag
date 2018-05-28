@@ -18,6 +18,8 @@
  * 
  */
 package com.remediatetheflag.global.utils;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
@@ -40,7 +42,10 @@ import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
 import com.amazonaws.services.ecs.AmazonECS;
 import com.amazonaws.services.ecs.AmazonECSClientBuilder;
+import com.amazonaws.services.ecs.model.ContainerDefinition;
 import com.amazonaws.services.ecs.model.ContainerOverride;
+import com.amazonaws.services.ecs.model.DeregisterTaskDefinitionRequest;
+import com.amazonaws.services.ecs.model.DeregisterTaskDefinitionResult;
 import com.amazonaws.services.ecs.model.DescribeClustersRequest;
 import com.amazonaws.services.ecs.model.DescribeClustersResult;
 import com.amazonaws.services.ecs.model.DescribeContainerInstancesRequest;
@@ -51,6 +56,9 @@ import com.amazonaws.services.ecs.model.KeyValuePair;
 import com.amazonaws.services.ecs.model.ListTasksRequest;
 import com.amazonaws.services.ecs.model.ListTasksResult;
 import com.amazonaws.services.ecs.model.NetworkBinding;
+import com.amazonaws.services.ecs.model.PortMapping;
+import com.amazonaws.services.ecs.model.RegisterTaskDefinitionRequest;
+import com.amazonaws.services.ecs.model.RegisterTaskDefinitionResult;
 import com.amazonaws.services.ecs.model.RunTaskRequest;
 import com.amazonaws.services.ecs.model.RunTaskResult;
 import com.amazonaws.services.ecs.model.StopTaskRequest;
@@ -135,6 +143,55 @@ public class AWSHelper {
 		}
 	}
 
+	public String createECSTaskDefinition( RTFECSTaskDefinition taskDef, User user){
+
+		AmazonECS client = AmazonECSClientBuilder.standard().withRegion(taskDef.getRegion()).withCredentials(new DefaultAWSCredentialsProviderChain()).build();
+
+		RegisterTaskDefinitionRequest request = new RegisterTaskDefinitionRequest();
+
+		ArrayList<PortMapping> portMappings = new ArrayList<PortMapping>();
+		portMappings.add(new PortMapping().withContainerPort(8080)
+				.withHostPort(0)
+				.withProtocol("tcp"));
+		portMappings.add(new PortMapping().withContainerPort(3389)
+				.withHostPort(0)
+				.withProtocol("tcp"));
+
+		final ContainerDefinition def = new ContainerDefinition()
+				.withName(taskDef.getContainerName())
+				.withImage(taskDef.getRepositoryImageUrl())
+				.withMemoryReservation(taskDef.getSoftMemoryLimit())
+				.withMemory(taskDef.getHardMemoryLimit())
+				.withPortMappings(portMappings)
+				.withEssential(true);
+		//TODO  .withLogConfiguration(logConfiguration)
+
+		request.setContainerDefinitions(Arrays.asList(def));
+		request.setFamily(taskDef.getTaskDefinitionName());
+		request.setNetworkMode("bridge");
+
+		try {
+			RegisterTaskDefinitionResult response = client.registerTaskDefinition(request);
+			logger.debug("# ECS Task Definition "+taskDef.getTaskDefinitionName()+" created for user "+user.getIdUser()+" in region "+taskDef.getRegion());
+			return response.getTaskDefinition().getTaskDefinitionArn();
+		}catch(Exception e) {
+			logger.debug("# ECS Task Definition "+taskDef.getTaskDefinitionName()+" COULD NOT BE created for user "+user.getIdUser()+" in region "+taskDef.getRegion()+"\n"+e.getMessage());
+			return null;
+		}
+	}
+
+	public Boolean removeTaskDefinitionInRegion(String taskDefinitionArn, Regions region) {
+		AmazonECS client = AmazonECSClientBuilder.standard().withRegion(region).withCredentials(new DefaultAWSCredentialsProviderChain()).build();
+		try {
+		DeregisterTaskDefinitionRequest request = new DeregisterTaskDefinitionRequest().withTaskDefinition(taskDefinitionArn);
+		DeregisterTaskDefinitionResult result = client.deregisterTaskDefinition(request);
+		return result.getSdkHttpMetadata().getHttpStatusCode() == 200;
+		}catch(Exception e) {
+			logger.warn("# ECS TaskDefinition "+taskDefinitionArn+" could not be deregistered "+e.getMessage());
+			return false;
+		}
+	}
+
 	protected RTFECSContainerTask createInstance(String clusterName, String instanceName, String password, RTFECSTaskDefinition taskDef, Integer duration, User user){
 
 		AmazonECS client = AmazonECSClientBuilder.standard().withRegion(taskDef.getRegion()).withCredentials(new DefaultAWSCredentialsProviderChain()).build();
@@ -158,7 +215,6 @@ public class AWSHelper {
 			rtfInstance.setCluster(task.getClusterArn());
 			rtfInstance.setTaskArn(task.getTaskArn());
 			rtfInstance.setIdContainerInstance(task.getContainerInstanceArn());
-			rtfInstance.setTaskDefinition(taskDef);		
 			rtfInstance.setName(instanceName);
 			rtfInstance.setRegion(taskDef.getRegion());
 			rtfInstance.setUser(user);
@@ -186,7 +242,7 @@ public class AWSHelper {
 		}
 		return list;
 	}
-	
+
 	public Date getRunningECSTaskStartTime(String taskArn){
 		String regionFromArn = taskArn.split(":")[3];
 		AmazonECS client = AmazonECSClientBuilder.standard().withRegion(regionFromArn).withCredentials(new DefaultAWSCredentialsProviderChain()).build();
@@ -216,14 +272,22 @@ public class AWSHelper {
 
 			if(response.getTasks().isEmpty()) {
 				reservation.setError(true);
-				reservation.setFulfilled(false);
+				reservation.setFulfilled(true);
 				reservation.setWaitSeconds(0);
 				return reservation;
 			}
+			
 			Integer rdpPort = -1;
 			Integer httpPort = -1;
 
 			Task task =  response.getTasks().get(0);
+			
+			if(task.getLastStatus().equalsIgnoreCase(Constants.AWS_ECS_STATUS_STOPPED)) {
+				reservation.setError(true);
+				reservation.setFulfilled(true);
+				reservation.setWaitSeconds(0);
+				return reservation;
+			}
 
 			List<NetworkBinding> nb = task.getContainers().get(0).getNetworkBindings();
 			if(nb.size()>2) {
@@ -285,4 +349,6 @@ public class AWSHelper {
 			return reservation;
 		}
 	}
+
+	
 }

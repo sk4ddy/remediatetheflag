@@ -19,6 +19,8 @@
  */
 package com.remediatetheflag.global.actions.auth.user;
 
+import java.util.Date;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -58,6 +60,7 @@ public class SetUserInfoAction extends IAction{
 			sessionUser.setCountry(c);
 			sessionUser.setEmail(email);
 			sessionUser.setUsername(email);
+			sessionUser.setPersonalDataUpdateDateTime(new Date());
 			sessionUser.setFirstName(firstName);
 			sessionUser.setLastName(lastName);
 			hpc.updateUserInfo(sessionUser);

@@ -68,8 +68,11 @@ public class MarkExerciseAsCancelledAction extends IAction {
 			MessageGenerator.sendErrorMessage("NotFound", response);
 			return;
 		}
-		
-		Integer idFile = reviewedInstance.getResultFile().getId();
+		Integer idFile = null;
+		if(null!=reviewedInstance.getResultFile()){
+			idFile = reviewedInstance.getResultFile().getId();
+			reviewedInstance.setResultFile(null);
+		}
 		Integer idScore = reviewedInstance.getScore().getIdExerciseScore();
 		List<Integer> idResults = new LinkedList<Integer>();
 		for(ExerciseResult er : reviewedInstance.getResults()){
@@ -79,7 +82,6 @@ public class MarkExerciseAsCancelledAction extends IAction {
 		reviewedInstance.setStatus(ExerciseStatus.CANCELLED);
 		reviewedInstance.setResultsAvailable(false);
 		reviewedInstance.getResults().clear();
-		reviewedInstance.setResultFile(null);
 		reviewedInstance.setScore(null);
 		reviewedInstance.setReviewer(sessionUser);
 		reviewedInstance.setReviewedDate(new Date());

@@ -19,6 +19,8 @@
  */
 package com.remediatetheflag.global.actions.auth.management.admin;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -26,49 +28,42 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.remediatetheflag.global.actions.IAction;
 import com.remediatetheflag.global.messages.MessageGenerator;
-import com.remediatetheflag.global.model.AvailableExercise;
-import com.remediatetheflag.global.model.Organization;
+import com.remediatetheflag.global.model.Team;
 import com.remediatetheflag.global.model.User;
 import com.remediatetheflag.global.persistence.HibernatePersistenceFacade;
 import com.remediatetheflag.global.utils.Constants;
 
-public class DisableAvailableExerciseForOrganization extends IAction {
+public class RemoveTeamAction extends IAction {
 
 	private HibernatePersistenceFacade hpc = new HibernatePersistenceFacade();
 
 	@Override
 	public void doAction(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
 		User sessionUser = (User) request.getSession().getAttribute(Constants.ATTRIBUTE_SECURITY_CONTEXT);
-
 		JsonObject json = (JsonObject) request.getAttribute(Constants.REQUEST_JSON);
-		
-		JsonElement idOrganizationElement = json.get(Constants.ACTION_PARAM_ORG_ID);
-		Integer idOrganization = idOrganizationElement.getAsInt();
-		
-		//check if user can manage specified org
-		Organization org = hpc.getOrganizationById(idOrganization);
+
+		JsonElement teamIdJson = json.get(Constants.ACTION_PARAM_TEAM_ID);
+		Integer teamId = teamIdJson.getAsInt();
+		Team team = hpc.getTeam(teamId);
 		boolean isManager = false;
-		for(Organization mOrg : sessionUser.getManagedOrganizations()){
-			if(org.getId().equals(mOrg.getId())){
+		for(User u : team.getManagers()){
+			if(u.getIdUser().equals(sessionUser.getIdUser())){
 				isManager = true;
 				break;
 			}
 		}
-		if(null==org || !isManager){
+		if(null==team || !isManager){
 			MessageGenerator.sendErrorMessage("NotFound", response);
 			return;
 		}
-		JsonElement idExerciseElement = json.get(Constants.ACTION_PARAM_EXERCISE);
-		Integer idExercise = idExerciseElement.getAsInt();
-		
-		AvailableExercise ex = hpc.getAvailableExercise(idExercise);
-		if(null==ex ){
-			MessageGenerator.sendErrorMessage("NotFound", response);
-			return;
+		List<User> users = hpc.getUsersForTeamName(team.getName(), sessionUser.getManagedOrganizations());
+		if(null==users || users.isEmpty()){
+			hpc.deleteTeam(team);
+			MessageGenerator.sendSuccessMessage(response);
 		}
-		hpc.removeAvailableExerciseForOrganization(org,ex);
-		MessageGenerator.sendSuccessMessage(response);
+		else{
+			MessageGenerator.sendErrorMessage("TeamNotEmpty", response);
+		}
 	}
 
 }

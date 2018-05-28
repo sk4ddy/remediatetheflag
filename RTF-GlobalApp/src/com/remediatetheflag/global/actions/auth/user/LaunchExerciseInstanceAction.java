@@ -92,7 +92,7 @@ public class LaunchExerciseInstanceAction extends IAction{
 			return;
 		}
 		RTFECSTaskDefinition taskDefinition = hpc.getTaskDefinitionForExerciseInRegion(exerciseId,awsRegion);
-		if(null==taskDefinition || !taskDefinition.getActive() || !resourcesAvailable(Region.getRegion(awsRegion))) {
+		if(null==taskDefinition || !resourcesAvailable(Region.getRegion(awsRegion))) {
 			MessageGenerator.sendErrorMessage("NoResourcesAvailable", response);
 			logger.error("No resources for user "+user.getIdUser()+" launching exercise: "+exerciseId+" in region "+awsRegion);
 			return;
@@ -102,7 +102,7 @@ public class LaunchExerciseInstanceAction extends IAction{
 			LaunchStrategy strategy = new AWSECSLaunchStrategy(user, exercise.getInstanceDuration(), RTFConfig.getExercisesCluster(), otp, taskDefinition, exercise);
 			RTFInstanceReservation reservation = awsHelper.createRTFInstance(strategy);
 			if(!reservation.getError()) {
-				logger.error("Reservation "+reservation.getId()+" for user "+user.getIdUser()+"  launching exercise: "+exerciseId+" in region "+awsRegion);
+				logger.info("Reservation "+reservation.getId()+" for user "+user.getIdUser()+"  launching exercise: "+exerciseId+" in region "+awsRegion);
 				MessageGenerator.sendReservationMessage(reservation, response);
 				return;
 			}

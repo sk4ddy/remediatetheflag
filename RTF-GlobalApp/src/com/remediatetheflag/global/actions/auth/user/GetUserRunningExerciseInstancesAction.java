@@ -40,6 +40,7 @@ public class GetUserRunningExerciseInstancesAction extends IAction {
 		
 		User sessionUser = (User) request.getSession().getAttribute(Constants.ATTRIBUTE_SECURITY_CONTEXT);
 		List<ExerciseInstance> exercises =  hpc.getActiveExerciseInstanceForUserWithAvailableExercise(sessionUser.getIdUser());	
+		
 		MessageGenerator.sendUserRunningExercisesMessage(exercises,response);
 		
 	}

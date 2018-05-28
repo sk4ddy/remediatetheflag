@@ -28,7 +28,8 @@ public enum UserStatus {
 	INACTIVE(0),
 	INVITED(-1), 
 	CONFIRM_EMAIL(-2),
-	LOCKED(-3)
+	LOCKED(-3),
+	REMOVED(-4)
 	;
 
 	public static final UserStatus DEFAULT_STATUS = ACTIVE;

@@ -72,17 +72,9 @@ public class Organization {
 	@SerializedName("maxUsers")
 	private Integer maxUsers;
 	
-	@Column(name = "contactName")
-	@SerializedName("contactName")
-	private String contactName;
-	
 	@Column(name = "email")
 	@SerializedName("contactEmail")
 	private String contactEmail;
-	
-	@Column(name = "telephone")
-	@SerializedName("contanctTelephone")
-	private String contactTelephone;
 	
 	@ElementCollection
 	@LazilySerialized
@@ -112,12 +104,7 @@ public class Organization {
 	public void setMaxUsers(Integer maxUsers) {
 		this.maxUsers = maxUsers;
 	}
-	public String getContactName() {
-		return contactName;
-	}
-	public void setContactName(String contactName) {
-		this.contactName = contactName;
-	}
+	
 	public String getContactEmail() {
 		return contactEmail;
 	}
@@ -136,12 +123,7 @@ public class Organization {
 	public void setStatus(OrganizationStatus status) {
 		this.status = status;
 	}
-	public String getContactTelephone() {
-		return contactTelephone;
-	}
-	public void setContactTelephone(String contactTelephone) {
-		this.contactTelephone = contactTelephone;
-	}
+
 	public List<String> getAllowedEmailDomains() {
 		return allowedEmailDomains;
 	}

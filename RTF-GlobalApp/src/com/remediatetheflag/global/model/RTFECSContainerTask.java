@@ -33,12 +33,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
-
 import com.amazonaws.regions.Regions;
 import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 import com.remediatetheflag.global.messages.annotations.LazilySerialized;
 
 @Entity(name = "RTFECSInstance")
@@ -61,13 +57,6 @@ public class RTFECSContainerTask {
 
 	@Column(name = "name")
 	private String name;
-
-	@SerializedName("taskDefinition")
-	@Expose
-	@Cascade({CascadeType.SAVE_UPDATE})
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "taskDefId")
-	private RTFECSTaskDefinition taskDefinition;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "region")
@@ -144,13 +133,6 @@ public class RTFECSContainerTask {
 	}
 	public void setUser(User user) {
 		this.user = user;
-	}
-
-	public RTFECSTaskDefinition getTaskDefinition() {
-		return taskDefinition;
-	}
-	public void setTaskDefinition(RTFECSTaskDefinition taskDefinition) {
-		this.taskDefinition = taskDefinition;
 	}
 	public Integer getRdpPort() {
 		return rdpPort;

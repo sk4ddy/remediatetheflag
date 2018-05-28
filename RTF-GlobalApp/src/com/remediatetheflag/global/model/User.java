@@ -146,6 +146,14 @@ public class User implements HttpSessionBindingListener {
 	@Expose
 	private Date joinedDateTime;
 	
+	@Column(name="personalDataUpdateDateTime")
+	@Expose
+	private Date personalDataUpdateDateTime;
+	
+	@Column(name="personalDataAnonymisedDateTime")
+	@Expose
+	private Date personalDataAnonymisedDateTime;
+	
 	@SerializedName("organizations")
 	@UserStatusList	
 	@Expose
@@ -346,6 +354,18 @@ public class User implements HttpSessionBindingListener {
 	}
 	public void setExercisesRun(Integer exercisesRun) {
 		this.exercisesRun = exercisesRun;
+	}
+	public Date getPersonalDataUpdateDateTime() {
+		return personalDataUpdateDateTime;
+	}
+	public void setPersonalDataUpdateDateTime(Date personalDataUpdateDateTime) {
+		this.personalDataUpdateDateTime = personalDataUpdateDateTime;
+	}
+	public Date getPersonalDataAnonymisedDateTime() {
+		return personalDataAnonymisedDateTime;
+	}
+	public void setPersonalDataAnonymisedDateTime(Date personalDataAnonymisedDateTime) {
+		this.personalDataAnonymisedDateTime = personalDataAnonymisedDateTime;
 	}
 
 }

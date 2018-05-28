@@ -21,8 +21,6 @@ package com.remediatetheflag.global.actions.auth.management.admin;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -48,23 +46,21 @@ public class AddOrganizationAction extends IAction {
 		JsonObject json = (JsonObject) request.getAttribute(Constants.REQUEST_JSON);
 
 		JsonElement nameElement = json.get(Constants.ACTION_PARAM_NAME);
-		JsonElement contactNameElement = json.get(Constants.ACTION_PARAM_CONTACT_NAME);
-		JsonElement contactPhoneElement = json.get(Constants.ACTION_PARAM_CONTACT_PHONE);
 		JsonElement contactEmailElement = json.get(Constants.ACTION_PARAM_CONTACT_EMAIL);
 		JsonElement maxUsersElement = json.get(Constants.ACTION_PARAM_MAX_USERS);
-		JsonElement allowedDomainsElement = json.get(Constants.ACTION_PARAM_ALLOWED_DOMAINS);
+		//JsonElement allowedDomainsElement = json.get(Constants.ACTION_PARAM_ALLOWED_DOMAINS);
 		
 		String name = nameElement.getAsString();
-		String contactName = contactNameElement.getAsString();
-		String contactPhone = contactPhoneElement.getAsString();
 		String contactEmail = contactEmailElement.getAsString();
 		Integer maxUsers = maxUsersElement.getAsInt();
 		
+		/*
 		List<String> allowedDomains = new LinkedList<String>();
 
 		for(JsonElement domainElement : allowedDomainsElement.getAsJsonArray()){
 			allowedDomains.add(domainElement.getAsString());
 		}
+		*/
 		
 		Organization o = new Organization();
 		
@@ -74,13 +70,10 @@ public class AddOrganizationAction extends IAction {
 		c.add(Calendar.YEAR, 2); 
 		o.setDateExpiration(c.getTime());
 		o.setName(name);
-		o.setContactName(contactName);
 		o.setContactEmail(contactEmail);
-		o.setContactTelephone(contactPhone);
 		o.setMaxUsers(maxUsers);
 		o.setStatus(OrganizationStatus.ACTIVE);
-		o.setAllowedEmailDomains(allowedDomains);
-		
+		//o.setAllowedEmailDomains(allowedDomains);s
 		
 		Integer id = hpc.addOrganization(o);
 		if(null!=id){

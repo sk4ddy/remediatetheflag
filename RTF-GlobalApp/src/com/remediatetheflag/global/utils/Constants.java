@@ -20,8 +20,6 @@
 package com.remediatetheflag.global.utils;
 
 public class Constants {
-
-
 	
 	public static final Integer ROLE_USER = 7;
 	public static final Integer ROLE_STATS = 4;
@@ -37,8 +35,6 @@ public class Constants {
 	public static final String INDEX_PAGE = "/index.html";
 	public static final String USER_HOME = "/user/index.html";
 	public static final String MGMT_HOME = "/management/index.html";
-
-
 	
 	public static final String ATTRIBUTE_SECURITY_CSRF_TOKEN = "token";
 	public static final String ATTRIBUTE_SECURITY_CONTEXT = "SECURITY_CONTEXT";
@@ -52,9 +48,6 @@ public class Constants {
 	public static final String JSON_ATTRIBUTE_ERROR_MSG = "errorMsg";
 	public static final String JSON_ATTRIBUTE_ACTION = "action";
 	public static final String REQUEST_ATTRIBUTE_JSON = "json";
-
-	
-	
 	
 	public static final String JSON_VALUE_ERROR_ACTION_NOT_VALIDATED = "Action message not valid";
 	
@@ -62,23 +55,14 @@ public class Constants {
 	public static final String JSON_VALUE_ERROR_ACTION_INVALID_CSRF = "Invalid token";
 	
 	public static final String JSON_VALUE_ERROR_ACCOUNT_LOCKOUT = "Account lockout, please contact support.";
-	
 
-	public static final String VALUE_NOT_VALID = "Error while processing value";
 	public static final String CONFIG_FILE = "config.properties";
-	public static final String INSTANCE_SIZE_MEDIUM = "t2.medium";
-	
-	public static final String PAGE_INDEX = "/index.html";
-	public static final String PAGE_ADMIN = "/management/index.html";
-	public static final String PAGE_USER = "/user/index.html";
-	
-	
+		
 	public static final String REQUEST_JSON = "json";
 	public static final String ENV_USR_PWD = "USR_PWD";
 
 	public static final String ACTION_PARAM_ORG_CODE = "orgCode";
 	public static final String ACTION_PARAM_ORG_ID = "orgId";
-
 	
 	public static final String ACTION_PARAM_ID = "id";
 	public static final String ACTION_PARAM_REGION = "region";
@@ -127,7 +111,25 @@ public class Constants {
 	
 	public static final String ACTION_PARAM_FQDN = "fqdn";
 	public static final String ACTION_PARAM_STATUS = "status";
+	
 
+	public static final String ACTION_PARAM_EXERCISE_ID = "exerciseId";
+
+	
+	public static final String ACTION_PARAM_TASK_DEFINITION_ID = "taskDefId";
+
+	public static final String ACTION_PARAM_TASK_DEFINITION_NAME = "taskDefinitionName";
+	public static final String ACTION_PARAM_CONTAINER_NAME = "containerName";
+	public static final String ACTION_PARAM_REPO_URL = "imageUrl";
+	public static final String ACTION_PARAM_SOFT_MEMORY = "softMemory";
+	public static final String ACTION_PARAM_HARD_MEMORY = "hardMemory";
+	
+	public static final Integer MIN_HARD_MEMORY_LIMIT = 300;
+	public static final Integer MAX_HARD_MEMORY_LIMIT = 5000;
+
+	public static final Integer MIN_SOFT_MEMORY_LIMIT = 50;
+	public static final Integer MAX_SOFT_MEMORY_LIMIT = 3000;
+	public static final String AWS_ECS_STATUS_STOPPED = "stopped";
 	
 
 	

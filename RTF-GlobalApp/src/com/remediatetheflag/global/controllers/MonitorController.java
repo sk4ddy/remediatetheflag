@@ -33,6 +33,15 @@ public class MonitorController  extends ActionsController {
 	@SuppressWarnings({ "serial", "rawtypes" })
 	public MonitorController(){
 		
+		type2action.put("getChallenges", com.remediatetheflag.global.actions.auth.management.monitor.GetChallengesAction.class);
+		type2action.put("getChallengeDetails", com.remediatetheflag.global.actions.auth.management.monitor.GetChallengeDetailsAction.class);
+		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.monitor.GetChallengeDetailsAction.class, new HashMap<String, Class[]>() {{
+			put(Constants.ACTION_PARAM_ID, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorNotNull.class,
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			}
+					);
+		}});
 		type2action.put("sendNotification", com.remediatetheflag.global.actions.auth.management.monitor.SendNotificationToUser.class);
 		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.monitor.SendNotificationToUser.class, new HashMap<String, Class[]>() {{
 			put(Constants.ACTION_PARAM_USERNAME, new Class[]{

@@ -41,6 +41,8 @@ public class TeamManagerController  extends ActionsController {
 					);
 		}};
 		
+		type2action.put("getAllRunningExercises", com.remediatetheflag.global.actions.auth.management.team.GetRunningExercisesAction.class);
+
 		type2action.put("getExerciseDetails", com.remediatetheflag.global.actions.auth.management.team.GetAvailableExerciseDetailsAction.class);
 		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.team.GetAvailableExerciseDetailsAction.class, idNotNullInteger);
 		type2action.put("getRegionsForExercise", com.remediatetheflag.global.actions.auth.management.team.GetAvailableRegionsForExerciseAction.class);
@@ -51,15 +53,7 @@ public class TeamManagerController  extends ActionsController {
 		type2action.put("getSolutionFile", com.remediatetheflag.global.actions.auth.management.team.GetAvailableExerciseSolutionFileAction.class);
 		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.user.GetAvailableExerciseSolutionFileAction.class, idNotNullInteger);
 		type2action.put("addUsersToTeam", com.remediatetheflag.global.actions.auth.management.team.AddUsersToTeamAction.class);
-		type2action.put("getChallenges", com.remediatetheflag.global.actions.auth.management.team.GetChallengesAction.class);
-		type2action.put("getChallengeDetails", com.remediatetheflag.global.actions.auth.management.team.GetChallengeDetailsAction.class);
-		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.team.GetChallengeDetailsAction.class, new HashMap<String, Class[]>() {{
-			put(Constants.ACTION_PARAM_ID, new Class[]{
-					com.remediatetheflag.global.actions.validators.ValidatorNotNull.class,
-					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
-			}
-					);
-		}});
+		
 		type2action.put("getPendingReviews", com.remediatetheflag.global.actions.auth.management.team.GetPendingReviewsAction.class);
 		type2action.put("getCompletedReviews", com.remediatetheflag.global.actions.auth.management.team.GetCompletedExercisesAction.class);
 		type2action.put("getAvailableUsersForTeam", com.remediatetheflag.global.actions.auth.management.team.GetUsersWithoutTeamAction.class);

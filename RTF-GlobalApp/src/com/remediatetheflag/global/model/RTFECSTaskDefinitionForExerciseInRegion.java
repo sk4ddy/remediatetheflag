@@ -49,31 +49,30 @@ public class RTFECSTaskDefinitionForExerciseInRegion {
 
 	@SerializedName("taskDefinition")
 	@Expose
-	@Cascade({CascadeType.SAVE_UPDATE})
+	@Cascade({CascadeType.ALL})
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "taskDefinition")
 	private RTFECSTaskDefinition taskDefinition;
 
     @Enumerated(EnumType.STRING)
 	@Column(name="region")
+	@Expose
 	private Regions region;
 
 	@SerializedName("exercise")
-	@Expose
 	@Cascade({CascadeType.SAVE_UPDATE})
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "exerciseId")
 	private AvailableExercise exercise;
-
-	@SerializedName("active")
+	
+	@Column(name = "active")
 	@Expose
-	@Column(name="active")
-	private boolean active;
+	private Boolean active;
 
-	public RTFECSTaskDefinition getImage() {
+	public RTFECSTaskDefinition getTaskDefinition() {
 		return taskDefinition;
 	}
-	public void setImage(RTFECSTaskDefinition image) {
+	public void setTaskDefinition(RTFECSTaskDefinition image) {
 		this.taskDefinition = image;
 	}
 	public Regions getRegion() {
@@ -88,17 +87,16 @@ public class RTFECSTaskDefinitionForExerciseInRegion {
 	public void setExercise(AvailableExercise exercise) {
 		this.exercise = exercise;
 	}
-	public boolean getActive(){
-		return active;
-	}
-	public void setActive(boolean b) {
-		this.active = b;
-	}
 	public Integer getId() {
 		return id;
 	}
 	public void setId(Integer id) {
 		this.id = id;
 	}
-
+	public Boolean getActive() {
+		return active;
+	}
+	public void setActive(Boolean active) {
+		this.active = active;
+	}
 }

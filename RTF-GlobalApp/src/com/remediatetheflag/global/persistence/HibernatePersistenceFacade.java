@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.hibernate.Hibernate;
@@ -66,6 +65,7 @@ import com.remediatetheflag.global.model.Trophy;
 import com.remediatetheflag.global.model.User;
 import com.remediatetheflag.global.model.UserAuthenticationEvent;
 import com.remediatetheflag.global.model.UserFailedLogins;
+import com.remediatetheflag.global.model.UserStatus;
 import com.remediatetheflag.global.utils.Constants;
 import com.remediatetheflag.global.utils.SaltGenerator;
 
@@ -95,6 +95,7 @@ public class HibernatePersistenceFacade {
 		Session localSession = HibernatePersistenceSingleton.getSessionFactory().openSession();
 		return localSession;
 	}
+
 	public Integer addUser(User user){
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
 		try {
@@ -116,8 +117,9 @@ public class HibernatePersistenceFacade {
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();	
 		try {
 			List<User> users = hb.localSession.createQuery("select distinct(u) from User u "
-					+ "where u.defaultOrganization.id in (:names)")
+					+ "where u.defaultOrganization.id in (:names) and u.status != :removed")
 					.setParameterList("names", ids)
+					.setParameter("removed", UserStatus.REMOVED)
 					.getResultList();
 			closeSessionTransaction(hb);
 			return users;
@@ -193,7 +195,7 @@ public class HibernatePersistenceFacade {
 			return null;
 		}
 	}
-	
+
 	public boolean updateGateway(Integer id, RTFGateway g) {
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
 		try {
@@ -201,7 +203,7 @@ public class HibernatePersistenceFacade {
 			o.setActive(g.isActive());
 			o.setFqdn(g.getFqdn());
 			o.setName(g.getName());
-			o.setRegion(g.getRegionId());
+			o.setRegion(g.getRegion());
 			hb.localSession.update(o);
 			closeSessionTransaction(hb);
 			return true;
@@ -211,7 +213,7 @@ public class HibernatePersistenceFacade {
 			return false;
 		}
 	}
-	
+
 	public boolean addManagedOrganization(User usr, Integer id) {
 		User user = getUserFromUserId(usr.getIdUser());
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
@@ -302,10 +304,13 @@ public class HibernatePersistenceFacade {
 		oldUser.setFirstName(user.getFirstName());
 		oldUser.setLastName(user.getLastName());
 		oldUser.setEmailVerified(user.getEmailVerified());
+		oldUser.setInstanceLimit(user.getInstanceLimit());
 		oldUser.setForceChangePassword(user.getForceChangePassword());
 		oldUser.setScore(user.getScore());
+		oldUser.setPersonalDataAnonymisedDateTime(user.getPersonalDataAnonymisedDateTime());
+		oldUser.setPersonalDataUpdateDateTime(user.getPersonalDataUpdateDateTime());
 		oldUser.setTeam(user.getTeam());
-		oldUser.setDefaultOrganization(user.getDefaultOrganization());
+		oldUser.setUsername(user.getUsername());
 		oldUser.setStatus(user.getStatus());
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
 		try {
@@ -499,18 +504,7 @@ public class HibernatePersistenceFacade {
 		closeSessionTransaction(hb);
 		return exercise;
 	}
-	public Integer addCountry(Country country){
-		HibernateSessionTransactionWrapper hb = openSessionTransaction();
-		try {
-			Integer countryId = (Integer) hb.localSession.save( country );
-			closeSessionTransaction(hb);
-			return countryId;
-		} catch(Exception e){	
-			closeSessionTransaction(hb);
-			logger.error(e.getMessage());		
-			return null;
-		}
-	}
+	
 	@SuppressWarnings("unchecked")
 	public List<Country> getAllCountries(){
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
@@ -524,18 +518,7 @@ public class HibernatePersistenceFacade {
 			return null;
 		}
 	}
-	public Country getCountry(Integer countryId) {
-		HibernateSessionTransactionWrapper hb = openSessionTransaction();
-		try {
-			Country country = hb.localSession.get( Country.class, countryId );
-			closeSessionTransaction(hb);
-			return country;
-		} catch(Exception e){	
-			closeSessionTransaction(hb);
-			logger.error(e.getMessage());		
-			return null;
-		}
-	}
+	
 	public Country getCountryFromCode(String code) {
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
 		try{
@@ -723,8 +706,8 @@ public class HibernatePersistenceFacade {
 		try {
 			RTFGateway gw = (RTFGateway) hb.localSession.load(RTFGateway.class,id);
 			List<RTFECSTaskDefinition> ecsTasks = hb.localSession.createQuery("from RTFECSTaskDefinition where region = :reg")
-						.setParameter("reg", gw.getRegionId())
-						.getResultList();
+					.setParameter("reg", gw.getRegion())
+					.getResultList();
 			if(ecsTasks.size()>0)
 				return false;
 			hb.localSession.delete(gw);
@@ -978,7 +961,7 @@ public class HibernatePersistenceFacade {
 			closeSessionTransaction(hb);
 			return ei;
 		}
-		catch(NoResultException e){	
+		catch(Exception e){	
 			closeSessionTransaction(hb);
 			logger.error(e.getMessage());
 			return null;
@@ -1119,18 +1102,6 @@ public class HibernatePersistenceFacade {
 			hb.localSession.update( ei );
 			closeSessionTransaction(hb);
 			return ei.getIdExerciseInstance();
-		}catch(Exception e){	
-			closeSessionTransaction(hb);
-			logger.error(e.getMessage());
-			return null;
-		}
-	}
-	public ExerciseInstance getExerciseInstance(Integer id){
-		HibernateSessionTransactionWrapper hb = openSessionTransaction();
-		try{
-			ExerciseInstance aei = hb.localSession.get( ExerciseInstance.class, id );
-			closeSessionTransaction(hb);
-			return aei;
 		}catch(Exception e){	
 			closeSessionTransaction(hb);
 			logger.error(e.getMessage());
@@ -1401,7 +1372,7 @@ public class HibernatePersistenceFacade {
 			Hibernate.initialize(ei.getResultFile());
 			closeSessionTransaction(hb);
 			return ei;
-		}catch(NoResultException e){
+		}catch(Exception e){
 			closeSessionTransaction(hb);
 			logger.error(e.getMessage());
 			return null;
@@ -1432,7 +1403,7 @@ public class HibernatePersistenceFacade {
 			}	
 			closeSessionTransaction(hb);
 			return ei;
-		}catch(NoResultException e){
+		}catch(Exception e){
 			closeSessionTransaction(hb);
 			logger.error(e.getMessage());
 			return null;
@@ -1457,7 +1428,7 @@ public class HibernatePersistenceFacade {
 			}
 			closeSessionTransaction(hb);
 			return ei;
-		}catch(NoResultException e){
+		}catch(Exception e){
 			closeSessionTransaction(hb);
 			logger.error(e.getMessage());
 			return new LinkedList<ExerciseInstance>();
@@ -1482,7 +1453,7 @@ public class HibernatePersistenceFacade {
 			}
 			closeSessionTransaction(hb);
 			return ei;
-		}catch(NoResultException e){
+		}catch(Exception e){
 			closeSessionTransaction(hb);
 			logger.error(e.getMessage());
 			return new LinkedList<ExerciseInstance>();
@@ -1508,7 +1479,7 @@ public class HibernatePersistenceFacade {
 			}
 			closeSessionTransaction(hb);
 			return ei;
-		}catch(NoResultException e){
+		}catch(Exception e){
 			closeSessionTransaction(hb);
 			logger.error(e.getMessage());
 			return new LinkedList<ExerciseInstance>();
@@ -1533,7 +1504,7 @@ public class HibernatePersistenceFacade {
 			}
 			closeSessionTransaction(hb);
 			return ei;
-		}catch(NoResultException e){
+		}catch(Exception e){
 			closeSessionTransaction(hb);
 			logger.error(e.getMessage());
 			return new LinkedList<ExerciseInstance>();
@@ -1552,7 +1523,7 @@ public class HibernatePersistenceFacade {
 			}
 			closeSessionTransaction(hb);
 			return ei;
-		}catch(NoResultException e){
+		}catch(Exception e){
 			closeSessionTransaction(hb);
 			logger.error(e.getMessage());
 			return new LinkedList<ExerciseInstance>();
@@ -1571,7 +1542,7 @@ public class HibernatePersistenceFacade {
 			}
 			closeSessionTransaction(hb);
 			return ei;
-		}catch(NoResultException e){
+		}catch(Exception e){
 			closeSessionTransaction(hb);
 			logger.error(e.getMessage());
 			return new LinkedList<ExerciseInstance>();
@@ -1599,7 +1570,7 @@ public class HibernatePersistenceFacade {
 			}
 			closeSessionTransaction(hb);
 			return ei;
-		}catch(NoResultException e){
+		}catch(Exception e){
 			closeSessionTransaction(hb);
 			logger.error(e.getMessage());
 			return null;
@@ -1618,7 +1589,7 @@ public class HibernatePersistenceFacade {
 					.getResultList();
 			closeSessionTransaction(hb);
 			return ei;
-		}catch(NoResultException e){
+		}catch(Exception e){
 			closeSessionTransaction(hb);
 			logger.error(e.getMessage());
 			return new LinkedList<ExerciseInstance>();
@@ -1637,7 +1608,7 @@ public class HibernatePersistenceFacade {
 					.getResultList();
 			closeSessionTransaction(hb);
 			return ei;
-		}catch(NoResultException e){
+		}catch(Exception e){
 			closeSessionTransaction(hb);
 			logger.error(e.getMessage());
 			return new LinkedList<ExerciseInstance>();
@@ -1658,7 +1629,7 @@ public class HibernatePersistenceFacade {
 			Hibernate.initialize(ei.getResultFile());
 			closeSessionTransaction(hb);
 			return ei;
-		}catch(NoResultException e){
+		}catch(Exception e){
 			closeSessionTransaction(hb);
 			logger.error(e.getMessage());
 			return null;
@@ -1679,7 +1650,7 @@ public class HibernatePersistenceFacade {
 			Hibernate.initialize(ei.getAvailableExercise().getSolutionFile());
 			closeSessionTransaction(hb);
 			return ei;
-		} catch(NoResultException e){
+		} catch(Exception e){
 			closeSessionTransaction(hb);
 			logger.error(e.getMessage());
 			return null;
@@ -1696,7 +1667,7 @@ public class HibernatePersistenceFacade {
 			Hibernate.initialize(ei.getUsedHints());
 			closeSessionTransaction(hb);
 			return ei;
-		}catch(NoResultException e){
+		}catch(Exception e){
 			closeSessionTransaction(hb);
 			logger.error(e.getMessage());
 			return null;
@@ -1793,24 +1764,43 @@ public class HibernatePersistenceFacade {
 		long diffMinutes = diffInMillies / (60 * 1000) % 60;
 		return (int) diffMinutes;
 	}
+
+	@SuppressWarnings("unchecked")
+	private List<RTFECSTaskDefinitionForExerciseInRegion> getAllTaskDefinitionForExercise(Integer idExercise) {
+		HibernateSessionTransactionWrapper hb = openSessionTransaction();
+		try{
+			List<RTFECSTaskDefinitionForExerciseInRegion> list = (List<RTFECSTaskDefinitionForExerciseInRegion>) hb.localSession.createQuery(
+					"from ECSTaskDefinitionForExerciseInRegion where exerciseId = :exId")
+					.setParameter( "exId", idExercise )
+					.getResultList();
+			closeSessionTransaction(hb);
+			return list;
+		} catch(Exception e){
+			closeSessionTransaction(hb);
+			logger.error(e.getMessage());
+			return new LinkedList<RTFECSTaskDefinitionForExerciseInRegion>();
+		}
+	}
+
 	public RTFECSTaskDefinition getTaskDefinitionForExerciseInRegion(Integer exerciseId, Regions region) {
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
 		try{
-			RTFECSTaskDefinitionForExerciseInRegion td = (RTFECSTaskDefinitionForExerciseInRegion) hb.localSession.createQuery(
-					"from ECSTaskDefinitionForExerciseInRegion " +
-							"where active is true and region = :regId "+
-					" and exerciseId = :exId")
+			RTFECSTaskDefinitionForExerciseInRegion td = (RTFECSTaskDefinitionForExerciseInRegion) hb.localSession.createQuery("from ECSTaskDefinitionForExerciseInRegion where "
+					+ " region = :regId and exerciseId = :exId and active is true")
 					.setParameter( "regId", region  )
 					.setParameter( "exId", exerciseId )
+					.setMaxResults(1)
+					.setFirstResult(0)
 					.getSingleResult();
 			closeSessionTransaction(hb);
-			return td.getImage();
-		} catch(NoResultException e){
+			return td.getTaskDefinition();
+		} catch(Exception e){
 			closeSessionTransaction(hb);
 			logger.error(e.getMessage());
 			return null;
 		}
 	}
+
 	public Integer getFlagIdFromQuestionId(Integer idQuestion) {
 		EntityManager em =  getHibernateEntityManager();
 		Integer id = null;
@@ -1873,6 +1863,7 @@ public class HibernatePersistenceFacade {
 	}
 	public Boolean managementCleanCancelledInstance(Integer idFile, Integer idScore, List<Integer> idResults) {
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
+<<<<<<< HEAD
 		try {
 			ExerciseResultFile file = (ExerciseResultFile) hb.localSession.load( ExerciseResultFile.class, idFile );
 			hb.localSession.delete(file);
@@ -1888,6 +1879,17 @@ public class HibernatePersistenceFacade {
 			closeSessionTransaction(hb);
 			logger.error(e.getMessage());
 			return false;
+=======
+		if(idFile!=null){
+			ExerciseResultFile file = (ExerciseResultFile) hb.localSession.load( ExerciseResultFile.class, idFile );
+			hb.localSession.delete(file);
+		}
+		ExerciseScore score  = (ExerciseScore) hb.localSession.load( ExerciseScore.class, idScore );
+		hb.localSession.delete(score);
+		for(Integer idRes : idResults){
+			ExerciseResult result =   (ExerciseResult) hb.localSession.load( ExerciseResult.class, idRes );
+			hb.localSession.delete(result);
+>>>>>>> 65b0314c303ddd88089d5a8e1a23ab05e3204c26
 		}
 	}
 	@SuppressWarnings({ "unchecked"})
@@ -2007,8 +2009,9 @@ public class HibernatePersistenceFacade {
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
 		try{
 			List<User> result =  hb.localSession.createQuery("from User u "
-					+ "where u.defaultOrganization.id =:id and u.role <= 2")
+					+ "where u.defaultOrganization.id =:id and u.role <= 2 and u.status = :active")
 					.setParameter( "id", defaultOrganization.getId())
+					.setParameter("active", UserStatus.ACTIVE)
 					.getResultList();
 			closeSessionTransaction(hb);
 			return result;
@@ -2023,8 +2026,9 @@ public class HibernatePersistenceFacade {
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
 		try{
 			List<User> result =  hb.localSession.createQuery("from User u "
-					+ "where u.defaultOrganization.id =:id and u.team is null")
+					+ "where u.defaultOrganization.id =:id and u.team is null and u.status = :active")
 					.setParameter( "id", organization.getId())
+					.setParameter("active", UserStatus.ACTIVE)
 					.getResultList();
 			closeSessionTransaction(hb);
 			return result;
@@ -2074,7 +2078,7 @@ public class HibernatePersistenceFacade {
 					.getSingleResult();
 			closeSessionTransaction(hb);
 			return result;
-		}catch(NoResultException e){
+		}catch(Exception e){
 			closeSessionTransaction(hb);
 			logger.error(e.getMessage());
 			return null;
@@ -2119,6 +2123,7 @@ public class HibernatePersistenceFacade {
 			return null;
 		}
 	}
+	
 	public RTFInstanceReservation getReservation(Integer reservationId) {
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
 		try {
@@ -2141,6 +2146,23 @@ public class HibernatePersistenceFacade {
 			closeSessionTransaction(hb);
 			logger.error(e.getMessage());
 			return false;
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<RTFInstanceReservation> getUnfulfilledReservationsForUser(User sessionUser) {
+		HibernateSessionTransactionWrapper hb = openSessionTransaction();
+		try {
+			List<RTFInstanceReservation> reservations = hb.localSession.createQuery("select r from RTFInstanceReservation r "
+					+ "where r.user.idUser = :userId and r.fulfilled is false")
+					.setParameter("userId", sessionUser.getIdUser())
+					.getResultList();
+			closeSessionTransaction(hb);
+			return reservations;
+		}catch(Exception e) {
+			closeSessionTransaction(hb);
+			logger.error(e.getMessage());
+			return new LinkedList<RTFInstanceReservation>();
 		}
 	}
 	@SuppressWarnings("unchecked")
@@ -2226,6 +2248,12 @@ public class HibernatePersistenceFacade {
 		}
 		return null;
 	}
+	public List<RTFECSTaskDefinitionForExerciseInRegion> getAllTaskDefinitionsForExercise(Integer idExercise, Organization org) {
+		if(isExerciseEnabledForOrganization(org.getId(),idExercise)) {
+			return getAllTaskDefinitionForExercise(idExercise);
+		}
+		return new LinkedList<RTFECSTaskDefinitionForExerciseInRegion>();
+	}
 	@SuppressWarnings("unchecked")
 	public List<Challenge> getAllChallengesForUsers(List<User> users) {
 		HashSet<Integer> usrs = new HashSet<Integer>();
@@ -2235,7 +2263,7 @@ public class HibernatePersistenceFacade {
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
 		List<Challenge> cList;
 		try{
-			cList = hb.localSession.createQuery("select c from Challenge c inner join c.users usrs where usrs.idUser in :usrIds ")
+			cList = hb.localSession.createQuery("select distinct c from Challenge c inner join c.users usrs where usrs.idUser in :usrIds ")
 					.setParameterList( "usrIds", usrs )
 					.getResultList();
 			for(Challenge ei : cList){
@@ -2251,12 +2279,146 @@ public class HibernatePersistenceFacade {
 			}
 			closeSessionTransaction(hb);
 			return cList;
-		}catch(NoResultException e){	
+		}catch(Exception e){	
 			closeSessionTransaction(hb);
 			logger.error(e.getMessage());
 			return new LinkedList<Challenge>();
 		}
 	}
+	public Integer addECSTaskDefinitionForExerciseInRegion(RTFECSTaskDefinitionForExerciseInRegion ecsTaskForExercise) {
+		HibernateSessionTransactionWrapper hb = openSessionTransaction();
+		Integer id;
+		try{
+			id = (Integer) hb.localSession.save( ecsTaskForExercise );
+			closeSessionTransaction(hb);
+			if(ecsTaskForExercise.getActive()) {
+				disableAllOtherTaskDefinitionsForExerciseInRegion(id);
+			}
+			return id;
+		} catch(Exception e){
+			closeSessionTransaction(hb);
+			logger.error(e.getMessage());
+			return null;
+		}
+	}
 
+	@SuppressWarnings("unchecked" )
+	public Boolean disableAllOtherTaskDefinitionsForExerciseInRegion(Integer id) {
+
+		HibernateSessionTransactionWrapper hb = openSessionTransaction();
+		RTFECSTaskDefinitionForExerciseInRegion tdEnabled;
+		try {
+			tdEnabled = hb.localSession.get( RTFECSTaskDefinitionForExerciseInRegion.class, id );
+		} catch(Exception e){
+			closeSessionTransaction(hb);
+			logger.error(e.getMessage());
+			return false;
+		}
+		try {
+			List<RTFECSTaskDefinitionForExerciseInRegion> tds =  hb.localSession.createQuery("select td from ECSTaskDefinitionForExerciseInRegion td where "
+					+ "td.active is true and td.exercise.id = :exId and td.region = :tdRegion")
+					.setParameter( "exId", tdEnabled.getExercise().getId() )
+					.setParameter( "tdRegion", tdEnabled.getRegion() )
+					.getResultList();		
+			for(RTFECSTaskDefinitionForExerciseInRegion dbTd : tds ) {
+				if(!dbTd.getId().equals(id)) {
+					dbTd.setActive(false);
+					hb.localSession.update(dbTd);
+				}
+			}
+			closeSessionTransaction(hb);
+			return true;
+		}catch(Exception e){	
+			closeSessionTransaction(hb);
+			logger.error(e.getMessage());
+			return false;
+		}
+	}
+
+	public Boolean removeTaskDefinitionInRegion(Integer idExercise, Integer idTaskDef) {
+		HibernateSessionTransactionWrapper hb = openSessionTransaction();
+		try {
+			RTFECSTaskDefinitionForExerciseInRegion td = (RTFECSTaskDefinitionForExerciseInRegion) hb.localSession.createQuery("select td from ECSTaskDefinitionForExerciseInRegion td where "
+					+ "td.exercise.id = :exId and td.taskDefinition.id = :tdId")
+					.setParameter( "exId", idExercise )
+					.setParameter( "tdId", idTaskDef )
+					.getSingleResult();
+			if(null!=td) {
+				hb.localSession.delete(td);
+				closeSessionTransaction(hb);
+				return true;
+			}
+			closeSessionTransaction(hb);
+			return false;
+		}catch(Exception e){	
+			closeSessionTransaction(hb);
+			logger.error(e.getMessage());
+			return false;
+		}
+	}
+
+	public Boolean enableDisableTaskDefinitionInRegion(Integer exerciseId, Integer taskDefId, Boolean active) {
+		HibernateSessionTransactionWrapper hb = openSessionTransaction();
+		try {
+			RTFECSTaskDefinitionForExerciseInRegion td = (RTFECSTaskDefinitionForExerciseInRegion) hb.localSession.createQuery("select td from ECSTaskDefinitionForExerciseInRegion td where "
+					+ "td.exercise.id = :exId and td.taskDefinition.id = :tdId")
+					.setParameter( "exId", exerciseId )
+					.setParameter( "tdId", taskDefId )
+					.getSingleResult();
+			if(null==td) {
+				closeSessionTransaction(hb);
+				return false;
+			}
+			td.setActive(active);
+			hb.localSession.update(td);
+			closeSessionTransaction(hb);
+			if(active) {
+				disableAllOtherTaskDefinitionsForExerciseInRegion(td.getId());
+			}
+			return true;
+		}catch(Exception e){	
+			closeSessionTransaction(hb);
+			logger.error(e.getMessage());
+			return false;
+		}
+	}
+
+
+	@SuppressWarnings("unchecked")
+	public List<RTFECSTaskDefinitionForExerciseInRegion> getAllTaskDefinitionForExerciseInRegion(Integer taskDefId) {
+		HibernateSessionTransactionWrapper hb = openSessionTransaction();
+		try{
+			List<RTFECSTaskDefinitionForExerciseInRegion> taskDef = hb.localSession.createQuery("select t from ECSTaskDefinitionForExerciseInRegion t "
+					+ "where t.taskDefinition.id = :taskId ")
+					.setParameter( "taskId", taskDefId )
+					.getResultList();
+			closeSessionTransaction(hb);
+			return taskDef;
+		}catch(Exception e){	
+			closeSessionTransaction(hb);
+			logger.error(e.getMessage());
+			return new LinkedList<RTFECSTaskDefinitionForExerciseInRegion>();
+		}
+	}
+	public RTFECSTaskDefinitionForExerciseInRegion getTaskDefinitionForExerciseInRegion(Integer idExercise,
+			Integer idTaskDef) {
+		HibernateSessionTransactionWrapper hb = openSessionTransaction();
+		try{
+			RTFECSTaskDefinitionForExerciseInRegion taskDef = (RTFECSTaskDefinitionForExerciseInRegion) hb.localSession.createQuery("select t from ECSTaskDefinitionForExerciseInRegion t "
+					+ "where t.exercise.id = :exerciseId and t.taskDefinition.id = :taskId ")
+					.setParameter( "exerciseId", idExercise )
+					.setParameter( "taskId", idTaskDef )
+					.getSingleResult();
+			closeSessionTransaction(hb);
+			return taskDef;
+		}catch(Exception e){	
+			closeSessionTransaction(hb);
+			logger.error(e.getMessage());
+			return null;
+		}
+	}
 	
+
+
+
 }

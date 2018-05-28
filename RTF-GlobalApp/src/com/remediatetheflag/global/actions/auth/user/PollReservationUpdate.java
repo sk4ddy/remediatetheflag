@@ -56,6 +56,7 @@ public class PollReservationUpdate extends IAction {
 		Integer reservationId = json.get(Constants.ACTION_PARAM_ID).getAsInt();
 		
 		RTFInstanceReservation reservation = hpc.getReservation(reservationId);
+	
 		if(!reservation.getUser().getIdUser().equals(user.getIdUser())){
 			MessageGenerator.sendErrorMessage("NotFound", response);
 			return;
@@ -67,6 +68,11 @@ public class PollReservationUpdate extends IAction {
 		if(null!=reservation.getEcs()) {
 			AWSHelper helper = new AWSHelper();
 			RTFInstanceReservation updatedReservation = helper.pollReservation(reservation);
+			if(reservation.getError()) {
+				hpc.updateReservation(reservation);
+				MessageGenerator.sendErrorMessage("Expired", response);
+				return;
+			}
 			if(!updatedReservation.getFulfilled()) {
 				MessageGenerator.sendReservationMessage(updatedReservation, response);
 				return;
@@ -104,6 +110,7 @@ public class PollReservationUpdate extends IAction {
 				ei.setRegion(reservation.getEcs().getRegion());
 				ei.setResults(new LinkedList<ExerciseResult>());
 				ei.setStartTime(new Date());
+				ei.setAvailableExercise(reservation.getExercise());
 				Calendar cal = Calendar.getInstance();
 				cal.setTime(ei.getStartTime());
 				cal.add(Calendar.MINUTE, ei.getAvailableExercise().getDuration());
@@ -119,7 +126,6 @@ public class PollReservationUpdate extends IAction {
 				ei.setStatus(ExerciseStatus.RUNNING);
 				ei.setTechnology(reservation.getExercise().getTechnology());
 				ei.setTitle(reservation.getExercise().getTitle());
-				ei.setAvailableExercise(reservation.getExercise());
 				ei.setUser(user);
 				ei.setGuac(guacUser);
 				hpc.addExerciseInstance(ei);

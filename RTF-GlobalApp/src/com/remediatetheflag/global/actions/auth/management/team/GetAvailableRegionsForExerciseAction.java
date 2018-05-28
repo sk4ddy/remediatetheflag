@@ -25,13 +25,11 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.amazonaws.regions.Regions;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.remediatetheflag.global.actions.IAction;
 import com.remediatetheflag.global.messages.MessageGenerator;
-import com.remediatetheflag.global.model.RTFECSTaskDefinition;
-import com.remediatetheflag.global.model.RTFGateway;
+import com.remediatetheflag.global.model.RTFECSTaskDefinitionForExerciseInRegion;
 import com.remediatetheflag.global.model.User;
 import com.remediatetheflag.global.persistence.HibernatePersistenceFacade;
 import com.remediatetheflag.global.utils.Constants;
@@ -46,19 +44,12 @@ public class GetAvailableRegionsForExerciseAction extends IAction {
 		JsonObject json = (JsonObject) request.getAttribute(Constants.REQUEST_JSON);
 		JsonElement jsonElement = json.get(Constants.ACTION_PARAM_ID);
 		Integer idExercise = jsonElement.getAsInt();
-		List<RTFGateway> regions = hpc.getAllGateways();
-		List<Regions> availableRegions = new LinkedList<Regions>();
 		User sessionUser = (User) request.getSession().getAttribute(Constants.ATTRIBUTE_SECURITY_CONTEXT);	
 
-		for(RTFGateway gw : regions){
-			RTFECSTaskDefinition task = hpc.getTaskDefinitionForExerciseInRegion(idExercise, gw.getRegionId(),sessionUser.getDefaultOrganization());
-			if(null!=task){
-				availableRegions.add(gw.getRegionId());
-			}
-			else{
-				logger.error("Exercise "+idExercise+" doesn't have a TaskDefinition in region "+gw.getRegionId().getName());
-			}
-		}
-		MessageGenerator.sendExerciseRegionsMessage(availableRegions,response);
+		List<RTFECSTaskDefinitionForExerciseInRegion> task = new LinkedList<RTFECSTaskDefinitionForExerciseInRegion>();
+
+		task.addAll(hpc.getAllTaskDefinitionsForExercise(idExercise,sessionUser.getDefaultOrganization()));
+		
+		MessageGenerator.sendExerciseTaskDefinitionsMessage(task,response);
 	}
 }

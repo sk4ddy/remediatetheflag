@@ -19,8 +19,6 @@
  */
 package com.remediatetheflag.global.actions.auth.management.admin;
 
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -28,42 +26,23 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.remediatetheflag.global.actions.IAction;
 import com.remediatetheflag.global.messages.MessageGenerator;
-import com.remediatetheflag.global.model.Team;
-import com.remediatetheflag.global.model.User;
 import com.remediatetheflag.global.persistence.HibernatePersistenceFacade;
 import com.remediatetheflag.global.utils.Constants;
 
-public class DeleteTeamAction extends IAction {
+public class RemoveSatelliteGatewayAction extends IAction {
 
 	private HibernatePersistenceFacade hpc = new HibernatePersistenceFacade();
 
 	@Override
 	public void doAction(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User sessionUser = (User) request.getSession().getAttribute(Constants.ATTRIBUTE_SECURITY_CONTEXT);
-		JsonObject json = (JsonObject) request.getAttribute(Constants.REQUEST_JSON);
 
-		JsonElement teamIdJson = json.get(Constants.ACTION_PARAM_TEAM_ID);
-		Integer teamId = teamIdJson.getAsInt();
-		Team team = hpc.getTeam(teamId);
-		boolean isManager = false;
-		for(User u : team.getManagers()){
-			if(u.getIdUser().equals(sessionUser.getIdUser())){
-				isManager = true;
-				break;
-			}
-		}
-		if(null==team || !isManager){
-			MessageGenerator.sendErrorMessage("NotFound", response);
-			return;
-		}
-		List<User> users = hpc.getUsersForTeamName(team.getName(), sessionUser.getManagedOrganizations());
-		if(null==users || users.isEmpty()){
-			hpc.deleteTeam(team);
+		JsonObject json = (JsonObject) request.getAttribute(Constants.REQUEST_JSON);
+		JsonElement idElement = json.get(Constants.ACTION_PARAM_ID);
+		Integer id = idElement.getAsInt();
+		if(hpc.deleteGateway(id))
 			MessageGenerator.sendSuccessMessage(response);
-		}
-		else{
-			MessageGenerator.sendErrorMessage("TeamNotEmpty", response);
-		}
+		else
+			MessageGenerator.sendErrorMessage("Error", response);
 	}
 
 }

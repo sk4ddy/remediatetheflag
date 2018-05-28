@@ -17,32 +17,36 @@
  * limitations under the License.
  * 
  */
-package com.remediatetheflag.global.actions.auth.management.admin;
+package com.remediatetheflag.global.actions.auth.management.monitor;
+
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.remediatetheflag.global.actions.IAction;
 import com.remediatetheflag.global.messages.MessageGenerator;
+import com.remediatetheflag.global.model.Challenge;
+import com.remediatetheflag.global.model.User;
 import com.remediatetheflag.global.persistence.HibernatePersistenceFacade;
 import com.remediatetheflag.global.utils.Constants;
 
-public class DeleteSatelliteGatewayAction extends IAction {
+public class GetChallengesAction extends IAction {
 
 	private HibernatePersistenceFacade hpc = new HibernatePersistenceFacade();
 
 	@Override
 	public void doAction(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-		JsonObject json = (JsonObject) request.getAttribute(Constants.REQUEST_JSON);
-		JsonElement idElement = json.get(Constants.ACTION_PARAM_ID);
-		Integer id = idElement.getAsInt();
-		if(hpc.deleteGateway(id))
-			MessageGenerator.sendSuccessMessage(response);
-		else
-			MessageGenerator.sendErrorMessage("Error", response);
+		User sessionUser = (User) request.getSession().getAttribute(Constants.ATTRIBUTE_SECURITY_CONTEXT);
+		List<Challenge> challenges = null;
+		if(sessionUser.getRole().equals(Constants.ROLE_TEAM_MANAGER)){
+			List<User> users = hpc.getUsersInTeamManagedBy(sessionUser);
+			challenges = hpc.getAllChallengesForUsers(users);
+		}
+		else {
+			challenges = hpc.getAllChallenges(sessionUser.getManagedOrganizations());
+		}
+		MessageGenerator.sendAllChallengesMessage(challenges,response);
 	}
-
 }

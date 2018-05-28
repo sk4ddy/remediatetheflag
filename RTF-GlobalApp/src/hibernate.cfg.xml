@@ -83,5 +83,7 @@
 		<mapping class="com.remediatetheflag.global.model.Organization" />
 		<mapping
 			class="com.remediatetheflag.global.model.InvitationCodeForOrganization" />
+		<mapping class="com.remediatetheflag.global.model.SupportedAWSRegion" />
+
 	</session-factory>
 </hibernate-configuration>

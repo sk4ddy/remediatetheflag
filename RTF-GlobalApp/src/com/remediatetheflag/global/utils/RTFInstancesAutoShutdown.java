@@ -53,7 +53,7 @@ public class RTFInstancesAutoShutdown implements Runnable {
 		// get active regions
 		List<Region> activeRegions = new LinkedList<Region>();
 		for(RTFGateway gw : hpc.getAllActiveGateways()){
-			activeRegions.add(Region.getRegion(gw.getRegionId()));
+			activeRegions.add(Region.getRegion(gw.getRegion()));
 		}
 		logger.debug("Returned "+activeRegions.size()+" active regions from db");
 

@@ -138,7 +138,7 @@ public class GetStatsGlobalAction extends IAction {
 		List<RTFGateway> activeGws = hpc.getAllActiveGateways();
 		Set<Regions> regions = new HashSet<Regions>();
 		for(RTFGateway gw : activeGws) {
-			regions.add(gw.getRegionId());
+			regions.add(gw.getRegion());
 		}
 		stats.setActiveRegions(regions.size());
 		stats.setActiveGateways(activeGws.size());

@@ -31,7 +31,7 @@ import javax.persistence.Table;
 import com.amazonaws.regions.Regions;
 
 @Entity(name = "RTFGateway")
-@Table( name = "awsGateways" )
+@Table( name = "rtfGateways" )
 public class RTFGateway {
 	
 	@Id
@@ -58,7 +58,6 @@ public class RTFGateway {
 	public void setActive(Boolean active) {
 		this.active = active;
 	}
-	
 	public Integer getId() {
 		return id;
 	}
@@ -71,18 +70,16 @@ public class RTFGateway {
 	public void setName(String name) {
 		this.name = name;
 	}
-
 	public String getFqdn() {
 		return fqdn;
 	}
 	public void setFqdn(String fqdn) {
 		this.fqdn = fqdn;
 	}
-	public Regions getRegionId() {
+	public Regions getRegion() {
 		return region;
 	}
 	public void setRegion(Regions region) {
 		this.region = region;
 	}
-
 }

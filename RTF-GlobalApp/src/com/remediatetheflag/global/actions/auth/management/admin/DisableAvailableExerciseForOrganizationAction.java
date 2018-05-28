@@ -32,7 +32,7 @@ import com.remediatetheflag.global.model.User;
 import com.remediatetheflag.global.persistence.HibernatePersistenceFacade;
 import com.remediatetheflag.global.utils.Constants;
 
-public class EnableAvailableExerciseForOrganization extends IAction {
+public class DisableAvailableExerciseForOrganizationAction extends IAction {
 
 	private HibernatePersistenceFacade hpc = new HibernatePersistenceFacade();
 
@@ -67,7 +67,8 @@ public class EnableAvailableExerciseForOrganization extends IAction {
 			MessageGenerator.sendErrorMessage("NotFound", response);
 			return;
 		}
-		hpc.addAvailableExerciseForOrganization(org,ex);
+		hpc.removeAvailableExerciseForOrganization(org,ex);
 		MessageGenerator.sendSuccessMessage(response);
 	}
+
 }

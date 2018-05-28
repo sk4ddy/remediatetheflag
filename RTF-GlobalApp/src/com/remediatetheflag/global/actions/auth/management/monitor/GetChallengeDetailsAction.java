@@ -17,13 +17,15 @@
  * limitations under the License.
  * 
  */
-package com.remediatetheflag.global.actions.auth.management.team;
+package com.remediatetheflag.global.actions.auth.management.monitor;
 
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.remediatetheflag.global.actions.IAction;
 import com.remediatetheflag.global.messages.MessageGenerator;
 import com.remediatetheflag.global.model.Challenge;
@@ -31,22 +33,41 @@ import com.remediatetheflag.global.model.User;
 import com.remediatetheflag.global.persistence.HibernatePersistenceFacade;
 import com.remediatetheflag.global.utils.Constants;
 
-public class GetChallengesAction extends IAction {
+public class GetChallengeDetailsAction extends IAction {
 
 	private HibernatePersistenceFacade hpc = new HibernatePersistenceFacade();
 
 	@Override
 	public void doAction(HttpServletRequest request, HttpServletResponse response) throws Exception {
-
+		
+		JsonObject json = (JsonObject) request.getAttribute(Constants.REQUEST_JSON);
+		JsonElement jsonElement = json.get(Constants.ACTION_PARAM_ID);
+		Integer idChallenge = jsonElement.getAsInt();
+		
 		User sessionUser = (User) request.getSession().getAttribute(Constants.ATTRIBUTE_SECURITY_CONTEXT);
-		List<Challenge> challenges = null;
+		Challenge challenge =  hpc.getChallengeWithDetails(idChallenge,sessionUser.getManagedOrganizations());	
+		
+		boolean granted = true;
 		if(sessionUser.getRole().equals(Constants.ROLE_TEAM_MANAGER)){
 			List<User> users = hpc.getUsersInTeamManagedBy(sessionUser);
-			challenges = hpc.getAllChallengesForUsers(users);
+			granted = isTeamManagerGranted(users,challenge);
 		}
-		else {
-			challenges = hpc.getAllChallenges(sessionUser.getManagedOrganizations());
+		if(!granted) {
+			MessageGenerator.sendErrorMessage("NotFound", response);
+			return;
 		}
-		MessageGenerator.sendAllChallengesMessage(challenges,response);
+		MessageGenerator.sendChallengeDetailsMessage(challenge,response);	
+		
+	}
+	
+	private boolean isTeamManagerGranted(List<User> users, Challenge challenge) {
+		for(User user : challenge.getUsers()) {
+			for(User managed : users) {
+				if(user.getIdUser().equals(managed.getIdUser())){
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 }

@@ -251,6 +251,24 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		});
 
 	}
+	
+	
+	this.removeUser = function(){
+		var msg = {};
+		msg.action = 'removeUser';
+		var req = {
+				method: 'POST',
+				url: '/user/handler',
+				data: msg,
+		}
+		$http(req).then(function successCallback(response) {
+			$rootScope.$broadcast('removeUser:updated',response.data);
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+	}
+
+	
 
 	this.getUserStats = function(username){
 		var msg = {};
@@ -731,6 +749,26 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 			console.log('ajax error');
 		});
 	}
+	
+	this.getUserReservations = function(){
+		
+		
+		var msg = {};
+		msg.action = 'getUserReservations';   
+
+		var req = {
+				method: 'POST',
+				url: '/user/handler',
+				data: msg,
+		}
+		$http(req).then(function successCallback(response) {
+			if(undefined!=response.data){
+				$rootScope.$broadcast('userReservations:updated',response.data);
+			}
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+	}
 
 	this.getRunningExercises = function(id, regionRaw){
 		var msg = {};
@@ -856,6 +894,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		this.getAvailableExercises(this);
 		this.getChallenges();
 		this.getRunningExercises(this);
+		this.getUserReservations();
 		this.getUserTeamLeaderboard(this);
 		this.getUserHistory(this);
 		this.getUnreadNotifications();
@@ -956,6 +995,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http',f
 			$rootScope.visibility.leaderboard = false;
 			$rootScope.visibility.challenges = false;
 			_st(responsiveView,200);
+			$(window).scrollTop(0);
 			break;
 		case "challenges":
 			$rootScope.visibility.assignedExercises = false;
@@ -968,6 +1008,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http',f
 			$rootScope.visibility.runningExercises = false;
 			$rootScope.visibility.leaderboard = false;
 			$rootScope.visibility.challenges = true;
+			$(window).scrollTop(0);
 			break;
 		case "exercises":
 			if(target[1]=="details"){
@@ -998,6 +1039,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http',f
 				$rootScope.visibility.runningExercises = false;    
 				$rootScope.visibility.leaderboard = false;
 			}
+			$(window).scrollTop(0);
 			break;
 		case "running":
 			$rootScope.visibility.welcome = false;
@@ -1010,6 +1052,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http',f
 			$rootScope.visibility.challenges = false;
 			$rootScope.visibility.exerciseDetails = false;
 			$rootScope.visibility.leaderboard = false;
+			$(window).scrollTop(0);
 			break;
 		case "history":
 			$rootScope.visibility.runningExercises = false;
@@ -1022,6 +1065,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http',f
 			$rootScope.visibility.settings = false;
 			$rootScope.visibility.exerciseDetails = false;
 			$rootScope.visibility.leaderboard = false;
+			$(window).scrollTop(0);
 			break;
 		case "achievements":
 			$rootScope.visibility.leaderboard = false;
@@ -1034,6 +1078,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http',f
 			$rootScope.visibility.achievements = true;
 			$rootScope.visibility.settings = false;
 			$rootScope.visibility.exerciseDetails = false;
+			$(window).scrollTop(0);
 			break;
 		case "settings":
 			$rootScope.visibility.leaderboard = false;
@@ -1046,6 +1091,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http',f
 			$rootScope.visibility.achievements = false;
 			$rootScope.visibility.settings = true;
 			$rootScope.visibility.exerciseDetails = false;
+			$(window).scrollTop(0);
 			break;
 		case "leaderboard":
 			$rootScope.visibility.leaderboard = true;
@@ -1058,6 +1104,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http',f
 			$rootScope.visibility.achievements = false;
 			$rootScope.visibility.settings = false;
 			$rootScope.visibility.exerciseDetails = false;
+			$(window).scrollTop(0);
 			break;
 		default:{
 			$rootScope.visibility.runningExercises = false;    
@@ -1069,6 +1116,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http',f
 			$rootScope.visibility.exerciseDetails = false;
 			$rootScope.visibility.welcome = true;
 			$rootScope.visibility.home = true;
+			$(window).scrollTop(0);
 			break;
 		}
 		}        
@@ -1562,7 +1610,6 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 							notificationService.notify({
 								text: 'Your RTF environment is ready.',
 								type: 'success',
-								hide: false
 							});
 							$scope.asNotStarted = false;
 							return;
@@ -1577,6 +1624,7 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 				}
 				startTimer(cDown, display, preload);
 				server.getRunningExercises();
+				server.getUserReservations();
 			});
 			$('.waitLoader').hide();
 			$("#startExerciseModal").modal('hide');
@@ -1622,6 +1670,12 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 			notificationService.error('Something went wrong...');
 		}
 	}
+	
+	$scope.$on('userReservations:updated', function(event,data) {
+		for(var i=0;i<data.length;i++){
+			pollReservation(data[i].idReservation);
+		}
+	});
 
 	function pollReservation(data){
 		server.pollReservation(data)
@@ -2145,6 +2199,20 @@ rtf.controller('settings',['$scope','server','$timeout',function($scope,server,$
 	$scope.updateUserProfile = function(){
 		server.updateUserProfile($scope.user);
 	}
+	$scope.removeUser = function(){
+		server.removeUser();
+		$('#userRemoveModal').modal('hide');
+	}
+	
+	$scope.openRemoveModal = function(){
+		$('#userRemoveModal').modal('show');
+		
+	}
+	
+	$scope.$on('removeUser:updated', function(event,data) {
+		document.location = "/index.html";
+	})
+	
 	$scope.updateUserPassword = function(){
 		server.updateUserPassword($scope.userPasswordForm.oldPassword.$modelValue, $scope.userPasswordForm.newPassword.$modelValue);
 		$scope.oldPassword = "";

@@ -52,7 +52,7 @@ public class DoLoginAction  extends IAction{
 		String password = passwordElement.getAsString();
 	
 		if(null==username || username.equals("") || null==password || password.equals("")) {
-			MessageGenerator.sendRedirectMessage(Constants.PAGE_INDEX, response);
+			MessageGenerator.sendRedirectMessage(Constants.INDEX_PAGE, response);
 			return;
 		}
 		Integer failedAttempts = hpc.getFailedLoginAttemptsForUser(username);
@@ -64,12 +64,11 @@ public class DoLoginAction  extends IAction{
 				lockedUser.setStatus(UserStatus.LOCKED);
 				hpc.updateUserInfo(lockedUser);
 			}
-			MessageGenerator.sendRedirectMessage(Constants.PAGE_INDEX, response);
+			MessageGenerator.sendRedirectMessage(Constants.INDEX_PAGE, response);
 			return;
 		}
 		
 		User user = hpc.getUser(username, password);
-		
 		
 		UserAuthenticationEvent attempt = new UserAuthenticationEvent();
 		attempt.setUsername(username);
@@ -77,7 +76,7 @@ public class DoLoginAction  extends IAction{
 		if(null != user && user.getUsername()!=null) {
 			if(!user.getStatus().equals(UserStatus.ACTIVE)){
 				logger.warn("Login UNSUCCESSFUL for USER: "+username+" - USER IS: "+user.getStatus());
-				MessageGenerator.sendRedirectMessage(Constants.PAGE_INDEX, response);
+				MessageGenerator.sendRedirectMessage(Constants.INDEX_PAGE, response);
 				return;
 			}
 			request.getSession().invalidate();
@@ -87,11 +86,11 @@ public class DoLoginAction  extends IAction{
 			CSRFTokenUtils.setToken(request.getSession());
 			if(user.getRole()<=Constants.ROLE_STATS){
 				logger.debug("Login successful for ADMIN: "+user.getUsername());
-				MessageGenerator.sendRedirectMessage(Constants.PAGE_ADMIN, response);
+				MessageGenerator.sendRedirectMessage(Constants.MGMT_HOME, response);
 			}
 			else{
 				logger.debug("Login successful for USER: "+user.getUsername());
-				MessageGenerator.sendRedirectMessage(Constants.PAGE_USER, response);		
+				MessageGenerator.sendRedirectMessage(Constants.USER_HOME, response);		
 			}
 			hpc.setFailedLoginAttemptsForUser(username,0);
 			attempt.setSessionIdHash(DigestUtils.sha256Hex(request.getSession().getId()));
@@ -105,8 +104,7 @@ public class DoLoginAction  extends IAction{
 			attempt.setLoginDate(new Date());
 			hpc.addLoginEvent(attempt);
 			logger.warn("Login UNSUCCESSFUL for USER: "+username);
-			MessageGenerator.sendRedirectMessage(Constants.PAGE_INDEX, response);
+			MessageGenerator.sendRedirectMessage(Constants.INDEX_PAGE, response);
 		}	
 	}
-
 }

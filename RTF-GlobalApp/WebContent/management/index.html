@@ -54,7 +54,7 @@
 								href="#organizations">ORGS</a></li>
 							<li ng-show="user.r==0"
 								ng-class="{'active' : visibility.gateways }" class="ng-cloak"><a
-								class="navbarA" href="#gateways">SATELLITE GATEWAYS</a></li>
+								class="navbarA" href="#gateways">REGIONAL GATEWAYS</a></li>
 							<li ng-show="user.r<=1 || user.r==4" class="ng-cloak"
 								ng-class="{'active' : visibility.users }"><a
 								class="navbarA" href="#users">USERS</a></li>
@@ -62,7 +62,10 @@
 								class="navbarA" href="#teams">TEAMS</a></li>
 							<li ng-class="{'active' : visibility.availableExercises }"
 								class="ng-cloak" ng-show="user.r <= 3"><a class="navbarA"
-								href="#available-exercises">EXERCISES</a></li>
+								href="#available-exercises">AVAILABLE EXERCISES</a></li>
+							<li ng-class="{'active' : visibility.running }" class="ng-cloak"
+								ng-show="user.r <= 3"><a class="navbarA"
+								href="#running-exercises">RUNNING EXERCISES</a></li>
 							<li ng-class="{'active' : visibility.challenges }"
 								class="ng-cloak"><a class="navbarA" href="#challenges">CHALLENGES</a></li>
 							<li class="ng-cloak" ng-show="user.r <= 3"
@@ -240,36 +243,25 @@
 										</div>
 
 									</div>
-									<div class="row">
-										<div class="col-md-3">
-											<h5>Contact Name</h5>
-											<input class="fInput" required type="text"
-												ng-model="newOrg.contactName">
-										</div>
-										<div class="col-md-3">
-											<h5>Contact Telephone</h5>
-											<input class="fInput" required type="text"
-												ng-model="newOrg.contactTelephone">
-										</div>
+
+									<div class="row marginTop15">
 										<div class="col-md-3">
 											<h5>Contact Email</h5>
 											<input class="fInput" required type="email"
 												ng-model="newOrg.contactEmail">
 										</div>
-									</div>
-									<div class="row marginTop15">
 										<div class="col-md-3">
 											<h5>Max Users</h5>
 											<input class="fInput right" required type="number"
 												ng-model="newOrg.maxUsers">
 
 										</div>
-										<div class="col-md-6">
+										<!-- <div class="col-md-6">
 											<h5>Email domains allowed for signup (comma separated)</h5>
 											<textarea class="domainTextearea"
 												placeholder="remediatetheflag.com, rtf.com"
 												ng-model="newOrg.allowedDomains"></textarea>
-										</div>
+										</div> -->
 
 
 									</div>
@@ -754,7 +746,7 @@
 					<div class="card paddingBottom10">
 						<div class="card-header">{{exerciseDetails.technology}}</div>
 						<div class="row marginLeft0">
-							<div class="col-md-8">
+							<div class="col-md-10">
 								<h4 class="card-title">{{exerciseDetails.title}}</h4>
 								<h6 class="card-subtitle text-muted">{{exerciseDetails.subtitle}}</h6>
 								<div class="">
@@ -764,17 +756,21 @@
 											{{exerciseDetails.duration}} minutes</small><small class="text-muted">
 											| Difficulty: {{exerciseDetails.difficulty}} </small>
 									</p>
-									<div ng-show="exerciseDetails.res.length>0">
-										<h5>Resources:</h5>
+									<div class="suggestedReadings"
+										ng-show="exerciseDetails.res.length>0">
+										<h5>Suggested Readings:</h5>
 										<p class="card-text">
 											<small ng-repeat="r in exerciseDetails.res">
 												{{r.name}} : <a target="_blank" href="{{r.url}}">Link</a><br />
 											</small>
 										</p>
 									</div>
+									<hr>
 									<div>
 										<div class="col-md-2">
-											<h5>Exercise Reference</h5>
+											<h5>
+												Exercise</br>Reference
+											</h5>
 											<img src="/assets/img/down.png"
 												class="downloadReferenceIconMgm">
 											<p class="inlineBlock">
@@ -784,26 +780,31 @@
 
 										</div>
 										<div class="col-md-2">
-											<h5>Exercise Solution</h5>
+											<h5>
+												Exercise</br>Solution
+											</h5>
 											<img src="/assets/img/down.png"
 												class="downloadReferenceIconMgm">
 											<p class="inlineBlock">
 												<a ng-click="downloadSolutions(exerciseDetails.id)" href="">Download</a>
 											</p>
 										</div>
-										<div class="col-md-3">
+										<div class="col-md-4">
 											<h5>Available in Regions:</h5>
 											<div class="marginTop34">
-												<p ng-repeat="r in availableRegions | orderBy">- {{r}}</p>
+												<p ng-repeat="r in availableRegions | orderBy">
+													- {{r.region}} <small class="text-muted">&nbsp;({{r.active
+														&& 'enabled' || 'disabled'}})&nbsp;</small>
+												</p>
 												<p class="noResult" ng-show="availableRegions.length==0">No
 													regions enabled</p>
 												<button ng-show="user.r==0"
 													ng-click="manageTaskDefinitions(exerciseDetails.id)"
-													class="btn btn-sm  btn-block btn-info enableButtons">Add/Remove
-													Regions</button>
+													class="btn btn-sm  btn-block btn-info enableButtons">Manage
+													Exercise Regions</button>
 											</div>
 										</div>
-										<div class="col-md-5">
+										<div class="col-md-4">
 											<h5>Available for Organizations:</h5>
 											<div ng-repeat="org in user.organizations"
 												class="marginTop23">
@@ -939,29 +940,161 @@
 
 				<div class="modal fade" id="addRemoveRegionsModal" tabindex="-1"
 					role="dialog" aria-labelledby="myModalLabel">
-					<div class="modal-dialog" role="document">
+					<div class="modal-dialog modal-lg" role="document">
 						<div class="modal-content">
 							<div class="modal-header">
 								<button type="button" class="close" data-dismiss="modal"
 									aria-label="Close">
 									<span aria-hidden="true">&times;</span>
 								</button>
-								<h3 class="modal-title modalHeader">Add/Remove Exercise
-									Regions</h3>
+								<h3 class="modal-title modalHeader">Manage Available
+									Regions for Exercise</h3>
 							</div>
-							<div class="modal-body">
-								<form name="addRemoveRegionsForm">
-									<div class="row">
-										<p ng-repeat="r in availableRegions | orderBy">- {{r}}</p>
+							<div class="modal-body regionsModal">
+
+								<div class="row">
+									<div class="col-md-5">
+										<h4>Task Definitions List</h4>
 									</div>
-								</form>
+									<div class="col-md-6">
+										<h4>Add Task Definition</h4>
+									</div>
+
+								</div>
+								<div class="col-md-5 regionsModalLeft">
+
+									<div class="regionsModalLeftContent">
+										<div class="col-md-12 paddingLeft0 paddingRight0"
+											ng-repeat="r in availableRegions | orderBy: 'updateDate'">
+											<p class="marginBottom5">
+												<small class="text-muted">Container Family:</small><small>&nbsp;{{r.name}}&nbsp;</small><br />
+												<small class="text-muted">Region:</small><small>&nbsp;{{r.region}}&nbsp;</small>&nbsp;|&nbsp;<small
+													class="text-muted">Container:</small><small>&nbsp;{{r.containerName}}&nbsp;</small>
+												<br /> <small class="text-muted">Status:</small><small>&nbsp;{{r.active
+													&& 'enabled' || 'disabled'}}&nbsp;</small>&nbsp;|&nbsp;<small
+													class="text-muted">Updated:</small><small>&nbsp;{{r.updateDate}}&nbsp;</small>
+
+											</p>
+											<button ng-show="!r.active"
+												ng-click="enableExerciseInRegion(exerciseDetails.id, r.taskId)"
+												class="btn btn-sm btn-success ecsTaskButtons">Enable</button>
+											<button ng-show="r.active"
+												ng-click="disableExerciseInRegion(exerciseDetails.id, r.taskId)"
+												class="btn btn-sm btn-warning ecsTaskButtons">Disable</button>
+											<button ng-click="fillRevisionForm(r)"
+												class="btn btn-sm btn-info ecsTaskButtons">Add
+												Revision</button>
+											<button ng-show="!r.active"
+												ng-click="removeExerciseInRegion(exerciseDetails.id, r.taskId)"
+												class="btn btn-sm btn-danger ecsTaskButtons">Remove</button>
+										</div>
+										<div class="marginLeft5" ng-show="availableRegions.length==0">
+											<p>There are no Task Definitions for this exercise.</p>
+											<p>A task definition is necessary for each region where
+												you want to run the exercise.</p>
+											<p>Please add a Task Definition using the form on the
+												right.</p>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-7 paddingLeft0 paddingRight0">
+									<form name="addRemoveTaskDefinitionsForm">
+										<div class="col-md-12">
+											<h5 class="inlineBlock">Region</h5>
+											<i class="fa fa-info-circle inlineBlock marginLeft5" tooltips
+												tooltip-template="Choose the region in which the exercise will be available. To define exercises in additional regions, provision new Regional Gateways."
+												tooltip-side="top"></i> <br />
+											<ol class="nya-bs-select" required
+												ng-model="newTaskDefinition.region" data-size="20"
+												data-live-search="true">
+												<li nya-bs-option="reg in definedGateways | orderBy:'name'"><a>
+														{{reg.region}} <small>{{regionNameFromCode(reg.region)}}</small>
+														<span class="glyphicon glyphicon-ok check-mark"></span>
+												</a></li>
+											</ol>
+
+										</div>
+										<div class="col-md-6">
+											<h5 class="inlineBlock">Container Family</h5>
+											<i class="fa fa-info-circle inlineBlock marginLeft5" tooltips
+												tooltip-side="top"
+												tooltip-template="Between 3-255 letters. Uppercase and lowercase, numbers, hyphens, and underscores are allowed."></i>
+											<input placeholder="rtf-vulnerableapp-exercise-xss"
+												class="fInput" required pattern="^[a-zA-Z0-9_-]{3,255}$"
+												type="text" ng-model="newTaskDefinition.taskDefinitionName">
+										</div>
+										<div class="col-md-6">
+											<h5 class="inlineBlock">Container Name</h5>
+											<i class="fa fa-info-circle inlineBlock marginLeft5" tooltips
+												tooltip-side="top"
+												tooltip-template="Between 3-255 letters. Uppercase and lowercase, numbers, hyphens, and underscores are allowed."></i>
+											<input placeholder="vapp-exercise-xss-1.0" class="fInput"
+												pattern="^[a-zA-Z0-9_-]{3,255}$" required type="text"
+												ng-model="newTaskDefinition.containerName">
+										</div>
+										<div class="col-md-12">
+											<h5 class="inlineBlock">AWS ECR Image URL</h5>
+											<i class="fa fa-info-circle inlineBlock marginLeft5" tooltips
+												tooltip-side="top"
+												tooltip-template="AWS Elastic Container Registry URL for Container Image."></i>
+											<input
+												placeholder="123456789123.dkr.ecr.eu-west-1.amazonaws.com/exercises/vapp:latest"
+												class="fInput" required type="text"
+												ng-model="newTaskDefinition.imageUrl">
+										</div>
+										<div class="col-md-4">
+											<h5 class="inlineBlock width83">Minimum Memory
+												Reservation (MB)</h5>
+											<i class="fa fa-info-circle inlineBlock marginLeft5" tooltips
+												tooltip-side="top"
+												tooltip-template="Amount of memory reserved for the container; however, the container can request up to the maximum limit"></i>
+											<input placeholder="1400" min="50" max="3000"
+												class="fInput right" required type="number"
+												ng-model="newTaskDefinition.softMemory">
+										</div>
+										<div class="col-md-4">
+											<h5 class="inlineBlock width83">Maximum Memory
+												Allocation (MB)</h5>
+											<i class="fa fa-info-circle inlineBlock marginLeft5" tooltips
+												tooltip-side="top"
+												tooltip-template=" The container will be killed if it attempts to exceed this limit."></i>
+											<input placeholder="2500" min="500" max="5000"
+												class="fInput right" required type="number"
+												ng-model="newTaskDefinition.hardMemory">
+										</div>
+										<div class="col-md-4">
+											<h5>
+												Task Definition<br /> Status
+											</h5>
+											<toggle class="gatewayToggle" onstyle="btn-success"
+												ng-model="newTaskDefinition.status" on="Enabled"
+												off="Disabled"></toggle>
+										</div>
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-6">
+													<button type="button"
+														ng-disabled="addRemoveTaskDefinitionsForm.$pristine"
+														ng-click="clearTaskDefinitionForm()"
+														class="btn btn-block btn-default addTaskButton">
+														Clear Form</button>
+												</div>
+												<div class="col-md-6">
+													<button type="button"
+														ng-disabled="addRemoveTaskDefinitionsForm.$invalid"
+														ng-click="addTaskDefinition()"
+														class="btn btn-block btn-primary addTaskButton">Add
+														Task Definition</button>
+												</div>
+											</div>
+										</div>
+									</form>
+								</div>
 							</div>
-							<div class="modal-footer">
+							<div class="modal-footer ecsModalFooter">
 								<button type="button" class="btn btn-default"
 									data-dismiss="modal">Close</button>
-								<button type="button"
-									ng-disabled="addRemoveRegionsForm.$error.required"
-									ng-click="saveExerciseRegions" class="btn btn-primary">Save</button>
+
 							</div>
 						</div>
 					</div>
@@ -1161,12 +1294,46 @@
 								</canvas>
 								</div>
 							</div>
+							<div ng-show="user.r==0" class="row centered">
+
+								<h4 class="marginTop30 marginBottom20">Delete User Account</h4>
+
+								<button ng-click="deleteUserAccountModal()"
+									class="btn btn-danger outline">Delete User</button>
+
+							</div>
 						</div>
 
 					</div>
 				</div>
 
-
+				<div id="deleteUserAccountModal" class="modal fade" tabindex="-1"
+					role="dialog">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal"
+									aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+								<h4 class="modal-title">Delete Account</h4>
+							</div>
+							<div class="modal-body">
+								<p class="lead">
+									You are about to delete the account for user <strong>{{selectedUser}}</strong>
+									. This action is not reversible.
+								</p>
+							</div>
+							<div class="modal-footer">
+								<button ng-click="deleteUserAccount(selectedUser)" type="button"
+									class="btn btn-danger" data-dismiss="modal">Delete
+									Account</button>
+								<button type="button" class="btn btn-default"
+									data-dismiss="modal">Close</button>
+							</div>
+						</div>
+					</div>
+				</div>
 
 				<div class="modal fade" id="addUserModal" tabindex="-1"
 					role="dialog" aria-labelledby="myModalLabel">
@@ -2199,7 +2366,7 @@
 				<div class="row ">
 					<button ng-click="addGatewayModal()"
 						class="backToOrgs btn btn-info btn-lg">Add Gateway</button>
-					<h2 class="eblue centered">Satellite Gateways</h2>
+					<h2 class="eblue centered">Regional Gateways</h2>
 					<div>
 						<div ng-show="masterGateways.length>0">
 							<div class="tableFilter">
@@ -2233,7 +2400,7 @@
 								at-config="gatewaystableconfig"></at-pagination>
 							<p class="lead tableFilterResultsPending">Showing
 								{{filteredGatewaysList.length}} out of {{masterGateways.length}}
-								{{ masterGateways.length==1 && 'satellite gateway' || 'satellite
+								{{ masterGateways.length==1 && 'regional gateway' || 'regional
 								gateways'}}.</p>
 						</div>
 						<div class="centered marginTop20"
@@ -2265,7 +2432,7 @@
 								<div class="row">
 									<div class="col-md-3">
 										<h5>Name</h5>
-										<input placeholder="EU Satellite Gateway" class="fInput"
+										<input placeholder="EU Regional Gateway" class="fInput"
 											required type="text" ng-model="newGateway.name">
 									</div>
 
@@ -2321,7 +2488,54 @@
 			</div>
 
 		</div>
+		<div class="standalone ng-cloak" id="runing"
+			ng-show="visibility.running" ng-controller="runningExercises">
+			<div class="container">
+				<div class="row">
+					<h2 class="eblue centered">Running Exercises</h2>
+				</div>
+				<div ng-show="masterRunning.length>0">
+					<div class="tableFilter">
 
+						<p class="lead inlineBlock">Filter:</p>
+						<input placeholder="Type to filter..."
+							ng-change="updateFilteredList()" ng-model="query"
+							class="queryInput">
+					</div>
+					<table at-table at-paginated at-list="filteredRunningList"
+						at-config="runningtableconfig" class="table table-hover">
+						<thead>
+						</thead>
+						<tbody>
+							<tr ng-class="{active: $index===selectedRunningRow}">
+								<td at-attribute="id" at-sortable at-title="Id">RTF{{item.id}}</td>
+								<td at-attribute="exerciseName" at-sortable at-title="Exercise">{{item.exercise.title}}</td>
+								<td at-attribute="technology" at-sortable at-title="Tech.">{{item.exercise.technology}}</td>
+								<td at-initial-sorting="desc" at-attribute="st" at-sortable
+									at-title="Start Time">{{item.startTime}}</td>
+								<td at-initial-sorting="desc" at-attribute="st" at-sortable
+									at-title="End Time">{{item.endTime}}</td>
+								<td at-attribute="type" at-sortable at-title="Type">{{item.type
+									| capitalize}}</td>
+								<td width="100" at-attribute="region" at-sortable
+									at-title="Region">{{getRegionFromCode(item.region)}}</td>
+								<td at-attribute="organization.name" at-sortable at-title="Org.">{{item.organization.name}}</td>
+								<td></td>
+							</tr>
+						</tbody>
+					</table>
+					<at-pagination class="inlineBlock" at-list="filteredRunningList"
+						at-config="runningtableconfig"></at-pagination>
+					<p class="lead tableFilterResultsPending">Showing
+						{{filteredRunningList.length}} out of {{masterRunning.length}} {{
+						masterRunning.length==1 && 'running exercise' || 'running
+						exercises'}}.</p>
+				</div>
+				<div class="centered marginTop20" ng-show="masterRunning.length<=0">
+					<p>There are no running exercises.</p>
+				</div>
+			</div>
+		</div>
 
 		<div class="standalone ng-cloak" id="settings"
 			ng-show="visibility.settings" ng-controller="settings">
@@ -2426,6 +2640,44 @@
 						</div>
 					</form>
 				</div>
+				<form class="left" name="deleteAccountForm" novalidate>
+
+					<div class="row marginTop20">
+						<div>
+							<h4>Delete Account</h4>
+						</div>
+					</div>
+					<div class="row marginTop20">
+
+						<button type="button" ng-click="openRemoveModal()"
+							class="btn btn-danger">Delete</button>
+					</div>
+				</form>
+			</div>
+			<div id="userRemoveModal" class="modal fade" tabindex="-1"
+				role="dialog">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal"
+								aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+							<h4 class="modal-title">Delete Account</h4>
+						</div>
+						<div class="modal-body">
+							<p class="lead">You are about to delete your account. This
+								action is not reversible.</p>
+						</div>
+						<div class="modal-footer">
+							<button ng-click="removeUser()" type="button"
+								class="btn btn-danger" data-dismiss="modal">Delete
+								Account</button>
+							<button type="button" class="btn btn-default"
+								data-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 		<!-- *****************************************************************************************************************
@@ -2434,22 +2686,7 @@
 		<div id="footerwrap">
 			<div class="container">
 				<p class="center">RTF - 2018</p>
-				<!--<div class="row">
-						<div class="col-lg-8">
-							<h4>About</h4>
-							<div class="hline-w"></div>
-							<p>RTF is an open source platform to teach developers about
-								application security topics.</p>
-						</div>
-						<div class="col-lg-4">
-							<h4>Contacts</h4>
-							<div class="hline-w"></div>
-							<a class="emailContact"
-								href="mailto:support@remediatetheflag.com ">
-								support@remediatetheflag.com </a>
-						</div>
 
-					</div>  -->
 			</div>
 		</div>
 		<!-- <span us-spinner></span>-->
@@ -2480,23 +2717,8 @@
 	<script src="/assets/js/chart.min.js"></script>
 	<script src="/assets/js/Chart.PieceLabel.min.js"></script>
 	<script src="/assets/js/angular-chart.min.js"></script>
+	<script src="/assets/js/angular-tooltips.min.js"></script>
 	<script src="/management/js/management.js"></script>
-	<!-- <script type="text/javascript">
-		var _paq = _paq || [];
-		_paq.push([ 'trackPageView' ]);
-		_paq.push([ 'enableLinkTracking' ]);
-		(function() {
-			var u = "https://analytics.remediatetheflag.com/piwik/";
-			_paq.push([ 'setTrackerUrl', u + 'piwik.php' ]);
-			_paq.push([ 'setSiteId', '1' ]);
-			var d = document, g = d.createElement('script'), s = d
-					.getElementsByTagName('script')[0];
-			g.type = 'text/javascript';
-			g.async = true;
-			g.defer = true;
-			g.src = u + 'piwik.js';
-			s.parentNode.insertBefore(g, s);
-		})();
-	</script> -->
+
 </body>
 </html>

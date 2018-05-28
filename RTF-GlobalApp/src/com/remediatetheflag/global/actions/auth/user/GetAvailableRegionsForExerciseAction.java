@@ -51,12 +51,12 @@ public class GetAvailableRegionsForExerciseAction extends IAction {
 		User sessionUser = (User) request.getSession().getAttribute(Constants.ATTRIBUTE_SECURITY_CONTEXT);	
 
 		for(RTFGateway gw : regions){
-			RTFECSTaskDefinition task = hpc.getTaskDefinitionForExerciseInRegion(idExercise, gw.getRegionId(),sessionUser.getDefaultOrganization());
+			RTFECSTaskDefinition task = hpc.getTaskDefinitionForExerciseInRegion(idExercise, gw.getRegion(),sessionUser.getDefaultOrganization());
 			if(null!=task){
-				availableRegions.add(gw.getRegionId());
+				availableRegions.add(gw.getRegion());
 			}
 			else{
-				logger.error("Exercise "+idExercise+" doesn't have a TaskDefinition in region "+gw.getRegionId().getName());
+				logger.error("Exercise "+idExercise+" doesn't have a TaskDefinition in region "+gw.getRegion().getName());
 			}
 		}
 		MessageGenerator.sendExerciseRegionsMessage(availableRegions,response);

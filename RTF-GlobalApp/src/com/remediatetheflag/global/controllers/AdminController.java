@@ -32,10 +32,53 @@ public class AdminController extends ActionsController {
 
 	@SuppressWarnings({ "rawtypes", "serial" })
 	public AdminController(){
-
+		
+		type2action.put("removeUser", com.remediatetheflag.global.actions.auth.management.admin.RemoveUserAction.class);
+		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.ResetUserPasswordAction.class, new HashMap<String, Class[]>() {{
+			put(Constants.ACTION_PARAM_USERNAME, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+		}});
+		type2action.put("addTaskDefinition", com.remediatetheflag.global.actions.auth.management.admin.AddExerciseInRegionAction.class);
+		type2classValidator.put("addTaskDefinition", com.remediatetheflag.global.actions.auth.management.admin.validators.AddExerciseInRegionValidator.class);
+		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.AddExerciseInRegionAction.class, new HashMap<String, Class[]>() {{
+			put(Constants.ACTION_PARAM_EXERCISE_ID, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			}
+					);
+			put(Constants.ACTION_PARAM_REGION, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_TASK_DEFINITION_NAME, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_CONTAINER_NAME, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_SOFT_MEMORY, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			}
+					);
+			put(Constants.ACTION_PARAM_HARD_MEMORY, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			}
+					);
+			put(Constants.ACTION_PARAM_REPO_URL, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorURL.class
+			}
+					);
+			put(Constants.ACTION_PARAM_STATUS, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorBoolean.class
+			}
+					);
+		}});
 		type2action.put("getAWSRegions", com.remediatetheflag.global.actions.auth.management.admin.GetAWSRegionsAction.class);
-		type2action.put("deleteGateway", com.remediatetheflag.global.actions.auth.management.admin.DeleteSatelliteGatewayAction.class);
-		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.DeleteSatelliteGatewayAction.class, new HashMap<String, Class[]>() {{
+		type2action.put("deleteGateway", com.remediatetheflag.global.actions.auth.management.admin.RemoveSatelliteGatewayAction.class);
+		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.RemoveSatelliteGatewayAction.class, new HashMap<String, Class[]>() {{
 			put(Constants.ACTION_PARAM_ID, new Class[]{
 					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
 			});
@@ -79,7 +122,7 @@ public class AdminController extends ActionsController {
 			}
 					);
 		}});
-		type2action.put("getOrganizations", com.remediatetheflag.global.actions.auth.management.admin.GetOrganizationsActions.class);
+		type2action.put("getOrganizations", com.remediatetheflag.global.actions.auth.management.admin.GetOrganizationsAction.class);
 		type2action.put("checkOrganizationNameAvailable", com.remediatetheflag.global.actions.auth.management.admin.CheckOrganizationNameAvailable.class);
 		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.CheckOrganizationNameAvailable.class, new HashMap<String, Class[]>() {{
 			put(Constants.ACTION_PARAM_NAME, new Class[]{
@@ -87,8 +130,37 @@ public class AdminController extends ActionsController {
 			}
 					);
 		}});
-		type2action.put("enableExerciseForOrg", com.remediatetheflag.global.actions.auth.management.admin.EnableAvailableExerciseForOrganization.class);
-		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.EnableAvailableExerciseForOrganization.class, new HashMap<String, Class[]>() {{
+		
+		type2action.put("removeExerciseInRegion", com.remediatetheflag.global.actions.auth.management.admin.RemoveExerciseFromRegionAction.class);
+		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.RemoveExerciseFromRegionAction.class, new HashMap<String, Class[]>() {{
+			put(Constants.ACTION_PARAM_EXERCISE_ID, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			});
+			put(Constants.ACTION_PARAM_TASK_DEFINITION_ID, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			});
+		}});
+		type2action.put("enableExerciseInRegion", com.remediatetheflag.global.actions.auth.management.admin.EnableExerciseInRegionAction.class);
+		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.EnableExerciseInRegionAction.class, new HashMap<String, Class[]>() {{
+			put(Constants.ACTION_PARAM_EXERCISE_ID, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			});
+			put(Constants.ACTION_PARAM_TASK_DEFINITION_ID, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			});
+		}});
+		type2action.put("disableExerciseInRegion", com.remediatetheflag.global.actions.auth.management.admin.DisableExerciseInRegionAction.class);
+		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.DisableExerciseInRegionAction.class, new HashMap<String, Class[]>() {{
+			put(Constants.ACTION_PARAM_EXERCISE_ID, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			});
+			put(Constants.ACTION_PARAM_TASK_DEFINITION_ID, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			});
+		}});
+		
+		type2action.put("enableExerciseForOrg", com.remediatetheflag.global.actions.auth.management.admin.EnableAvailableExerciseForOrganizationAction.class);
+		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.EnableAvailableExerciseForOrganizationAction.class, new HashMap<String, Class[]>() {{
 			put(Constants.ACTION_PARAM_ORG_ID, new Class[]{
 					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
 			}
@@ -97,8 +169,8 @@ public class AdminController extends ActionsController {
 					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
 			});
 		}});
-		type2action.put("disableExerciseForOrg", com.remediatetheflag.global.actions.auth.management.admin.DisableAvailableExerciseForOrganization.class);
-		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.DisableAvailableExerciseForOrganization.class, new HashMap<String, Class[]>() {{
+		type2action.put("disableExerciseForOrg", com.remediatetheflag.global.actions.auth.management.admin.DisableAvailableExerciseForOrganizationAction.class);
+		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.DisableAvailableExerciseForOrganizationAction.class, new HashMap<String, Class[]>() {{
 			put(Constants.ACTION_PARAM_ORG_ID, new Class[]{
 					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
 			}
@@ -153,8 +225,8 @@ public class AdminController extends ActionsController {
 			}
 					);
 		}});
-		type2action.put("deleteTeam", com.remediatetheflag.global.actions.auth.management.admin.DeleteTeamAction.class);
-		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.DeleteTeamAction.class, new HashMap<String, Class[]>() {{
+		type2action.put("deleteTeam", com.remediatetheflag.global.actions.auth.management.admin.RemoveTeamAction.class);
+		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.RemoveTeamAction.class, new HashMap<String, Class[]>() {{
 			put(Constants.ACTION_PARAM_TEAM_ID, new Class[]{
 					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
 			}

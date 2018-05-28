@@ -871,7 +871,11 @@ csmall2 {
 	
 	
 	
+	
+	
 	 
+	
+	
 	
 	
 	
@@ -903,6 +907,10 @@ csmall2 {
 	
 	
 	
+	
+	
+	
+	
 	:not
 	
 	
@@ -914,7 +922,11 @@ csmall2 {
 	
 	
 	
+	
+	
 	 
+	
+	
 	
 	
 	
@@ -937,7 +949,11 @@ csmall2 {
 	
 	
 	
+	
+	
 	 
+	
+	
 	
 	
 	
@@ -960,7 +976,11 @@ csmall2 {
 	
 	
 	
+	
+	
 	 
+	
+	
 	
 	
 	
@@ -983,7 +1003,11 @@ csmall2 {
 	
 	
 	
+	
+	
 	 
+	
+	
 	
 	
 	
@@ -1017,6 +1041,10 @@ csmall2 {
 	
 	
 	
+	
+	
+	
+	
 	:
 	
 	
@@ -1028,7 +1056,11 @@ csmall2 {
 	
 	
 	
+	
+	
 	 
+	
+	
 	
 	
 	
@@ -1161,8 +1193,16 @@ csmall2 {
 	text-align: justify;
 }
 
+.marginLeft20 {
+	margin-left: 20px;
+}
+
 .marginTop3 {
 	margin-top: 3%;
+}
+
+.marginLeft5 {
+	margin-left: 5px;
 }
 
 .marginTop15 {
@@ -1220,6 +1260,18 @@ csmall2 {
 .paddingLeftRight0 {
 	padding-left: 0px;
 	padding-right: 0px;
+}
+
+.paddingLeft0 {
+	padding-left: 0px !important;
+}
+
+.paddingRight0 {
+	padding-right: 0px !important;
+}
+
+.paddingRight8P {
+	padding-right: 8%;
 }
 
 .theadSpace {
@@ -2025,7 +2077,7 @@ a.dropdown-item {
 }
 
 .navbar-nav {
-	width: 100%;
+    width: 103%;
 	height: 55px;
 	text-align: center;
 }
@@ -2075,6 +2127,18 @@ a.dropdown-item {
 	margin-top: 7px;
 }
 
+.ecsTaskButtons {
+	padding: 3px;
+	margin-bottom: 5px;
+	border-radius: 6px;
+	margin-right: 4px;
+}
+
+.editEcsTaskButtons {
+	padding-left: 10px !important;
+	padding-right: 10px !important;
+}
+
 .enableOrg {
 	display: inline-block;
 }
@@ -2093,4 +2157,39 @@ a.dropdown-item {
 
 .gatewayRegion {
 	margin-top: 20px;
+}
+
+.regionsModalLeft {
+	height: 360px;
+	overflow-y: scroll;
+	padding-left: 0px;
+}
+
+.regionsModalLeftContent {
+	min-height: 101%;
+}
+
+.regionsModal {
+	height: 430px;
+	padding-top: 2px;
+}
+
+.ecsModalFooter {
+	padding-top: 8px;
+	padding-bottom: 8px;
+}
+
+.addTaskButton {
+	margin-top: 13px;
+}
+
+.suggestedReadings {
+	margin-bottom: 5px;
+}
+
+.width83 {
+	width: 83%;
+}
+.marginTop3P{
+	margin-top:3%;
 }

@@ -31,6 +31,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.amazonaws.regions.Regions;
+import com.google.gson.annotations.Expose;
 
 @Entity(name = "RTFECSTaskDefinition")
 @Table( name = "ecsTaskDefinitions" )
@@ -38,22 +39,31 @@ public class RTFECSTaskDefinition {
 
 	@Id
 	@Column(name = "idImage")
+	@Expose
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Integer id;
 	
 	@Column(name = "taskDefinitionName")
+	@Expose
 	private String taskDefinitionName;
 	
+	@Column(name = "taskDefinitionArn")
+	private String taskDefinitionArn;
+	
 	@Column(name = "containerName")
+	@Expose
 	private String containerName;
 	
 	@Column(name = "repositoryImageUrl")
+	@Expose
 	private String repositoryImageUrl;
 	
 	@Column(name = "softMemoryLimit")
+	@Expose
 	private Integer softMemoryLimit;
 	
 	@Column(name = "hardMemoryLimit")
+	@Expose
 	private Integer hardMemoryLimit;
 	
     @Enumerated(EnumType.STRING)
@@ -61,10 +71,8 @@ public class RTFECSTaskDefinition {
 	private Regions region;
 
 	@Column(name = "updateDate")
+	@Expose
 	private Date updateDate;
-	
-	@Column(name = "isActive")
-	private Boolean active;
 
 	public Integer getId() {
 		return id;
@@ -106,14 +114,6 @@ public class RTFECSTaskDefinition {
 		this.containerName = containerName;
 	}
 
-	public Boolean getActive() {
-		return active;
-	}
-
-	public void setActive(Boolean active) {
-		this.active = active;
-	}
-
 	public String getRepositoryImageUrl() {
 		return repositoryImageUrl;
 	}
@@ -136,6 +136,14 @@ public class RTFECSTaskDefinition {
 
 	public void setHardMemoryLimit(Integer hardMemoryLimit) {
 		this.hardMemoryLimit = hardMemoryLimit;
+	}
+
+	public String getTaskDefinitionArn() {
+		return taskDefinitionArn;
+	}
+
+	public void setTaskDefinitionArn(String taskDefinitionArn) {
+		this.taskDefinitionArn = taskDefinitionArn;
 	}
 
 

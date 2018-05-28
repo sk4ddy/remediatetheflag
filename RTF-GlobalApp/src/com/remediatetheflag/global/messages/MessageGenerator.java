@@ -62,6 +62,7 @@ import com.remediatetheflag.global.model.FlagQuestionHint;
 import com.remediatetheflag.global.model.Notification;
 import com.remediatetheflag.global.model.Organization;
 import com.remediatetheflag.global.model.PendingReview;
+import com.remediatetheflag.global.model.RTFECSTaskDefinitionForExerciseInRegion;
 import com.remediatetheflag.global.model.RTFGateway;
 import com.remediatetheflag.global.model.RTFInstanceReservation;
 import com.remediatetheflag.global.model.Stats;
@@ -314,7 +315,14 @@ public class MessageGenerator {
 		send(json,response);
 
 	}
+	
+	
+	public static void sendUserReservationsMessage(List<RTFInstanceReservation> reservations, HttpServletResponse response) {
+		Gson gson = new GsonBuilder().addSerializationExclusionStrategy(excludedLazyObjects).excludeFieldsWithoutExposeAnnotation().create();
+		String json = gson.toJson(reservations);
+		send(json,response);
 
+	}
 	public static void sendUserRunningExercisesMessage(List<ExerciseInstance> exercises, HttpServletResponse response) {
 		Gson gson = new GsonBuilder().addSerializationExclusionStrategy(excludedLazyObjects).excludeFieldsWithoutExposeAnnotation().create();
 		String json = gson.toJson(exercises);
@@ -523,6 +531,17 @@ public class MessageGenerator {
 	public static void sendAWSRegionsMessage(List<SupportedAWSRegion> regions, HttpServletResponse response) {
 		Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 		String json = gson.toJson(regions);
+		send(json,response);
+	}
+	public static void sendExerciseTaskDefinitionsMessage(List<RTFECSTaskDefinitionForExerciseInRegion> tasks, HttpServletResponse response) {
+		Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+		String json = gson.toJson(tasks);
+		send(json,response);
+	}
+
+	public static void sendRunningExercisesMessage(List<ExerciseInstance> runningExercises, HttpServletResponse response) {
+		Gson gson = new GsonBuilder().addSerializationExclusionStrategy(excludedLazyObjects).excludeFieldsWithoutExposeAnnotation().create();
+		String json = gson.toJson(runningExercises);
 		send(json,response);
 	}
 }

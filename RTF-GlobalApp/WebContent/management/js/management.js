@@ -155,7 +155,7 @@ $(document).ready(function(){
 		});
 	})
 });
-var rtf = angular.module('rtfNg',['nya.bootstrap.select','jlareau.pnotify','ngRoute','ui.toggle','angular-table','chart.js','angular-notification-icons','angularSpinner']);
+var rtf = angular.module('rtfNg',['nya.bootstrap.select','jlareau.pnotify','ngRoute','ui.toggle','angular-table','chart.js','angular-notification-icons','angularSpinner','720kb.tooltips']);
 
 
 //register the interceptor as a service
@@ -211,7 +211,11 @@ rtf.directive('complexPassword', function() {
 });
 rtf.service('server',function($http,$timeout,$rootScope,notificationService,$interval){ 
 
+	var $this = this; 
 	this.countries = [];
+
+	this.supportedAwsRegions = [];
+	this.definedGateways = [];
 	this.addOrganization = function(obj){
 
 		obj.action = 'addOrganization';
@@ -231,6 +235,128 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		}, function errorCallback(response) {
 			console.log('ajax error');
 		});
+
+	}
+	
+	this.deleteUserAccount = function(usr){
+		var msg = {};
+		msg.action = 'removeUser';
+		msg.username = usr;
+		var req = {
+				method: 'POST',
+				url: '/admin/handler',
+				data: msg,
+		}
+		$http(req).then(function successCallback(response) {
+			$rootScope.$broadcast('userDeleted:updated',response.data);
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+	}
+
+	this.removeUser = function(){
+		var msg = {};
+		msg.action = 'removeUser';
+		var req = {
+				method: 'POST',
+				url: '/user/handler',
+				data: msg,
+		}
+		$http(req).then(function successCallback(response) {
+			$rootScope.$broadcast('removeUser:updated',response.data);
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+	}
+
+	this.enableExerciseInRegion = function(exerciseId, taskId){
+		msg = {};
+		msg.exerciseId = exerciseId;
+		msg.taskDefId = taskId;
+		msg.action = "enableExerciseInRegion";
+
+		var req = {
+				method: 'POST',
+				url: '/management/admin/handler',
+				data: msg,
+		}
+		$http(req).then(function successCallback(response) {
+			$rootScope.$broadcast('exerciseInRegionEnabled:updated',response.data);
+			if(response.data.result=="success")
+				notificationService.success('Task definition enabled.');
+			else
+				notificationService.notice('Update failed, please try again.');
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});	
+
+
+	}
+	this.disableExerciseInRegion = function(exerciseId, taskId){
+		msg = {};
+		msg.exerciseId = exerciseId;
+		msg.taskDefId = taskId;
+		msg.action = "disableExerciseInRegion";
+		var req = {
+				method: 'POST',
+				url: '/management/admin/handler',
+				data: msg,
+		}
+		$http(req).then(function successCallback(response) {
+			$rootScope.$broadcast('exerciseInRegionDisabled:updated',response.data);
+			if(response.data.result=="success")
+				notificationService.success('Task definition disabled.');
+			else
+				notificationService.notice('Update failed, please try again.');
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});	
+
+
+	}
+	this.removeExerciseInRegion = function(exerciseId, taskId){
+		msg = {};
+		msg.exerciseId = exerciseId;
+		msg.taskDefId = taskId;
+		msg.action = "removeExerciseInRegion";
+		var req = {
+				method: 'POST',
+				url: '/management/admin/handler',
+				data: msg,
+		}
+		$http(req).then(function successCallback(response) {
+			$rootScope.$broadcast('exerciseInRegionRemoved:updated',response.data);
+			if(response.data.result=="success")
+				notificationService.success('Task definition removed.');
+			else
+				notificationService.notice('Update failed, please try again.');
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});	
+
+
+	}
+
+
+
+	this.addTaskDefinition = function(msg){
+		msg.region = msg.region.code;
+		msg.action = "addTaskDefinition";
+		var req = {
+				method: 'POST',
+				url: '/management/admin/handler',
+				data: msg,
+		}
+		$http(req).then(function successCallback(response) {
+			$rootScope.$broadcast('taskDefinitionAdded:updated',response.data);
+			if(response.data.result=="success")
+				notificationService.success('Task definition added.');
+			else
+				notificationService.notice('Update failed, please try again.');
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});	
+
 
 	}
 
@@ -255,7 +381,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		});	
 	}
 
-	this.getOrganizations = function($this){
+	this.getOrganizations = function(){
 
 		var msg = {};
 		msg.action = 'getOrganizations';
@@ -275,7 +401,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 	}
 
 	this.updateGateway = function(obj){
-		
+
 		obj.action = 'updateGateway';
 		delete obj.region;
 		var req = {
@@ -293,7 +419,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		}, function errorCallback(response) {
 			console.log('ajax error');
 		});
-		
+
 	}
 	this.addGateway = function(obj){
 
@@ -316,7 +442,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		});
 
 	}
-	this.getAWSRegions = function($this){
+	this.getAWSRegions = function(){
 
 		var msg = {};
 		msg.action = 'getAWSRegions';
@@ -327,13 +453,15 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
+			replaceObjectContent($this.supportedAwsRegions,response.data);
+
 			$rootScope.$broadcast('awsRegions:updated',response.data);
 		}, function errorCallback(response) {
 			console.log('ajax error');
 		});
 
 	}
-	this.getGateways = function($this){
+	this.getGateways = function(){
 
 		var msg = {};
 		msg.action = 'getGateways';
@@ -344,6 +472,8 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
+			replaceObjectContent($this.definedGateways,response.data);
+
 			$rootScope.$broadcast('gateways:updated',response.data);
 
 		}, function errorCallback(response) {
@@ -351,7 +481,8 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		});
 
 	}
-	this.getCountries = function($this){
+
+	this.getCountries = function(){
 
 		var msg = {};
 		msg.action = 'getCountries';
@@ -393,7 +524,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/team/handler',
+				url: '/management/stats/handler',
 				data: msg
 		}
 		$http(req).then(function successCallback(response) {
@@ -413,7 +544,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/team/handler',
+				url: '/management/stats/handler',
 				data: msg
 		}
 		$http(req).then(function successCallback(response) {
@@ -427,7 +558,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 	}    
 
-	this.getUserProfile = function($this){
+	this.getUserProfile = function(){
 
 		var msg = {};
 		msg.action = 'getUserInfo';
@@ -443,6 +574,8 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 			$('.waitLoader').hide();
 			$this.getTeams();
 			$this.getUnreadNotifications();
+			$this.getChallenges();
+
 			if(response.data.r!= 3){
 				$this.getUsers();
 				$this.getGlobalStats([]);
@@ -451,7 +584,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 				$this.getPendingReviews();
 				$this.getCompletedReviews();
 				$this.getAvailableExercises();
-				$this.getChallenges();
+				$this.getRunningExercises();
 			}
 			if(response.data.r == 0){
 				$this.getOrganizations();
@@ -565,6 +698,24 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		$http(req).then(function successCallback(response) {
 			$('.waitLoader').hide();
 			$rootScope.$broadcast('exerciseRegions:updated',response.data);
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+	}
+	
+	this.getRunningExercises = function(){
+		var msg = {};
+		msg.action = 'getAllRunningExercises';
+
+		var req = {
+				method: 'POST',
+				url: '/management/team/handler',
+				data: msg
+		}
+		$('.waitLoader').show();
+		$http(req).then(function successCallback(response) {
+			$('.waitLoader').hide();
+			$rootScope.$broadcast('runningExercises:updated',response.data);
 		}, function errorCallback(response) {
 			console.log('ajax error');
 		});
@@ -995,7 +1146,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 	$rootScope.ctoken = "";
 
-	this.getCToken = function($this){
+	this.getCToken = function(){
 		var msg = {};
 		msg.action = 'getUserCToken';
 
@@ -1203,11 +1354,11 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		});
 	}
 
-	this.getCToken(this);
+	this.getCToken();
 
 	this.getInitialData = function(){  
-		this.getCountries(this);
-		this.getUserProfile(this);
+		this.getCountries();
+		this.getUserProfile();
 		initialData = true;
 	}
 
@@ -1435,6 +1586,8 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http','
 
 		server.getTeams();
 		server.getUnreadNotifications();
+		server.getChallenges();
+
 		if(server.user.r != 3){
 			server.getUsers();
 			server.getGlobalStats([]);
@@ -1443,7 +1596,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http','
 			server.getPendingReviews();
 			server.getCompletedReviews();
 			server.getAvailableExercises();
-			server.getChallenges();
+			server.getRunningExercises();
 		}
 		if(server.user.r == 0){
 			server.getOrganizations();
@@ -1492,6 +1645,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http','
 			$rootScope.visibility.teams = false;
 			$rootScope.visibility.stats = false;
 			$rootScope.visibility.challenges = false;
+			$rootScope.visibility.running = false;
 			_st(responsiveView,200);
 			$(window).scrollTop(0);
 			break;
@@ -1521,6 +1675,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http','
 			$rootScope.visibility.exercises = false;
 			$rootScope.visibility.teams = false;
 			$rootScope.visibility.stats = false;
+			$rootScope.visibility.running = false;
 			$rootScope.visibility.challenges = true;
 			$(window).scrollTop(0);
 			break;
@@ -1568,6 +1723,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http','
 			$rootScope.visibility.teams = false;
 			$rootScope.visibility.gateways = false;
 			$rootScope.visibility.stats = false;
+			$rootScope.visibility.running = false;
 			$(window).scrollTop(0);
 			break;
 		case "review":
@@ -1582,7 +1738,24 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http','
 			$rootScope.visibility.teams = false;
 			$rootScope.visibility.stats = false;
 			$rootScope.visibility.gateways = false;
+			$rootScope.visibility.running = false;
 			$rootScope.visibility.review = true;
+			$(window).scrollTop(0);
+			break;
+		case "running-exercises":
+			$rootScope.visibility.availableExercises = false;
+			$rootScope.visibility.welcome = false;
+			$rootScope.visibility.home = false;
+			$rootScope.visibility.organizations = false;
+			$rootScope.visibility.settings = false;
+			$rootScope.visibility.exercises = false;
+			$rootScope.visibility.users = false;
+			$rootScope.visibility.challenges = false;
+			$rootScope.visibility.teams = false;
+			$rootScope.visibility.stats = false;
+			$rootScope.visibility.gateways = false;
+			$rootScope.visibility.review = false;
+			$rootScope.visibility.running = true;
 			$(window).scrollTop(0);
 			break;
 		case "teams":
@@ -1632,6 +1805,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http','
 			$rootScope.visibility.exercises = false;
 			$rootScope.visibility.settings = false;
 			$rootScope.visibility.gateways = false;
+			$rootScope.visibility.running = false;
 			$rootScope.visibility.teams = true;
 			$(window).scrollTop(0);
 			break;
@@ -1665,6 +1839,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http','
 			$rootScope.visibility.settings = false;
 			$rootScope.visibility.teams = false;
 			$rootScope.visibility.gateways = false;
+			$rootScope.visibility.running = false;
 			$rootScope.visibility.exercises = true;
 			break;
 		case "stats":
@@ -1679,6 +1854,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http','
 			$rootScope.visibility.settings = false;
 			$rootScope.visibility.teams = false;
 			$rootScope.visibility.gateways = false;
+			$rootScope.visibility.running = false;
 			$rootScope.visibility.stats = true;
 			$(window).scrollTop(0);
 			break;
@@ -1694,6 +1870,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http','
 			$rootScope.visibility.exercises = false;
 			$rootScope.visibility.teams = false;
 			$rootScope.visibility.gateways = false;
+			$rootScope.visibility.running = false;
 			$rootScope.visibility.settings = true;
 			$(window).scrollTop(0);
 			break;
@@ -1713,6 +1890,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http','
 				$rootScope.visibility.challenges = false;
 				$rootScope.visibility.teams = false;
 				$rootScope.visibility.gateways = false;
+				$rootScope.visibility.running = false;
 				$rootScope.visibility.availableExercises = true;
 				if(Number.isInteger(parseInt(target[2])) && undefined==$rootScope.exerciseDetails.id){
 					getExDetails(parseInt(target[2]));
@@ -1731,6 +1909,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http','
 				$rootScope.visibility.challenges = false;
 				$rootScope.visibility.availableExercises = true;
 				$rootScope.visibility.gateways = false;
+				$rootScope.visibility.running = false;
 				$rootScope.showExerciseList = true;
 				$rootScope.showExerciseDetails = false;
 			}
@@ -1748,6 +1927,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http','
 			$rootScope.visibility.availableExercises = false;
 			$rootScope.visibility.challenges = false;
 			$rootScope.visibility.gateways = false;
+			$rootScope.visibility.running = false;
 			$rootScope.visibility.organizations = true;
 			$(window).scrollTop(0);
 			break;
@@ -1763,6 +1943,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http','
 			$rootScope.visibility.availableExercises = false;
 			$rootScope.visibility.challenges = false;
 			$rootScope.visibility.organizations = false;
+			$rootScope.visibility.running = false;
 			$rootScope.visibility.gateways = true;
 			$(window).scrollTop(0);
 			break;
@@ -1778,6 +1959,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http','
 			$rootScope.visibility.teams = false;
 			$rootScope.visibility.challenges = false;
 			$rootScope.visibility.gateways = false;
+			$rootScope.visibility.running = false;
 			$rootScope.visibility.home = true;
 			$(window).scrollTop(0);
 			break;
@@ -1918,24 +2100,24 @@ rtf.controller('organizations',['$scope','server','$filter',function($scope,serv
 
 	$scope.addOrganization = function(){
 		var obj = {};
-		var arr = $scope.newOrg.allowedDomains.replaceAll(" ","").replaceAll("\n","").replaceAll("\t","").split(",");
+		/*var arr = $scope.newOrg.allowedDomains.replaceAll(" ","").replaceAll("\n","").replaceAll("\t","").split(",");
 		if(arr[0]==undefined)
 			obj.allowedDomains = "*";
 		else
-			obj.allowedDomains = arr;
+			obj.allowedDomains = arr;*/
 		obj.name = $scope.newOrg.name;
-		obj.contactName = $scope.newOrg.contactName;
-		obj.contactPhone = $scope.newOrg.contactTelephone;
+		//obj.contactName = $scope.newOrg.contactName;
+		//obj.contactPhone = $scope.newOrg.contactTelephone;
 		obj.contactEmail = $scope.newOrg.contactEmail;
 		obj.maxUsers = $scope.newOrg.maxUsers;
 		server.addOrganization(obj);
 		$('#addOrgModal').modal('hide');
 
 		$scope.newOrg.name = "";
-		$scope.newOrg.contactTelephone = "";
-		$scope.newOrg.contactName = "";
+		//$scope.newOrg.contactTelephone = "";
+		//$scope.newOrg.contactName = "";
 		$scope.newOrg.contactEmail = "";
-		$scope.newOrg.allowedDomains = "";
+		//$scope.newOrg.allowedDomains = "";
 		$scope.newOrg.maxUsers = 100;
 	}
 
@@ -2007,7 +2189,7 @@ rtf.controller('gateways',['$scope','server','$filter',function($scope,server,$f
 		$scope.newGateway.region = $scope.newGateway.region.code;
 		server.updateGateway($scope.newGateway)
 		$('#addGatewayModal').modal('hide');
-		
+
 	}
 
 	$scope.deleteGateway = function(id){
@@ -2030,7 +2212,8 @@ rtf.controller('gateways',['$scope','server','$filter',function($scope,server,$f
 	}
 
 	$scope.getRegionFromCode = function(code){
-
+		if(code==undefined || code == "")
+			return "";
 		switch(code){
 		case "EU_WEST_1":
 			region = "EU (Ireland)";
@@ -2643,7 +2826,20 @@ rtf.controller('users',['$scope','server','$location','$rootScope','$filter',fun
 			}
 		}
 	});
-
+	
+	$scope.deleteUserAccount = function(username){
+		server.deleteUserAccount(username);
+		$('#deleteUserAccountModal').modal('hide');
+	}
+	
+	$scope.openRemoveModal = function(){
+		$('#deleteUserAccountModal').modal('show');
+	}
+	
+	$scope.$on('userDeleted:updated', function(event,data) {
+		server.getUsers();
+	})
+	
 	$scope.$on('userDetails:updated', function(event,data) {
 		switch(data.r){
 		case 0:
@@ -2682,6 +2878,49 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 	$rootScope.showExerciseDetails = false;
 	$scope.showList = true;
 	$scope.showDetails = false;
+	$scope.supportedAwsRegions = server.supportedAwsRegions;
+	$scope.definedGateways = server.definedGateways;
+		
+	
+
+
+	$scope.newTaskDefinition = {};
+
+	$scope.newTaskDefinition.exerciseId = "";
+	$scope.newTaskDefinition.region = "";
+	$scope.newTaskDefinition.softMemory = "";
+	$scope.newTaskDefinition.hardMemory = "";
+	$scope.newTaskDefinition.status = true;
+	$scope.newTaskDefinition.imageUrl = "";
+	$scope.newTaskDefinition.containerName = "";
+	$scope.newTaskDefinition.taskDefinitionName = "";
+
+	$scope.$on('exerciseInRegionEnabled:updated', function(event,data) {
+		server.getRegionsForExercise($rootScope.exerciseDetails.id);
+	});
+	$scope.$on('exerciseInRegionDisabled:updated', function(event,data) {
+		server.getRegionsForExercise($rootScope.exerciseDetails.id);
+	});
+	$scope.$on('exerciseInRegionRemoved:updated', function(event,data) {
+		server.getRegionsForExercise($rootScope.exerciseDetails.id);
+	});
+
+	$scope.$on('taskDefinitionAdded:updated', function(event,data) {
+		$scope.newTaskDefinition.exerciseId = "";
+		$scope.newTaskDefinition.region = "";
+		$scope.newTaskDefinition.softMemory = "";
+		$scope.newTaskDefinition.hardMemory = "";
+		$scope.newTaskDefinition.status = true;
+		$scope.newTaskDefinition.imageUrl = "";
+		$scope.newTaskDefinition.containerName = "";
+		$scope.newTaskDefinition.taskDefinitionName = "";
+		server.getRegionsForExercise($rootScope.exerciseDetails.id);
+	});
+	$scope.addTaskDefinition = function(){
+		$scope.newTaskDefinition.exerciseId = $rootScope.exerciseDetails.id;
+		server.addTaskDefinition($scope.newTaskDefinition);
+	}
+
 	$scope.getExerciseDetails = function(exId){
 		server.getExerciseDetails(exId);
 		server.getRegionsForExercise(exId);
@@ -2691,6 +2930,32 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 		$('#addRemoveRegionsModal').modal('show');
 	}
 
+	$scope.fillRevisionForm = function(data){
+		$scope.newTaskDefinition.exerciseId = $rootScope.exerciseDetails.id;
+		var reg = {};
+		reg.name = data.region;
+		reg.code = regionCodeFromName(reg.name);
+		$scope.newTaskDefinition.region = reg;
+		$scope.newTaskDefinition.softMemory = data.softMemoryLimit;
+		$scope.newTaskDefinition.hardMemory = data.hardMemoryLimit;
+		$scope.newTaskDefinition.status = true;
+		$scope.newTaskDefinition.imageUrl = data.repositoryImageUrl;
+		$scope.newTaskDefinition.containerName = data.containerName;
+		$scope.newTaskDefinition.taskDefinitionName = data.name.substr(0,data.name.indexOf(':'));
+	}
+
+
+
+	$scope.clearTaskDefinitionForm = function(){
+		$scope.newTaskDefinition.exerciseId = "";
+		$scope.newTaskDefinition.region = "";
+		$scope.newTaskDefinition.softMemory = "";
+		$scope.newTaskDefinition.hardMemory = "";
+		$scope.newTaskDefinition.status = true;
+		$scope.newTaskDefinition.imageUrl = "";
+		$scope.newTaskDefinition.containerName = "";
+		$scope.newTaskDefinition.taskDefinitionName = "";
+	}
 	$scope.enableExerciseForOrg = function(idExercise,idOrg){
 		server.enableExerciseForOrg(idExercise,idOrg);
 	}
@@ -2707,15 +2972,122 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 		notificationService.success("Exercise successfully enabled.")
 	});
 
+	$scope.regionNameFromCode = function(regionCode){
+		switch(regionCode) {
+		case "EU_WEST_1":
+			region = "EU (Ireland)";
+			break;
+		case "US_EAST_1":
+			region = "US East (N. Virginia)"
+				break;
+		case "AP_SOUTH_1":
+			region = "Asia Pacific (Mumbai)"
+				break;
+		case "AP_SOUTHEAST_1":
+			region = "Asia Pacific (Singapore)"
+				break;
+		case "US_EAST_2":
+			region = "US East (Ohio)";
+			break;
+		case "US_WEST_2":
+			region = "US West (Oregon)";
+			break;
+		case "US_WEST_1":
+			region = "US West (N. California)";
+			break;
+		case "CA_CENTRAL_1":
+			region = "Canada (Central)";
+			break;
+		case "EU_CENTRAL_1":
+			region = "EU (Frankfurt)";
+			break;
+		case "EU_WEST_2":
+			region = "EU (London)";
+			break;
+		case "EU_WEST_3":
+			region = "EU (Paris)";
+			break;
+		case "AP_NORTHEAST_2":
+			region = "Asia Pacific (Seoul)";
+			break;
+		case "AP_NORTHEAST_1":
+			region = "Asia Pacific (Tokyo)";
+			break;
+		case "AP_SOUTHEAST_2":
+			region = "Asia Pacific (Sydney)";
+			break;
+		case "SA_EAST_1":
+			region = "South America (São Paulo)";
+			break;
+		default:
+			break;
+		}
+		return region;
+	}
+	
+	function regionCodeFromName(regionName){
+		switch(regionName) {
+		case "EU (Ireland)":
+			region = "EU_WEST_1";
+			break;
+		case "US East (N. Virginia)":
+			region = "US_EAST_1"
+				break;
+		case "Asia Pacific (Mumbai)":
+			region = "AP_SOUTH_1"
+				break;
+		case "Asia Pacific (Singapore)":
+			region = "AP_SOUTHEAST_1"
+				break;
+		case "US East (Ohio)":
+			region = "US_EAST_2";
+			break;
+		case "US West (Oregon)":
+			region = "US_WEST_2";
+			break;
+		case "US West (N. California)":
+			region = "US_WEST_1";
+			break;
+		case "Canada (Central)":
+			region = "CA_CENTRAL_1";
+			break;
+		case "EU (Frankfurt)":
+			region = "EU_CENTRAL_1";
+			break;
+		case "EU (London)":
+			region = "EU_WEST_2";
+			break;
+		case "EU (Paris)":
+			region = "EU_WEST_3";
+			break;
+		case "Asia Pacific (Seoul)":
+			region = "AP_NORTHEAST_2";
+			break;
+		case "Asia Pacific (Tokyo)":
+			region = "AP_NORTHEAST_1";
+			break;
+		case "Asia Pacific (Sydney)":
+			region = "AP_SOUTHEAST_2";
+			break;
+		case "South America (São Paulo)":
+			region = "SA_EAST_1";
+			break;
+		default:
+			break;
+		}
+		return region;
+	}
+
 	$scope.$on('exerciseRegions:updated', function(event,data) {
 		if(data!=null){
 			$scope.availableRegions = [];
 			for(var j in data){
 				if(!Number.isInteger(parseInt(j)))
 					continue;
+
 				var region = "Unavailable";
 
-				switch(data[j]) {
+				switch(data[j].region) {
 				case "EU_WEST_1":
 					region = "EU (Ireland)";
 					break;
@@ -2764,7 +3136,17 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 				default:
 					break;
 				}
-				$scope.availableRegions.push(region);
+				obj = {}
+				obj.containerName = data[j].taskDefinition.containerName;
+				obj.taskId = data[j].taskDefinition.id;
+				obj.hardMemoryLimit = data[j].taskDefinition.hardMemoryLimit;
+				obj.softMemoryLimit = data[j].taskDefinition.softMemoryLimit;
+				obj.repositoryImageUrl = data[j].taskDefinition.repositoryImageUrl;
+				obj.region = region;
+				obj.updateDate = data[j].taskDefinition.updateDate;
+				obj.name = data[j].taskDefinition.taskDefinitionName;
+				obj.active = data[j].active;
+				$scope.availableRegions.push(obj);
 			}
 		}
 	});
@@ -2791,6 +3173,16 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 		$rootScope.showExerciseList = false;
 		$location.path("available-exercises/details/"+$rootScope.exerciseDetails.id, false);
 	});
+
+	$scope.disableExerciseInRegion = function(exerciseId, taskId){
+		server.disableExerciseInRegion(exerciseId, taskId);
+	}
+	$scope.enableExerciseInRegion = function(exerciseId, taskId){
+		server.enableExerciseInRegion(exerciseId, taskId);
+	}
+	$scope.removeExerciseInRegion = function(exerciseId, taskId){
+		server.removeExerciseInRegion(exerciseId, taskId);
+	}
 
 	$scope.backToList = function(){
 		$rootScope.showExerciseDetails = false;
@@ -3855,6 +4247,94 @@ rtf.controller('settings',['$scope','server','$timeout',function($scope,server,$
 		$scope.newPasswordRepeat = "";
 		$scope.newPassword = "";
 	}
+	$scope.removeUser = function(){
+		server.removeUser();
+		$('#userRemoveModal').modal('hide');
+	}
+	$scope.openRemoveModal = function(){
+		$('#userRemoveModal').modal('show');	
+	}
+	$scope.$on('removeUser:updated', function(event,data) {
+		document.location = "/index.html";
+	})
+	
+}]);
+rtf.controller('runningExercises',['$scope','server','$rootScope','$location','$filter',function($scope,server,$rootScope,$location,$filter){
+
+	$scope.masterRunning = [];
+	$scope.filteredRunningList = []; 
+	$scope.selectedRunningRow = -1;
+	$scope.runningtableconfig = {
+			itemsPerPage: 30,
+			fillLastPage: false
+	}
+	$scope.updateFilteredList = function() {
+		$scope.filteredRunningList = $filter("filter")($scope.masterRunning, $scope.query);
+	};
+	
+	$scope.$on('runningExercises:updated', function(event,data) {
+		$scope.masterRunning = data;
+		$scope.filteredRunningList = $scope.masterRunning;
+	});
+	
+	$scope.getRegionFromCode = function(code){
+		if(code==undefined || code == "")
+			return "";
+		switch(code){
+		case "EU_WEST_1":
+			region = "EU (Ireland)";
+			break;
+		case "US_EAST_1":
+			region = "US East (N. Virginia)"
+				break;
+		case "AP_SOUTH_1":
+			region = "Asia Pacific (Mumbai)"
+				break;
+		case "AP_SOUTHEAST_1":
+			region = "Asia Pacific (Singapore)"
+				break;
+		case "US_EAST_2":
+			region = "US East (Ohio)";
+			break;
+		case "US_WEST_2":
+			region = "US West (Oregon)";
+			break;
+		case "US_WEST_1":
+			region = "US West (N. California)";
+			break;
+		case "CA_CENTRAL_1":
+			region = "Canada (Central)";
+			break;
+		case "EU_CENTRAL_1":
+			region = "EU (Frankfurt)";
+			break;
+		case "EU_WEST_2":
+			region = "EU (London)";
+			break;
+		case "EU_WEST_3":
+			region = "EU (Paris)";
+			break;
+		case "AP_NORTHEAST_2":
+			region = "Asia Pacific (Seoul)";
+			break;
+		case "AP_NORTHEAST_1":
+			region = "Asia Pacific (Tokyo)";
+			break;
+		case "AP_SOUTHEAST_2":
+			region = "Asia Pacific (Sydney)";
+			break;
+		case "SA_EAST_1":
+			region = "South America (São Paulo)";
+			break;
+		default:
+			break;
+		}
+		return region;
+
+	}
+	
+	
+	
 }]);
 rtf.controller('challenges',['$scope','server','$rootScope','$location','$filter',function($scope,server,$rootScope,$location,$filter){
 

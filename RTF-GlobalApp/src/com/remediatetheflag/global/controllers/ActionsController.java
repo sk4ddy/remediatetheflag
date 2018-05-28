@@ -52,7 +52,8 @@ public abstract class ActionsController {
 	protected Map<String, Class> type2action = new HashMap<>();
 	@SuppressWarnings("rawtypes")
 	protected Map<Class, Map<String, Class[]>> type2fieldValidator= new HashMap<>();
-	private Map<String, String> type2classValidator= new HashMap<>();
+	@SuppressWarnings("rawtypes")
+	protected Map<String, Class> type2classValidator= new HashMap<>();
 	@SuppressWarnings("rawtypes")
 	protected List<Class> csrfExclusion = new LinkedList<Class>();
 
@@ -64,6 +65,7 @@ public abstract class ActionsController {
 	 * @param response
 	 * @throws Exception
 	 */
+	@SuppressWarnings("rawtypes")
 	public void executeAction(HttpServletRequest request, HttpServletResponse response) {
 		
 		User user = (User) request.getSession().getAttribute(Constants.ATTRIBUTE_SECURITY_CONTEXT);	
@@ -103,7 +105,6 @@ public abstract class ActionsController {
 		}
 
 		// Find Action
-		@SuppressWarnings("rawtypes")
 		Class actionClass = type2action.get(actionType);
 		if (null == actionClass) {
 			logger.error("Action NOT found for actionType: "+actionType+ " for user: "+usr);
@@ -127,7 +128,6 @@ public abstract class ActionsController {
 		}
 
 		// Validate Request
-		@SuppressWarnings("rawtypes")
 		Map<String, Class[]> validators = type2fieldValidator.get(actionClass);
 		ValidatedData validatedData = new ValidatedData(jsonObject, false, new ArrayList<String>());
 		if(null!=validators){
@@ -135,15 +135,14 @@ public abstract class ActionsController {
 		}
 
 		// Validate Request, class-wide
-		String validatorClass = type2classValidator.get(actionType);
+		Class validatorClass = type2classValidator.get(actionType);
 		if (null!=validatorClass && !validatedData.isWithErrors()) {
 			try {
-				IClassValidator validator = ((IClassValidator) Class.forName(validatorClass).newInstance());
-				logger.debug("Class Wide Validator - ExecuteAction: " + validatorClass);
+				IClassValidator validator = ((IClassValidator) validatorClass.newInstance());
+				logger.debug("Class Wide Validator - doValidation: " + validatorClass);
 				validatedData = validator.doValidation(jsonObject, validatedData);
-
-			} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-				logger.error("Class Wide Validator - Action Exception: " + e.getMessage() + " for user: "+usr);
+			} catch (Exception e) {
+				logger.error("Class Wide Validator - doValidation Exception: " + e.getMessage() + " for user: "+usr);
 				MessageGenerator.sendErrorMessage(Constants.JSON_VALUE_ERROR_ACTION_NOT_VALIDATED, response);
 			}
 		}
