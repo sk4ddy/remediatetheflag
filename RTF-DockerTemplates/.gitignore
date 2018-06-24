@@ -1,6 +1,3 @@
 .DS_Store
-**/ROOT/
-**/results/
-**/guacamole/
-**/helper/
-**/rtf/
+**/fs/
+**/run/

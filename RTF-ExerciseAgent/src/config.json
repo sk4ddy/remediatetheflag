@@ -1,0 +1,13 @@
+{
+	"version": "0.1",
+	"originalSourceDirectory": "/home/rtf/Desktop/RTF/ORIGINAL_SOURCE_CODE/",
+	"exerciseSourceDirectory": "/home/rtf/Desktop/RTF/EXERCISE_SOURCE_CODE/",
+	"testCommand": "java -jar /home/rtf/PATH-TO-TEST-SUITE.jar checkFinal",
+	"testCommandLite": "java -jar /home/rtf/PATH-TO-TEST-SUITE.jar checkRealtime",
+	"exerciseStatusCommand": "java -jar /home/rtf/PATH-TO-TEST-SUITE.jar status",
+	"logFiles": [
+		"/home/rtf/Desktop/RTF/rtf.log",
+		"/var/lib/tomcat8/rtf-exercise-agent.log",
+		"/var/lib/tomcat8/logs/catalina.out"
+	]
+}
