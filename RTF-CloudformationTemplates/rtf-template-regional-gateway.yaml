@@ -1,0 +1,117 @@
+Description: >
+    RTF Satellite Gateway Template
+Resources:
+    VPC:
+        Type: AWS::CloudFormation::Stack
+        Properties:
+            #Optionally replace PATH to S3 Repository where CloudFormation Templates were uploaded
+            TemplateURL: https://s3-eu-west-1.amazonaws.com/rtf-public-templates/rtf-vpc.yaml
+            Parameters:
+                EnvironmentName:    RTF-VPC
+                VpcCIDR:            10.0.0.0/16
+                PublicSubnet1CIDR:  10.0.0.0/18
+                PublicSubnet2CIDR:  10.0.64.0/18
+                PrivateSubnet1CIDR: 10.0.128.0/18
+                PrivateSubnet2CIDR: 10.0.192.0/18
+    SecurityGroups:
+        Type: AWS::CloudFormation::Stack
+        Properties:
+            #Optionally replace PATH to S3 Repository where CloudFormation Templates were uploaded
+            TemplateURL: https://s3-eu-west-1.amazonaws.com/rtf-public-templates/rtf-security-groups.yaml
+            Parameters: 
+                EnvironmentName: RTF-SecurityGroups
+                VPC: !GetAtt VPC.Outputs.VPC
+    ALB:
+        Type: AWS::CloudFormation::Stack
+        Properties:
+            #Optionally replace PATH to S3 Repository where CloudFormation Templates were uploaded
+            TemplateURL: https://s3-eu-west-1.amazonaws.com/rtf-public-templates/rtf-load-balancers.yaml
+            Parameters:
+                EnvironmentName: RTF-ALB
+                VPC: !GetAtt VPC.Outputs.VPC
+                Subnets: !GetAtt VPC.Outputs.PublicSubnets
+                SecurityGroup: !GetAtt SecurityGroups.Outputs.LoadBalancerSecurityGroup
+                #Replace with AWS ACM TLS Certificate ARN
+                LoadBalancerCertificateArn: arn:aws:acm:REPLACE/TLS/CERTIFICATE/ARN
+    ServicesECS:
+        Type: AWS::CloudFormation::Stack
+        Properties:
+            #Optionally replace PATH to S3 Repository where CloudFormation Templates were uploaded
+            TemplateURL: https://s3-eu-west-1.amazonaws.com/rtf-public-templates/rtf-ecs-services.yaml
+            Parameters:
+                EnvironmentName: RTF-Services
+                 #Choose EC2 Instance Type to run RTF-Services
+                InstanceType: t2.medium
+                #Remove SpotPrice to use On-Demand Instances, choose Spot Price equal to On-Demand to be sure it's always fullfilled
+                SpotPrice: "0.06"
+                #EC2 Autoscaling Min/Max Instances
+                MinClusterSize: 1
+                MaxClusterSize: 4
+                VPC: !GetAtt VPC.Outputs.VPC
+                SecurityGroup: !GetAtt SecurityGroups.Outputs.ServicesSecurityGroup
+                Subnets: !GetAtt VPC.Outputs.PublicSubnets
+                VolumeName: efs
+                MountPoint: efs
+    ExercisesECS:
+        Type: AWS::CloudFormation::Stack
+        Properties:
+            #Optionally replace PATH to S3 Repository where CloudFormation Templates were uploaded
+            TemplateURL: https://s3-eu-west-1.amazonaws.com/rtf-public-templates/rtf-ecs-exercises.yaml
+            Parameters:
+                EnvironmentName: RTF-Exercises
+                #Choose EC2 Instance Type to run RTF-Services
+                InstanceType: m4.large
+                #Remove SpotPrice to use On-Demand Instances, choose Spot Price equal to On-Demand to be sure it's always fullfilled
+                SpotPrice: "0.12"
+                #EC2 Autoscaling Min/Max Instances
+                MinClusterSize: 1
+                MaxClusterSize: 4
+                VPC: !GetAtt VPC.Outputs.VPC
+                SecurityGroup: !GetAtt SecurityGroups.Outputs.ExercisesSecurityGroup
+                Subnets: !GetAtt VPC.Outputs.PrivateSubnets
+    MysqlService:
+        Type: AWS::CloudFormation::Stack
+        Properties:
+            #Optionally replace PATH to S3 Repository where CloudFormation Templates were uploaded
+            TemplateURL: https://s3-eu-west-1.amazonaws.com/rtf-public-templates/rtf-service-mysql.yaml
+            Parameters:
+                VPC: !GetAtt VPC.Outputs.VPC
+                Cluster: !GetAtt ServicesECS.Outputs.Cluster
+                #MySQL can't be scaled horizontally with the current architecture
+                DesiredCount: 1
+                #Replace Passwords, match them in the other services in this template
+                GuacRTFAdminUserPassword: REPLACE-GUAC-ADMIN-PASSWORD
+                GlobalRTFAdminUserPassword: REPLACE-GLOBAL-ADMIN-PASSWORD
+                MysqlGlobalUserPassword: REPLACE-MYSQL-GLOBAL-PASSWORD
+                MysqlGuacUserPassword: REPLACE-MYSQL-GUAC-PASSWORD
+                MysqlRootUserPassword: REPLACE-MYSQL-ROOT-PASSWORD
+                #Replace with ECR address to Mysql Service Image
+                MysqlImage: REPLACE-PATH-TO.ecr.eu-west-1.amazonaws.com/rtf-services:rtf-db-latest
+    GatewayService:
+        Type: AWS::CloudFormation::Stack
+        Properties:
+            #Optionally replace PATH to S3 Repository where CloudFormation Templates were uploaded
+            TemplateURL: https://s3-eu-west-1.amazonaws.com/rtf-public-templates/rtf-service-mysql.yaml
+            Parameters:
+                RTFMySQL: !GetAtt MysqlService.Outputs.MySQLService
+                VPC: !GetAtt VPC.Outputs.VPC
+                Cluster: !GetAtt ServicesECS.Outputs.Cluster
+                #ECS Service Autoscaling, Min/Max number of concurrent tasks for Gateway Service
+                DesiredCount: 1
+                MaxCount: 4
+                # Choose hostname for the RTF Gateway deployment (e.g emea.remediatetheflag.net)
+                GatewayHostname: REPLACE-GATEWAY-FQDN
+                ListenerHTTP: !GetAtt ALB.Outputs.ListenerHTTP
+                ListenerHTTPS: !GetAtt ALB.Outputs.ListenerHTTPS 
+                #Replace Passwords, match them in the other services in this template
+                MysqlGuacUserPassword: REPLACE-MYSQL-GUAC-PASSWORD
+                GatewayAgentPassword: REPLACE-GATEWAY-AGENT-PASSWORD
+                #Replace with ECR address to Kite Service Image
+                KiteImage: REPLACE-PATH-TO.ecr.eu-west-1.amazonaws.com/rtf-services:kite-latest
+                #Replace with ECR address to Gateway Service Image
+                GatewayImage: REPLACE-PATH-TO.ecr.eu-west-1.amazonaws.com/rtf-services:rtf-gateway-latest
+                ECSServiceAutoScalingRoleARN: !GetAtt ServicesECS.Outputs.ECSServiceAutoScalingRole
+Outputs:
+    LoadBalancerUrl: 
+        Description: The URL endpoint for the RTF platform
+        Value: !GetAtt ALB.Outputs.LoadBalancerUrl
