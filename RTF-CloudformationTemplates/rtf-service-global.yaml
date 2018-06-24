@@ -1,20 +1,3 @@
- #  
- # REMEDIATE THE FLAG
- # Copyright 2018 - Andrea Scaduto 
- # remediatetheflag@gmail.com
- # 
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- # 
- #     http://www.apache.org/licenses/LICENSE-2.0
- # 
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
- # 
   Description: >
     RTF-Global Service
   Parameters:
@@ -23,6 +6,9 @@
       Type: 'AWS::EC2::VPC::Id'
     Cluster:
       Description: ECS Cluster ID that this service should run on
+      Type: String
+    ExerciseCluster:
+      Description : ECS Cluster for running exercises
       Type: String
     DesiredCount:
       Description: Number of instances of this task to run across
@@ -52,6 +38,9 @@
       Type: String
     MysqlGlobalUserPassword:
       Description: Mysql global user password
+      Type: String
+    GatewayAgentPassword:
+      Description: Gateway Agent user password
       Type: String
     KiteImage:
       Description: ECR Image Address for AWS-ECS-Kite
@@ -94,9 +83,9 @@
             Memory: 100
             MemoryReservation: 15
             VolumesFrom: []
-            Image: '427354328093.dkr.ecr.eu-west-1.amazonaws.com/rtf-services:kite-1.1'
+            Image: !Ref KiteImage
             Essential: true
-            Name: mysql-kite
+            Name: mysql-global-kite
             LogConfiguration:
               LogDriver: awslogs
               Options:
@@ -119,12 +108,16 @@
                 Value: !Ref GuacRTFAdminUserPassword
               - Name: MYSQL_GLOBAL_PASSWORD
                 Value: !Ref MysqlGlobalUserPassword
+              - Name: GATEWAY_AGENT_PASSWORD
+                Value: !Ref GatewayAgentPassword
+              - Name: RTF_EXERCISE_CLUSTER
+                Value: !Ref ExerciseCluster
             Memory: 6000
             MemoryReservation: 785
             Image: !Ref GlobalImage
             Essential: true
             Links:
-              - 'mysql-kite:mysqlhost'
+              - 'mysql-global-kite:mysqlhost'
             Name: global
             LogConfiguration:
               LogDriver: awslogs
@@ -135,7 +128,7 @@
       Type: 'AWS::Logs::LogGroup'
       Properties:
         LogGroupName: !Ref 'AWS::StackName'
-        RetentionInDays: 365
+        RetentionInDays: 30
     TargetGroup:
       Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
       Properties:
@@ -143,8 +136,11 @@
         VpcId: !Ref VPC
         Port: 80
         Protocol: HTTP
+        TargetGroupAttributes:
+          - Key: stickiness.enabled 
+            Value: true
         Matcher:
-          HttpCode: 200-399
+          HttpCode: 200
         HealthCheckIntervalSeconds: 10
         HealthCheckPath: /
         HealthCheckProtocol: HTTP
