@@ -1,2 +1,0 @@
-# RTF-Cloudformation
-
