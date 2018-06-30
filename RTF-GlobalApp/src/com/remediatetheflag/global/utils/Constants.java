@@ -90,50 +90,74 @@ public class Constants {
 	public static final String ACTION_PARAM_TEAM_ID = "teamId";
 	public static final String ACTION_PARAM_USERNAME_LIST = "users";
 	
-	//notifications
-	public static final String NOTIFICATION_LINK_COMPLETED_REVIEW = "#/history";
-	public static final String NOTIFICATION_TEXT_COMPLETED_REVIEW = "The exercise {EXERCISE} has been reviewed, check your results and leave a feedback.";
-	public static final String NOTIFICATION_LINK_WELCOME_TO_RTF = "#/exercises";
-	public static final String NOTIFICATION_TEXT_WELCOME_TO_RTF = "Welcome to RTF, browse available exercises and start hacking!";
-	public static final String NOTIFICATION_LINK_NEW_EXERCISE_AVAILABLE = "#/exercises/details/{ID}";
-	public static final String NOTIFICATION_TEXT_NEW_EXERCISE_AVAILABLE = "A new exercise \"{EXERCISE}\" is availabe on RTF!";
-	public static final String NOTIFICATION_LINK_NEW_USER_ADDED = "#/users/details/{USERNAME}";
-	public static final String NOTIFICATION_TEXT_NEW_USER_ADDED = "User {USERNAME} is now enrolled on RTF!";
+	
 	public static final String ACTION_PARAM_NOTIFICATION_TEXT = "text";
 	public static final String ACTION_PARAM_FILTER = "filter";
-
 	public static final String ACTION_PARAM_CONTACT_NAME = "contactName";
-	public static final String ACTION_PARAM_CONTACT_EMAIL= "contactEmail";
 	public static final String ACTION_PARAM_MAX_USERS = "maxUsers";
 	public static final String ACTION_PARAM_CONTACT_PHONE= "contactPhone";
 	public static final String ACTION_PARAM_ALLOWED_DOMAINS = "allowedDomains";
 	public static final String ACTION_PARAM_EXERCISE = "exercise";
-	
 	public static final String ACTION_PARAM_FQDN = "fqdn";
 	public static final String ACTION_PARAM_STATUS = "status";
-	
-
 	public static final String ACTION_PARAM_EXERCISE_ID = "exerciseId";
-
-	
 	public static final String ACTION_PARAM_TASK_DEFINITION_ID = "taskDefId";
-
 	public static final String ACTION_PARAM_TASK_DEFINITION_NAME = "taskDefinitionName";
 	public static final String ACTION_PARAM_CONTAINER_NAME = "containerName";
 	public static final String ACTION_PARAM_REPO_URL = "imageUrl";
 	public static final String ACTION_PARAM_SOFT_MEMORY = "softMemory";
 	public static final String ACTION_PARAM_HARD_MEMORY = "hardMemory";
-	
+	public static final String ACTION_PARAM_ROLE_ID = "roleId";
+	public static final String ACTION_PARAM_FORCE_PASSWORD_CHANGE = "forcePasswordChange"; 
+	public static final String ACTION_PARAM_CONCURRENT_EXERCISE_LIMIT = "concurrentExercisesLimit";
+
 	public static final Integer MIN_HARD_MEMORY_LIMIT = 300;
 	public static final Integer MAX_HARD_MEMORY_LIMIT = 5000;
 
 	public static final Integer MIN_SOFT_MEMORY_LIMIT = 50;
 	public static final Integer MAX_SOFT_MEMORY_LIMIT = 3000;
 	public static final String AWS_ECS_STATUS_STOPPED = "stopped";
-	
+	public static final String IMAGES_AVAILABLE_EXERCISES_INFO = "exerciseInfo";
 
+	//notifications
+		public static final String NOTIFICATION_LINK_COMPLETED_REVIEW = "#/history";
+		public static final String NOTIFICATION_TEXT_COMPLETED_REVIEW = "The exercise {EXERCISE} has been reviewed, check your results and leave a feedback.";
+		public static final String NOTIFICATION_LINK_WELCOME_TO_RTF = "#/exercises";
+		public static final String NOTIFICATION_TEXT_WELCOME_TO_RTF = "Welcome to RTF, browse available exercises and start hacking!";
+		public static final String NOTIFICATION_LINK_NEW_EXERCISE_AVAILABLE = "#/exercises/details/{ID}";
+		public static final String NOTIFICATION_TEXT_NEW_EXERCISE_AVAILABLE = "A new exercise \"{EXERCISE}\" is availabe on RTF!";
+		public static final String NOTIFICATION_LINK_NEW_USER_ADDED = "#/users/details/{USERNAME}";
+		public static final String NOTIFICATION_TEXT_NEW_USER_ADDED = "User {USERNAME} is now enrolled on RTF!";
 	
+		
+		public static final String ACTION_PARAM_TOPICS = "topics";
+		public static final String ACTION_PARAM_DIFFICULTY= "difficulty";
+		public static final String ACTION_PARAM_TITLE= "title";
+		public static final String ACTION_PARAM_DESCRIPTION= "description";
+		public static final String ACTION_PARAM_TECHNOLOGY= "technology";
+		public static final String ACTION_PARAM_DURATION= "duration";
+		public static final String ACTION_PARAM_SCORE= "score";
+		public static final String ACTION_PARAM_TROPHY_TITLE= "trophyTitle";
+		public static final String ACTION_PARAM_TROPHY_DESCRIPTION= "trophyDescription";
+		
+		public static final String ACTION_PARAM_REFERENCE_FILE = "referenceFile";
+		public static final String ACTION_PARAM_SOLUTION_FILE = "solutionFile";
+		public static final String ACTION_PARAM_FLAGS_LIST = "flags";
+		public static final String ACTION_PARAM_INFO_LIST = "infoList";
+		public static final String ACTION_PARAM_RESOURCE_LIST = "resources";
+		public static final String ACTION_PARAM_CATEGORY = "category";
+		public static final String ACTION_PARAM_FLAG_QUESTIONS = "questions";
+	
+		public static final String ACTION_PARAM_TYPE = "type";
+		public static final String ACTION_PARAM_SELF_CHECK_AVAILABLE = "selfCheckAvailable";
+		public static final String ACTION_PARAM_SELF_CHECK = "selfCheck";
+		public static final String ACTION_PARAM_INSTRUCTIONS = "instructions";
+		public static final String ACTION_PARAM_HINT_AVAILABLE = "hintAvailable";
+		public static final String ACTION_PARAM_HINT = "hint";
+		public static final String ACTION_PARAM_IMAGE = "image";
+		public static final String ACTION_PARAM_DATA = "data";
+		public static final String ACTION_PARAM_URL = "url";
+		
+		public static final String CHARSET = "UTF-8";
 
-	
-	
 }

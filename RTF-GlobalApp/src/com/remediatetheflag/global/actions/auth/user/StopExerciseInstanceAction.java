@@ -52,32 +52,49 @@ public class StopExerciseInstanceAction extends IAction {
 		Integer exerciseInstanceId = json.get(Constants.ACTION_PARAM_ID).getAsInt();
 		for(ExerciseInstance instance : activeInstances){
 			if(instance.getIdExerciseInstance().equals(exerciseInstanceId)){	
-				// get results
-				GatewayHelper gwHelper = new GatewayHelper();
-				ExerciseResultFile fr = gwHelper.getResultFile(instance);
-				instance.setResultFile(fr);
 
-				List<ExerciseResult> results = gwHelper.getResultStatus(instance);
-				instance.setResults(results);
-				
-				GuacamoleHelper guacHelper = new GuacamoleHelper();
-				Integer duration = guacHelper.getUserExerciseDuration(instance.getGuac());
-				instance.setDuration(duration);
-				
-				// stop instance
-				AWSHelper awsHelper = new AWSHelper();
-				if(null!=instance.getEcsInstance()){
-					awsHelper.terminateTask(instance.getEcsInstance());
-					instance.getEcsInstance().setStatus(Constants.STATUS_STOPPED);
-				}
-				else {
-					MessageGenerator.sendErrorMessage("Error", response);
-				}
-				instance.setStatus(ExerciseStatus.STOPPED);
-				Calendar cal = Calendar.getInstance();
-				instance.setEndTime(cal.getTime());
-				
+				Thread stopExerciseThread = new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						// get results
+						GatewayHelper gwHelper = new GatewayHelper();
+						ExerciseResultFile fr = gwHelper.getResultFile(instance);
+						instance.setResultFile(fr);
+
+						List<ExerciseResult> results = gwHelper.getResultStatus(instance);
+						instance.setResults(results);
+
+						GuacamoleHelper guacHelper = new GuacamoleHelper();
+						try {
+							Integer duration = guacHelper.getUserExerciseDuration(instance.getGuac());
+							instance.setDuration(duration);
+						}
+						catch(Exception e) {
+							instance.setDuration(-1);
+						}
+						// stop instance
+						AWSHelper awsHelper = new AWSHelper();
+						if(null!=instance.getEcsInstance()){
+							awsHelper.terminateTask(instance.getEcsInstance());
+							instance.getEcsInstance().setStatus(Constants.STATUS_STOPPED);
+						}
+						else {
+							MessageGenerator.sendErrorMessage("Error", response);
+						}
+						instance.setStatus(ExerciseStatus.STOPPED);
+						instance.getEcsInstance().setStatus(Constants.STATUS_TERMINATED);
+						Calendar cal = Calendar.getInstance();
+						instance.setEndTime(cal.getTime());
+
+						hpc.updateExerciseInstance(instance);
+					}
+
+				});
+				stopExerciseThread.start();
+				instance.setStatus(ExerciseStatus.STOPPING);
 				hpc.updateExerciseInstance(instance);
+
 				MessageGenerator.sendSuccessMessage(response);
 				return;
 			}

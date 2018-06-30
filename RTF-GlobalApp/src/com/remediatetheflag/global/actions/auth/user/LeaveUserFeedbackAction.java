@@ -47,7 +47,7 @@ public class LeaveUserFeedbackAction extends IAction{
 		JsonElement feedbackElement = json.get(Constants.ACTION_PARAM_FEEDBACK);
 		String feedbackMessage = feedbackElement.getAsString();
 		ExerciseInstance instance =  hpc.getCompletedExerciseInstanceForUser(sessionUser.getIdUser(), idExercise);	
-		if(null!=instance){
+		if(null!=instance && !instance.getFeedback()){
 			Feedback feedback = new Feedback();
 			feedback.setFeedback(feedbackMessage);
 			feedback.setInstance(instance);

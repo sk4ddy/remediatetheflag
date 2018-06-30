@@ -28,6 +28,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.remediatetheflag.global.actions.IAction;
 import com.remediatetheflag.global.messages.MessageGenerator;
+import com.remediatetheflag.global.model.Organization;
 import com.remediatetheflag.global.model.Team;
 import com.remediatetheflag.global.model.User;
 import com.remediatetheflag.global.persistence.HibernatePersistenceFacade;
@@ -44,18 +45,8 @@ public class RemoveTeamAction extends IAction {
 
 		JsonElement teamIdJson = json.get(Constants.ACTION_PARAM_TEAM_ID);
 		Integer teamId = teamIdJson.getAsInt();
-		Team team = hpc.getTeam(teamId);
-		boolean isManager = false;
-		for(User u : team.getManagers()){
-			if(u.getIdUser().equals(sessionUser.getIdUser())){
-				isManager = true;
-				break;
-			}
-		}
-		if(null==team || !isManager){
-			MessageGenerator.sendErrorMessage("NotFound", response);
-			return;
-		}
+		Team team = hpc.getTeam(teamId,sessionUser.getManagedOrganizations());
+	
 		List<User> users = hpc.getUsersForTeamName(team.getName(), sessionUser.getManagedOrganizations());
 		if(null==users || users.isEmpty()){
 			hpc.deleteTeam(team);
@@ -64,6 +55,15 @@ public class RemoveTeamAction extends IAction {
 		else{
 			MessageGenerator.sendErrorMessage("TeamNotEmpty", response);
 		}
+	}
+	
+	public Boolean isManagingOrg(User user, Organization org) {
+		for(Organization managed : user.getManagedOrganizations()) {
+			if(managed.getId().equals(org.getId())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

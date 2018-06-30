@@ -56,6 +56,6 @@ public enum AvailableExerciseStatus {
 				return status;
 			}
 		}
-		throw new IllegalArgumentException("Cannot create enum from " + statusCode + " value!");
+		return DEFAULT_STATUS;
 	}
 }

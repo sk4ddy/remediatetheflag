@@ -31,7 +31,9 @@ public class RTFConfig {
 	private static String guacAdminUser = "";
 	private static String guacAdminPassword = "";
 	private static String exercisesCluster = "";
-
+	private static String agentUser = "";
+	private static String agentPassword = "";
+	
 	private static Logger logger = LoggerFactory.getLogger(RTFConfig.class);
 
 	static{
@@ -40,6 +42,9 @@ public class RTFConfig {
 			RTFConfig.guacAdminUser = config.getProperty("guacAdminUser");
 			RTFConfig.guacAdminPassword = config.getProperty("guacAdminPassword");
 			RTFConfig.exercisesCluster = config.getProperty("exercisesCluster");
+			RTFConfig.agentUser = config.getProperty("agentUser");
+			RTFConfig.agentPassword = config.getProperty("agentPassword");
+		
 			logger.info("RTFGlobalConfiguration parsed");
 		} catch (IOException e) {
 			logger.error(e.toString());
@@ -54,5 +59,11 @@ public class RTFConfig {
 	}
 	public static String getExercisesCluster() {
 		return exercisesCluster;
+	}
+	public static String getAgentUser() {
+		return agentUser;
+	}
+	public static String getAgentPassword() {
+		return agentPassword;
 	}
 }

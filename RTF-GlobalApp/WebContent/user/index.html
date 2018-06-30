@@ -169,23 +169,26 @@
 									</div>
 									<div class="row">
 										<div class="col-md-6">
-											<h4 class="marginTop0 marginBottom5">Score</h4>
-											<img class="awd" ng-src="{{ex.scoreImg}}">
-											<p class="card-text marginTop5">
+											<h4 class="marginTop0">Score</h4>
+											<svg width="120" height="120">
+  <circle cx="60" cy="60" r="50" fill="{{getColorForScore(ex.score)}}" />
+  <text x="50%" y="50%" text-anchor="middle" fill="white"
+													font-family="monospace" font-size="55px" dy=".3em">{{ex.score}}</text>
+</svg>
+											<p class="card-text">
 												<small class="text-muted">gain up to {{ex.score}}
 													points</small>
 											</p>
 										</div>
 										<div class="col-md-6">
 											<h4 class="marginTop0">Trophy</h4>
-											<img class="awd" ng-src="{{ex.trophy.img}}">
-											<p class="card-text marginTop5">
+											<img class="trophySVG" src="/assets/img/trophy.svg">
+											<p class="card-text">
 												<small class="text-muted">{{ex.trophy.name}}</small>
 											</p>
 										</div>
 									</div>
 									<div class="card-block paddingBottom10 paddingTop0">
-										<!--  <p class="card-text justify">{{ex.description}}</p>-->
 										<p class="card-text marginTop5 marginBottom5">
 											<small class="text-muted">Duration: {{ex.duration}}
 												minutes</small><small class="text-muted"> | Difficulty:
@@ -201,10 +204,6 @@
 						<div ng-show="emptyExercises">
 							<img class="emptyExercises" src="/assets/img/emptyExercises.png" />
 							<p>There are no available exercises.</p>
-							<p>
-								Please try again later or email <a
-									href="mailto:support@remediatetheflag.com">support</a>
-							</p>
 						</div>
 					</div>
 				</div>
@@ -223,7 +222,7 @@
 										{{exerciseDetails.duration}} minutes</small><small class="text-muted">
 										| Difficulty: {{exerciseDetails.difficulty}} </small>
 								</p>
-								<hr>
+								<hr class="marginTop10">
 								<div ng-show="exerciseDetails.res.length>0">
 									<h5>Suggested Readings:</h5>
 									<p class="card-text">
@@ -232,7 +231,7 @@
 										</small>
 									</p>
 								</div>
-								<hr>
+								<hr class="marginTop10">
 								<form novalidate autocomplete="off" name="selectExerciseRegion">
 									<div ng-show="!exerciseStarted">
 										<h5>Available Regions</h5>
@@ -270,17 +269,22 @@
 								</div>
 							</div>
 						</div>
-						<div class="col-md-2 centered marginTop3P">
-							<h4>Score</h4>
-							<img class="awd100" ng-src="{{exerciseDetails.scoreImg}}">
-							<p class="card-text">
+						<div class="col-md-2 centered marginTop20">
+							<h4 class="marginBottom0">Score</h4>
+							<svg width="120" height="120">
+  <circle cx="60" cy="60" r="50"
+									fill="{{getColorForScore(exerciseDetails.score)}}" />
+  <text x="50%" y="50%" text-anchor="middle" fill="white"
+									font-family="monospace" font-size="55px" dy=".3em">{{exerciseDetails.score}}</text>
+</svg>
+							<p class="card-text marginTop0">
 								<small class="text-muted">gain up to
 									{{exerciseDetails.score}} points</small>
 							</p>
 						</div>
-						<div class="col-md-2 centered marginTop3P">
+						<div class="col-md-2 centered marginTop20">
 							<h4>Trophy</h4>
-							<img class="awd100" ng-src="{{exerciseDetails.trophy.img}}">
+							<img class="trophySVG" src="/assets/img/trophy.svg">
 							<p class="card-text">
 								<small class="text-muted">{{exerciseDetails.trophy.name}}</small>
 							</p>
@@ -298,10 +302,6 @@
 								href="#exercises/details/{{exerciseDetails.id}}/flags"
 								aria-controls="exercises/details/{{exerciseDetails.id}}/flags"
 								role="tab" data-toggle="tab">Exercise Flags</a></li>
-							<!-- <li role="presentation"><a data-target="#exercise-status"
-								href="#exercises/details/{{exerciseDetails.id}}/status"
-								aria-controls="exercises/details/{{exerciseDetails.id}}/status"
-								role="tab" data-toggle="tab">Exercise Results</a></li> -->
 						</ul>
 						<div class="tab-content">
 							<div role="tabpanel" class="tab-pane active" id="exercise-info">
@@ -315,10 +315,11 @@
 									</div>
 									<div id="{{topic.id}}" class="panel-collapse collapse in">
 										<div class="panel-body">
-											<div class="row" ng-repeat="i in topic.text">
+											<div class="row">
 												<div class="col-md-12">
-													<p>{{i.description}}</p>
-													<img class="pictureH320" ng-src="{{i.img}}">
+													<p>{{topic.description}}</p>
+													<img class="pictureH320"
+														ng-src="/user/image?type=exerciseInfo&id={{topic.id}}">
 												</div>
 											</div>
 										</div>
@@ -334,6 +335,10 @@
 								</div>
 							</div>
 							<div role="tabpanel" class="tab-pane" id="exercise-flags">
+								<div ng-show="asNotStarted">
+									<p class="lead alertPLead">To check the remediation status, start the Application Server in
+										the RTF exercise. Reference the 'General Information' tab for instructions.</p>
+								</div>
 								<div class="panel-group" id="accordion">
 									<div ng-repeat="flag in exerciseDetails.flags"
 										class="panel panel-default">
@@ -402,46 +407,6 @@
 											ng-click="downloadAPIReference(exerciseDetails.id)" href="">
 											reference</a>
 									</p>
-								</div>
-							</div>
-							<div role="tabpanel" class="tab-pane" id="exercise-status">
-								<div id="exerciseNotStarted"
-									ng-show="!exerciseStarted || !environmentReady">
-									<h4 class="lead alertPLead">When the exercise has started,
-										check this tab to verify the remediation status of each Flag.</h4>
-								</div>
-								<div id="exerciseStarted"
-									ng-show="exerciseStarted && environmentReady">
-									<table class="table" ng-hide="asNotStarted">
-										<thead>
-											<tr>
-												<th>Flag</th>
-												<th>Status</th>
-											</tr>
-										</thead>
-										<tbody>
-											<tr ng-repeat="flag in resultStatusData">
-												<td>{{flag.name}}</td>
-												<td ng-class="getRemedationTableClass(flag.status)">{{flag.status
-													&& 'Vulnerable' || 'Not Vulnerable'}}</td>
-											</tr>
-										</tbody>
-									</table>
-									<div ng-show="flagIsVulnerable">
-										<p class="lead alertPLead">The code is vulnerable,
-											remediate the exposure in the IDE. Reference the 'Exercise
-											Flags' tab for instructions.</p>
-									</div>
-									<div ng-show="asNotStarted">
-										<p class="lead alertPLead">Start the Application Server in
-											the RTF instance to check remediation status. Reference the
-											'General Information' tab for instructions.</p>
-									</div>
-									<div class="centered">
-										<button ng-click="refreshResults(exerciseDetails.id)"
-											class="btn btn-lg btn-primary marginBottom10">Refresh
-											Results</button>
-									</div>
 								</div>
 							</div>
 						</div>
@@ -594,10 +559,11 @@
 							</div>
 						</div>
 					</div>
-					<!-- <div class="row center marginTop20">
-						<button class="btn btn-lg btn-primary outline btn-block">Challenge
-							a user!</button>
-					</div> -->
+					<div class="centered marginTop20"
+						ng-show="masterChallengesList.length==null">
+						<img class="emptyExercises" src="/assets/img/emptyExercises.png" />
+						<p>There are no available challenges.</p>
+					</div>
 				</div>
 				<div ng-show="showChallengeDetails">
 
@@ -644,7 +610,8 @@
 				<div class="container">
 					<div class="row centered">
 						<h2 class="eblue">Running Exercises</h2>
-						<span class="badge scoreBadge">{{runningInstances.length}}</span>
+						<span class="badge scoreBadge"
+							ng-show="runningInstances.length > 0">{{runningInstances.length}}</span>
 						<div class="card-deck-wrapper marginTop20">
 							<div class="card-deck">
 								<div ng-repeat="ex in runningInstances" class="card"
@@ -709,10 +676,6 @@
 						<div ng-show="!user.team.name">
 							<img class="emptyTeam" src="/assets/img/emptyTeam.png" />
 							<p>You are not part of a team.</p>
-							<p>
-								If you think this is not correct, please contact <a
-									href="mailto:support@remediatetheflag.com">support</a>
-							</p>
 						</div>
 					</div>
 				</div>
@@ -732,11 +695,7 @@
 									ng-change="updateFilteredList()" ng-model="query"
 									class="queryInput">
 							</div>
-							<div ng-show="cancelledExercisesInHistory"
-								class="centered toggleHideCancelled">
-								<toggle onstyle="btn-primary" ng-model="hideCancelled"
-									on="Hide Cancelled" off="Show Cancelled"></toggle>
-							</div>
+
 							<table at-table at-paginated at-list="filteredCompletedList"
 								at-config="tableconfig" class="table table-hover">
 								<thead>
@@ -947,7 +906,7 @@
 								<div ng-repeat="t in ta"
 									ng-class="getTechnologyClass(t.technology)" class="card">
 									<div class="card-header">{{t.trophy.technology}}</div>
-									<img class="card-img-top height75" ng-src="{{t.trophy.img}}">
+									<img class="trophySVG" src="/assets/img/trophy.svg">
 									<div class="card-block">
 										<h4 class="card-title">{{t.trophy.name}}</h4>
 										<p class="card-text">{{t.trophy.description}}</p>
@@ -1047,18 +1006,7 @@
 										</a></li>
 									</ol>
 								</div>
-								<!-- <div class="col-md-3">
-										<h5>Time Zone</h5>
-										<ol class="nya-bs-select" required ng-model="user.timeZone"
-											data-size="20" data-live-search="true">
-											<li nya-bs-option="tz in timeZones | orderBy:'timeFromGMT'">
-												<a> {{tz.name}} (GMT {{number > 0 ? '+' :
-													''}}{{tz.timeFromGMT}}) <span
-													class="glyphicon glyphicon-ok check-mark"></span>
-											</a>
-											</li>
-										</ol>
-									</div> -->
+
 							</div>
 							<div class="row marginTop20">
 								<div class="col-md-3">
@@ -1113,10 +1061,10 @@
 					<form class="left" name="deleteAccountForm" novalidate>
 
 						<div class="row marginTop20">
-								<div>
-									<h4>Delete Account</h4>
-								</div>
+							<div>
+								<h4>Delete Account</h4>
 							</div>
+						</div>
 						<div class="row marginTop20">
 
 							<button type="button" ng-click="openRemoveModal()"
@@ -1124,65 +1072,45 @@
 						</div>
 					</form>
 				</div>
-			
-			<div id="userRemoveModal" class="modal fade" tabindex="-1"
-				role="dialog">
-				<div class="modal-dialog" role="document">
-					<div class="modal-content">
-						<div class="modal-header">
-							<button type="button" class="close" data-dismiss="modal"
-								aria-label="Close">
-								<span aria-hidden="true">&times;</span>
-							</button>
-							<h4 class="modal-title">Delete Account</h4>
-						</div>
-						<div class="modal-body">
-							<p class="lead">You are about to delete your account. This
-								action is not reversible.</p>
-						</div>
-						<div class="modal-footer">
-							<button ng-click="removeUser()" type="button"
-								class="btn btn-danger" data-dismiss="modal">Delete
-								Account</button>
-							<button type="button" class="btn btn-default"
-								data-dismiss="modal">Close</button>
+
+				<div id="userRemoveModal" class="modal fade" tabindex="-1"
+					role="dialog">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal"
+									aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+								<h4 class="modal-title">Delete Account</h4>
+							</div>
+							<div class="modal-body">
+								<p class="lead">You are about to delete your account. This
+									action is not reversible.</p>
+							</div>
+							<div class="modal-footer">
+								<button ng-click="removeUser()" type="button"
+									class="btn btn-danger" data-dismiss="modal">Delete
+									Account</button>
+								<button type="button" class="btn btn-default"
+									data-dismiss="modal">Close</button>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-</div>
-		
-	<!-- *****************************************************************************************************************
+
+			<!-- *****************************************************************************************************************
 	 FOOTER
 	 ***************************************************************************************************************** -->
-	<div id="footerwrap">
-		<div class="container">
-			<p class="center">RTF - 2018</p>
+			<div id="footerwrap">
+				<div class="container">
+					<p class="center">RTF - 2018</p>
+				</div>
+			</div>
 		</div>
-	</div>
-	</div>
-	<div class="waitLoader"></div>
-	<script src="/assets/js/jquery.min.js"></script>
-	<script src="/assets/js/bootstrap.min.js"></script>
-	<script src="/assets/js/angular.min.js"></script>
-	<script src="/assets/js/angular-route.min.js"></script>
-	<script src="/assets/js/nya-bs-select.min.js"></script>
-	<script src="/assets/js/highlight.min.js"></script>
-	<script src="/assets/js/diff2html.min.js"></script>
-	<script src="/assets/js/diff2html-ui.min.js"></script>
-	<script src="/assets/js/jszip.min.js"></script>
-	<script src="/assets/js/jszip-utils.js"></script>
-	<script src="/assets/js/pnotify.js"></script>
-	<script src="/assets/js/pnotify.confirm.js"></script>
-	<script src="/assets/js/pnotify.buttons.js"></script>
-	<script src="/assets/js/angular-pnotify.js"></script>
-	<script src="/assets/js/moment.min.js"></script>
-	<script src="/assets/js/angular-table.min.js"></script>
-	<script src="/assets/js/angular-bootstrap-toggle.min.js"></script>
-	<script src="/assets/js/angular-notification-icons.min.js"></script>
-	<script src="/assets/js/chart.min.js"></script>
-	<script src="/assets/js/Chart.PieceLabel.min.js"></script>
-	<script src="/assets/js/angular-chart.min.js"></script>
-	<script src="/user/js/user.js"></script>
+		<div class="waitLoader"></div>
+		<script src="/assets/js/libu.min.js"></script>
+		<script src="/user/js/user.js"></script>
 </body>
 </html>

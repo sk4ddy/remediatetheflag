@@ -26,6 +26,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.remediatetheflag.global.actions.IAction;
 import com.remediatetheflag.global.messages.MessageGenerator;
+import com.remediatetheflag.global.model.Organization;
 import com.remediatetheflag.global.model.Team;
 import com.remediatetheflag.global.model.User;
 import com.remediatetheflag.global.persistence.HibernatePersistenceFacade;
@@ -65,9 +66,28 @@ public class MakeUserTeamManagerAction extends IAction {
 			}
 		}
 		User user = hpc.getUserFromUsername(username,sessionUser.getManagedOrganizations());
-		if(null!=user){
-			hpc.addToTeamManager(team.getIdTeam(),user);
-			MessageGenerator.sendSuccessMessage(response);
+		if(null!=user && user.getDefaultOrganization().getId().equals(team.getOrganization().getId())){
+			if(!user.getRole().equals(Constants.ROLE_TEAM_MANAGER)) {
+				user.setRole(Constants.ROLE_TEAM_MANAGER);
+				hpc.updateUserInfo(user);
+				logger.debug("User "+user.getUsername()+" upgraded to Role 'Team Manager'");
+			}
+			boolean alreadyManaging = false;
+			for(Organization managed : user.getManagedOrganizations()) {
+				if(managed.getId().equals(team.getOrganization().getId())) {
+					alreadyManaging = true;
+					break;
+				}
+			}
+			if(!alreadyManaging) {
+				user.getManagedOrganizations().add(team.getOrganization());
+				hpc.updateUserInfo(user);
+				logger.debug("User "+user.getUsername()+" added to managing organization "+team.getOrganization());
+			}
+			if(hpc.addToTeamManager(team.getIdTeam(),user))
+				MessageGenerator.sendSuccessMessage(response);
+			else
+				MessageGenerator.sendErrorMessage("Error", response);
 		}
 		else{
 			MessageGenerator.sendErrorMessage("NotFound", response);

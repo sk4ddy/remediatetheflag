@@ -81,10 +81,10 @@ public class GetStatsGlobalAction extends IAction {
 		}
 		Stats stats = new Stats();
 		List<ExerciseInstance> exerciseInstances = hpc.getReviewedExerciseInstancesWithResultsFlagsUserForStats(filteredOrg);
-		if(null==exerciseInstances || exerciseInstances.isEmpty()){
+		/*if(null==exerciseInstances || exerciseInstances.isEmpty()){
 			MessageGenerator.sendErrorMessage("NotFound", response);
 			return;
-		}
+		}*/
 		List<ExerciseInstance> runningInstances = hpc.getAllRunningExerciseInstances(filteredOrg);
 		List<ExerciseInstance> pendingInstances = hpc.getManagegementPendingExerciseInstances(filteredOrg);
 		List<ExerciseInstance> cancelledInstances = hpc.getManagementCancelledExerciseInstances(filteredOrg);
@@ -145,7 +145,10 @@ public class GetStatsGlobalAction extends IAction {
 
 		stats.setNewIssuesIntroduced(issuesIntroduced);
 		stats.setMinutes(totalMinutes);
-		stats.setAvgExerciseDuration((double) (totalMinutes/(exerciseInstances.size())));
+		if(totalMinutes == 0 || exerciseInstances.isEmpty())
+			stats.setAvgExerciseDuration(0.0);
+		else
+			stats.setAvgExerciseDuration((double) (totalMinutes/(exerciseInstances.size())));
 
 		statsUtils.setTimePerRegion(exerciseInstances,stats);
 		statsUtils.setTimePerCategory(exerciseInstances,stats);

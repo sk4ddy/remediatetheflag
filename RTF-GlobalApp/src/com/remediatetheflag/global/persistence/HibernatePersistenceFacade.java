@@ -39,6 +39,7 @@ import com.amazonaws.regions.Regions;
 import com.remediatetheflag.global.model.AchievedTrophy;
 import com.remediatetheflag.global.model.AvailableExercise;
 import com.remediatetheflag.global.model.AvailableExerciseInfo;
+import com.remediatetheflag.global.model.AvailableExerciseStatus;
 import com.remediatetheflag.global.model.AvailableExercisesForOrganization;
 import com.remediatetheflag.global.model.Challenge;
 import com.remediatetheflag.global.model.ChallengeStatus;
@@ -52,6 +53,7 @@ import com.remediatetheflag.global.model.Feedback;
 import com.remediatetheflag.global.model.Flag;
 import com.remediatetheflag.global.model.FlagQuestion;
 import com.remediatetheflag.global.model.GuacTempUser;
+import com.remediatetheflag.global.model.InvitationCodeForOrganization;
 import com.remediatetheflag.global.model.Notification;
 import com.remediatetheflag.global.model.Organization;
 import com.remediatetheflag.global.model.RTFECSContainerTask;
@@ -67,7 +69,7 @@ import com.remediatetheflag.global.model.UserAuthenticationEvent;
 import com.remediatetheflag.global.model.UserFailedLogins;
 import com.remediatetheflag.global.model.UserStatus;
 import com.remediatetheflag.global.utils.Constants;
-import com.remediatetheflag.global.utils.SaltGenerator;
+import com.remediatetheflag.global.utils.RandomGenerator;
 
 public class HibernatePersistenceFacade {
 	private static Logger logger = LoggerFactory.getLogger(HibernatePersistenceFacade.class);
@@ -94,6 +96,41 @@ public class HibernatePersistenceFacade {
 	private static synchronized Session getHibernateSession() {
 		Session localSession = HibernatePersistenceSingleton.getSessionFactory().openSession();
 		return localSession;
+	}
+
+	public AvailableExerciseInfo getAvailableExerciseInfo(Integer id) {
+		HibernateSessionTransactionWrapper hb = openSessionTransaction();
+		try {
+			AvailableExerciseInfo info = hb.localSession.get( AvailableExerciseInfo.class, id );
+			closeSessionTransaction(hb);
+			return info;
+		}catch(Exception e){	
+			closeSessionTransaction(hb);
+			logger.error(e.getMessage());
+			return null;
+		}
+	}
+
+	public Boolean updateAvailableExerciseInfo(AvailableExerciseInfo updated) {
+		HibernateSessionTransactionWrapper hb = openSessionTransaction();
+		try {
+			AvailableExerciseInfo info = hb.localSession.get( AvailableExerciseInfo.class, updated.getId() );
+			if(null!=updated.getDescription())
+				info.setDescription(updated.getDescription());
+			if(null!=updated.getImage())
+				info.setImage(updated.getImage());
+			if(null!=updated.getInfoOrder())
+				info.setInfoOrder(updated.getInfoOrder());
+			if(null!=updated.getTitle())
+				info.setTitle(updated.getTitle());
+			hb.localSession.update(info);
+			closeSessionTransaction(hb);
+			return true;
+		}catch(Exception e){	
+			closeSessionTransaction(hb);
+			logger.error(e.getMessage());
+			return false;
+		}
 	}
 
 	public Integer addUser(User user){
@@ -129,6 +166,7 @@ public class HibernatePersistenceFacade {
 			return new LinkedList<User>();
 		}
 	}
+
 	public User getUser(String username, String password){		
 		EntityManager em =  getHibernateEntityManager();
 		User user;
@@ -203,7 +241,6 @@ public class HibernatePersistenceFacade {
 			o.setActive(g.isActive());
 			o.setFqdn(g.getFqdn());
 			o.setName(g.getName());
-			o.setRegion(g.getRegion());
 			hb.localSession.update(o);
 			closeSessionTransaction(hb);
 			return true;
@@ -229,6 +266,8 @@ public class HibernatePersistenceFacade {
 			return false;
 		}
 	}
+
+
 	public Boolean addUserToTeam(User usr, Team team) {
 		User user = getUserFromUserId(usr.getIdUser());
 		user.setTeam(team);
@@ -312,6 +351,9 @@ public class HibernatePersistenceFacade {
 		oldUser.setTeam(user.getTeam());
 		oldUser.setUsername(user.getUsername());
 		oldUser.setStatus(user.getStatus());
+		oldUser.setExercisesRun(user.getExercisesRun());
+		oldUser.setRole(user.getRole());
+		oldUser.setManagedOrganizations(user.getManagedOrganizations());
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
 		try {
 			hb.localSession.update(oldUser);
@@ -336,7 +378,7 @@ public class HibernatePersistenceFacade {
 		}
 	}
 	public Boolean updateUserPassword(Integer idUser, String newPwd) {
-		String salt = SaltGenerator.getNextSalt();
+		String salt = RandomGenerator.getNextSalt();
 		String pwd = DigestUtils.sha512Hex(newPwd.concat(salt)); 
 		User user = getUserFromUserId(idUser);
 		user.setSalt(salt);
@@ -364,6 +406,7 @@ public class HibernatePersistenceFacade {
 			return null;
 		}
 	}
+
 	@SuppressWarnings("unchecked")
 	public List<AvailableExercise> getAllAvailableExercises(){
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
@@ -396,6 +439,21 @@ public class HibernatePersistenceFacade {
 			return new LinkedList<AvailableExercisesForOrganization>();
 		}
 	}
+	public AvailableExercise getExerciseByName(String name) {
+		HibernateSessionTransactionWrapper hb = openSessionTransaction();
+		try {
+			AvailableExercise exercise = (AvailableExercise) hb.localSession.createQuery("from AvailableExercise where title = :title")
+					.setParameter("title", name)
+					.getSingleResult();
+			closeSessionTransaction(hb);
+			return exercise;
+		} catch(Exception e){	
+			closeSessionTransaction(hb);
+			logger.error(e.getMessage());		
+			return null;
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	public List<AvailableExercise> getAllAvailableExercises(Set<Organization> organizations){
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
@@ -492,10 +550,10 @@ public class HibernatePersistenceFacade {
 	public AvailableExercise getAvailableExerciseDetails(Integer exerciseId) {
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
 		AvailableExercise exercise = hb.localSession.get( AvailableExercise.class, exerciseId );
-		if(null==exercise || !exercise.isActive()){
+		if(null==exercise || (!exercise.getStatus().equals(AvailableExerciseStatus.AVAILABLE) && !exercise.getStatus().equals(AvailableExerciseStatus.UPDATED))){
 			return null;
 		}
-		for(AvailableExerciseInfo i : exercise.getInfo()){
+		for(AvailableExerciseInfo i : exercise.getInfoList()){
 			Hibernate.initialize(i);
 		}	
 		for(Flag f : exercise.getFlags()){
@@ -504,7 +562,7 @@ public class HibernatePersistenceFacade {
 		closeSessionTransaction(hb);
 		return exercise;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public List<Country> getAllCountries(){
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
@@ -518,7 +576,7 @@ public class HibernatePersistenceFacade {
 			return null;
 		}
 	}
-	
+
 	public Country getCountryFromCode(String code) {
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
 		try{
@@ -719,6 +777,70 @@ public class HibernatePersistenceFacade {
 			return false;
 		}
 	}
+	public Boolean removeAvailableExercise(Integer idExercise) {
+		HibernateSessionTransactionWrapper hb = openSessionTransaction();
+		try {
+			AvailableExercise ex = (AvailableExercise) hb.localSession.load(AvailableExercise.class,idExercise);
+			hb.localSession.delete(ex);
+			closeSessionTransaction(hb);
+			return true;
+		}catch(Exception e){	
+			closeSessionTransaction(hb);
+			logger.error(e.getMessage());		
+			return false;
+		}
+	}
+	@SuppressWarnings("unchecked")
+	public Boolean deleteOrganization(Integer idOrg) {
+		HibernateSessionTransactionWrapper hb = openSessionTransaction();
+		try {
+			Organization o = (Organization) hb.localSession.load(Organization.class,idOrg);
+			hb.localSession.delete(o);
+			closeSessionTransaction(hb);
+			return true;
+		}catch(Exception e){	
+			logger.error("Trying to remove org from users managed organizations due to:\n" +e.getMessage());		
+			List<User> users = new LinkedList<User>();
+			hb = openSessionTransaction();
+			try {
+				Organization o = (Organization) hb.localSession.load(Organization.class,idOrg);
+				users = hb.localSession.createQuery("select u from User u inner join u.managedOrganizations managedOrgs "
+						+ "where managedOrgs.id = :orgId ")
+						.setParameter( "orgId", o.getId() )
+						.getResultList();
+				for(User u : users) {
+					for(Organization org : u.getManagedOrganizations()) {
+						if(org.getId().equals(idOrg)) {
+							u.getManagedOrganizations().remove(org);
+							break;
+						}
+					}
+					hb.localSession.update(u);
+				}
+				logger.error("Managing users removed, trying to remove org again...");		
+				hb.localSession.delete(o);
+				closeSessionTransaction(hb);
+				logger.error("Removal was successful...");		
+				return true;
+			}catch(Exception innerException){	
+				logger.error("Removal unsuccessful, rolling back users managed organizations due to:\n" +innerException.getMessage());		
+				hb = openSessionTransaction();
+				try {
+					Organization dbOrg = (Organization) hb.localSession.load(Organization.class,idOrg);
+					for(User u : users) {
+						u.getManagedOrganizations().add(dbOrg);
+						hb.localSession.update(u);
+					}			
+					closeSessionTransaction(hb);
+					return false;
+				}catch(Exception rollExp) {
+					closeSessionTransaction(hb);
+					return false;
+				}
+			}
+		}
+	}
+
 	public Boolean deleteFlag(Integer idFlag) {
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
 		try {
@@ -947,6 +1069,21 @@ public class HibernatePersistenceFacade {
 			closeSessionTransaction(hb);
 			logger.error(e.getMessage());
 			return new LinkedList<User>();
+		}
+	}
+	@SuppressWarnings("unchecked")
+	public List<Team> geTeamsManagedBy(User sessionUser) {
+		HibernateSessionTransactionWrapper hb = openSessionTransaction();
+		try{	
+			List<Team> ei = hb.localSession.createQuery("select distinct(t) from Team t inner join t.managers man where man.idUser =:idUsr")
+					.setParameter("idUsr", sessionUser.getIdUser())
+					.getResultList();
+			closeSessionTransaction(hb);
+			return ei;
+		} catch(Exception e){	
+			closeSessionTransaction(hb);
+			logger.error(e.getMessage());
+			return new LinkedList<Team>();
 		}
 	}
 	@SuppressWarnings("unchecked")
@@ -1337,7 +1474,7 @@ public class HibernatePersistenceFacade {
 
 			Hibernate.initialize(ei.getUsedHints());
 			Hibernate.initialize(ei.getUser());
-			for(AvailableExerciseInfo i : ei.getAvailableExercise().getInfo()){
+			for(AvailableExerciseInfo i : ei.getAvailableExercise().getInfoList()){
 				Hibernate.initialize(i);
 			}	
 			for(Flag f : ei.getAvailableExercise().getQuestionsList()){
@@ -1395,7 +1532,7 @@ public class HibernatePersistenceFacade {
 				Hibernate.initialize(er);
 			}
 			Hibernate.initialize(ei.getUsedHints());
-			for(AvailableExerciseInfo i : ei.getAvailableExercise().getInfo()){
+			for(AvailableExerciseInfo i : ei.getAvailableExercise().getInfoList()){
 				Hibernate.initialize(i);
 			}	
 			for(Flag f : ei.getAvailableExercise().getQuestionsList()){
@@ -1584,7 +1721,7 @@ public class HibernatePersistenceFacade {
 					+ "where "
 					+ "ei.user.idUser = :userId "
 					+ "and "
-					+ "ei.status >= 3")
+					+ "ei.status > 3")
 					.setParameter( "userId", idUser )
 					.getResultList();
 			closeSessionTransaction(hb);
@@ -1796,7 +1933,7 @@ public class HibernatePersistenceFacade {
 			return td.getTaskDefinition();
 		} catch(Exception e){
 			closeSessionTransaction(hb);
-			logger.error(e.getMessage());
+			logger.warn("Exercise id "+exerciseId+" does not have task definition in region "+region.getName()+" : "+e.getMessage());
 			return null;
 		}
 	}
@@ -2057,21 +2194,7 @@ public class HibernatePersistenceFacade {
 		closeSessionTransaction(hb);
 		return successful;
 	}
-	public Organization getOrganizationFromInvitationCode(String orgInvitationCode) {
-		HibernateSessionTransactionWrapper hb = openSessionTransaction();
-		try{
-			Organization result = (Organization) hb.localSession.createQuery("select u.organization from InvitationCodeForOrganization u "
-					+ "where u.code =:code")
-					.setParameter( "code", orgInvitationCode)
-					.getSingleResult();
-			closeSessionTransaction(hb);
-			return result;
-		}catch(Exception e){
-			closeSessionTransaction(hb);
-			logger.error(e.getMessage());
-			return null;
-		}
-	}
+	
 	public Integer addChallenge(Challenge c) {
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
 		Integer id;
@@ -2111,7 +2234,7 @@ public class HibernatePersistenceFacade {
 			return null;
 		}
 	}
-	
+
 	public RTFInstanceReservation getReservation(Integer reservationId) {
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
 		try {
@@ -2136,13 +2259,13 @@ public class HibernatePersistenceFacade {
 			return false;
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public List<RTFInstanceReservation> getUnfulfilledReservationsForUser(User sessionUser) {
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
 		try {
 			List<RTFInstanceReservation> reservations = hb.localSession.createQuery("select r from RTFInstanceReservation r "
-					+ "where r.user.idUser = :userId and r.fulfilled is false")
+					+ "where r.user.idUser = :userId and r.fulfilled is false and r.error is false")
 					.setParameter("userId", sessionUser.getIdUser())
 					.getResultList();
 			closeSessionTransaction(hb);
@@ -2221,7 +2344,10 @@ public class HibernatePersistenceFacade {
 					break;
 				}
 			}
-			hb.localSession.update(exercises);
+			if(exercises.getExercises().isEmpty())
+				hb.localSession.delete(exercises);
+			else
+				hb.localSession.update(exercises);
 			closeSessionTransaction(hb);
 			return true;
 		} catch(Exception e) {
@@ -2405,7 +2531,87 @@ public class HibernatePersistenceFacade {
 			return null;
 		}
 	}
+	public Boolean addInvitationCode(InvitationCodeForOrganization invite) {
+		HibernateSessionTransactionWrapper hb = openSessionTransaction();
+		try {
+			hb.localSession.save( invite );
+			closeSessionTransaction(hb);
+			return true;
+		}catch(Exception e){	
+			closeSessionTransaction(hb);
+			logger.error(e.getMessage());
+			return false;
+		}
+	}
 	
+	public Boolean removeInvitationCode(String code, Integer orgId) {
+		HibernateSessionTransactionWrapper hb = openSessionTransaction();
+		try{
+			InvitationCodeForOrganization result = (InvitationCodeForOrganization) hb.localSession.createQuery("select u from InvitationCodeForOrganization u "
+					+ "where u.code = :orgInvitationCode and u.organization.id = :orgId")
+					.setParameter( "orgInvitationCode", code)
+					.setParameter( "orgId", orgId)
+					.getSingleResult();
+			hb.localSession.delete(result);
+			closeSessionTransaction(hb);
+			return true;
+		}catch(Exception e){
+			closeSessionTransaction(hb);
+			logger.error(e.getMessage());
+			return false;
+		}
+	}
+
+	public Boolean decreseOrganizationCodeRedeem(Organization o, String orgInvitationCode) {
+		HibernateSessionTransactionWrapper hb = openSessionTransaction();
+		try{
+			InvitationCodeForOrganization result = (InvitationCodeForOrganization) hb.localSession.createQuery("select u from InvitationCodeForOrganization u "
+					+ "where u.code = :orgInvitationCode")
+					.setParameter( "orgInvitationCode", orgInvitationCode)
+					.getSingleResult();
+			result.setLeftToRedeem((result.getLeftToRedeem()-1));
+			hb.localSession.update(result);
+			closeSessionTransaction(hb);
+			return true;
+		}catch(Exception e){
+			closeSessionTransaction(hb);
+			logger.error(e.getMessage());
+			return false;
+		}
+	}
+
+	public Organization getOrganizationFromInvitationCode(String orgInvitationCode) {
+		HibernateSessionTransactionWrapper hb = openSessionTransaction();
+		try{
+			Organization result = (Organization) hb.localSession.createQuery("select u.organization from InvitationCodeForOrganization u "
+					+ "where u.code =:code and u.leftToRedeem>0")
+					.setParameter( "code", orgInvitationCode)
+					.getSingleResult();
+			closeSessionTransaction(hb);
+			return result;
+		}catch(Exception e){
+			closeSessionTransaction(hb);
+			logger.error(e.getMessage());
+			return null;
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<InvitationCodeForOrganization> getInvitationCodesForOrganization(Integer orgId) {
+		HibernateSessionTransactionWrapper hb = openSessionTransaction();
+		try{
+			List<InvitationCodeForOrganization> result = hb.localSession.createQuery("select u from InvitationCodeForOrganization u "
+					+ "where u.organization.id = :orgId")
+					.setParameter( "orgId", orgId)
+					.getResultList();
+			closeSessionTransaction(hb);
+			return result;
+		}catch(Exception e){
+			closeSessionTransaction(hb);
+			logger.error(e.getMessage());
+			return new LinkedList<InvitationCodeForOrganization>();
+		}
+	}
 
 
 

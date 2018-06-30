@@ -52,6 +52,7 @@ import com.amazonaws.services.ecs.model.DescribeContainerInstancesRequest;
 import com.amazonaws.services.ecs.model.DescribeContainerInstancesResult;
 import com.amazonaws.services.ecs.model.DescribeTasksRequest;
 import com.amazonaws.services.ecs.model.DescribeTasksResult;
+import com.amazonaws.services.ecs.model.Failure;
 import com.amazonaws.services.ecs.model.KeyValuePair;
 import com.amazonaws.services.ecs.model.ListTasksRequest;
 import com.amazonaws.services.ecs.model.ListTasksResult;
@@ -104,12 +105,13 @@ public class AWSHelper {
 		AmazonECS client = AmazonECSClientBuilder.standard().withRegion(region.getName()).withCredentials(new DefaultAWSCredentialsProviderChain()).build();
 		DescribeClustersRequest request = new DescribeClustersRequest();
 		request.withClusters(RTFConfig.getExercisesCluster());
+		logger.debug("Requesting number of cluster running instances for region "+region.getName()+" cluster "+RTFConfig.getExercisesCluster());
 		try {
 			DescribeClustersResult response = client.describeClusters(request);
 			return response.getClusters().get(0).getRegisteredContainerInstancesCount();
 		}
 		catch(Exception e){
-			logger.error("Error getClusterContainerInstances "+e.getMessage());
+			logger.error("Error getClusterContainerInstances for region "+region.getName()+" due to:\n"+e.getMessage());
 			return 0;
 		}
 	}
@@ -133,12 +135,14 @@ public class AWSHelper {
 				.withStatistics("Average")
 				.withNamespace("AWS/ECS");
 		try {
+			logger.debug("Requesting memory reservation for region "+region.getName()+" cluster "+RTFConfig.getExercisesCluster());
+
 			GetMetricStatisticsResult response = client.getMetricStatistics(request);
 			if(response.getDatapoints().isEmpty())
 				return 0.0;
 			return response.getDatapoints().get(0).getAverage();
 		}catch(Exception e){
-			logger.error("Error getClusterContainerInstances "+e.getMessage());
+			logger.error("Error getClusterContainerInstances for memory reservation in region "+region.getName()+" due to:\n"+e.getMessage());
 			return 0.0;
 		}
 	}
@@ -163,8 +167,8 @@ public class AWSHelper {
 				.withMemoryReservation(taskDef.getSoftMemoryLimit())
 				.withMemory(taskDef.getHardMemoryLimit())
 				.withPortMappings(portMappings)
+				.withPrivileged(true)
 				.withEssential(true);
-		//TODO  .withLogConfiguration(logConfiguration)
 
 		request.setContainerDefinitions(Arrays.asList(def));
 		request.setFamily(taskDef.getTaskDefinitionName());
@@ -207,9 +211,18 @@ public class AWSHelper {
 		co.setName(taskDef.getContainerName());
 		containerOverrides.add(co);
 		overrides.setContainerOverrides(containerOverrides);	
-		RunTaskRequest request = new RunTaskRequest().withCluster(clusterName).withTaskDefinition(taskDef.getTaskDefinitionName()).withOverrides(overrides);
+		RunTaskRequest request = new RunTaskRequest().withCluster(clusterName).withTaskDefinition(taskDef.getTaskDefinitionArn()).withOverrides(overrides);
+		logger.debug("# ECS Requesting Task "+instanceName+" for user "+user.getIdUser()+" with task definition: "+taskDef.getTaskDefinitionArn()+" on cluster: "+clusterName+" on region "+taskDef.getRegion().getName());
 		try {
 			RunTaskResult response = client.runTask(request);
+			String failureReason = "";
+			if(response.getTasks().isEmpty()) {
+				for(Failure failure : response.getFailures()) {
+					failureReason += "\n"+ failure.getReason();
+				}
+				logger.error("Task creation failed due to: \n"+failureReason);
+				return null;
+			}
 			Task task = response.getTasks().get(0);
 			RTFECSContainerTask rtfInstance = new RTFECSContainerTask();
 			rtfInstance.setCluster(task.getClusterArn());
@@ -220,7 +233,7 @@ public class AWSHelper {
 			rtfInstance.setUser(user);
 			rtfInstance.setCreateTime(task.getCreatedAt());
 			rtfInstance.setStatus(Constants.STATUS_PENDING);
-			logger.debug("# ECS Task "+instanceName+" created for user "+user.getIdUser()+" start: "+rtfInstance.getCreateTime());
+			logger.debug("# ECS Task "+instanceName+" created for user "+user.getIdUser()+" with task definition: "+taskDef.getTaskDefinitionName()+" start: "+rtfInstance.getCreateTime());
 			return rtfInstance;
 		}catch(Exception e) {
 			logger.warn("# ECS Task "+instanceName+" could not be created for user "+user.getIdUser()+" "+e.getMessage());
@@ -231,13 +244,14 @@ public class AWSHelper {
 	public List<String> getRunningECSTasks(List<Region> activeRegions){
 		LinkedList<String> list = new LinkedList<String>();
 		for(Region region : activeRegions) {
+			logger.debug("Enumerating running tasks on cluster "+RTFConfig.getExercisesCluster()+" for region "+region.getName());
 			AmazonECS client = AmazonECSClientBuilder.standard().withRegion(Regions.fromName(region.getName())).withCredentials(new DefaultAWSCredentialsProviderChain()).build();
 			ListTasksRequest request = new ListTasksRequest().withCluster(RTFConfig.getExercisesCluster());
 			try {
 				ListTasksResult response = client.listTasks(request);
 				list.addAll(response.getTaskArns());
 			}catch(Exception e) {
-				logger.error("Error getRunningECSTasks "+e.getMessage());
+				logger.error("Error getRunningECSTasks for region "+region+" due to:\n"+e.getMessage());
 			}
 		}
 		return list;

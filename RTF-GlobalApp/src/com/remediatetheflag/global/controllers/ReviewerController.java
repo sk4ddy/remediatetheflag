@@ -40,6 +40,7 @@ public class ReviewerController extends ActionsController {
 			}
 					);
 		}});
+		
 		type2action.put("unlockUserAccount", com.remediatetheflag.global.actions.auth.management.reviewer.UnlockUserAccountAction.class);
 		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.reviewer.UnlockUserAccountAction.class, new HashMap<String, Class[]>() {{
 			put(Constants.ACTION_PARAM_USERNAME, new Class[]{
@@ -75,6 +76,18 @@ public class ReviewerController extends ActionsController {
 					);
 			put(Constants.ACTION_PARAM_LAST_NAME, new Class[]{
 					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_ROLE_ID, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			}
+					);
+			put(Constants.ACTION_PARAM_CONCURRENT_EXERCISE_LIMIT, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			}
+					);
+			put(Constants.ACTION_PARAM_FORCE_PASSWORD_CHANGE, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorBoolean.class
 			}
 					);
 		}});

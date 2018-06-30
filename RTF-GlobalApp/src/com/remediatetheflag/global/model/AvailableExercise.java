@@ -85,11 +85,6 @@ public class AvailableExercise {
 	@Expose
 	private Integer score;
 
-	@Column(name = "scoreImg")
-	@SerializedName("scoreImg")
-	@Expose
-	private String scoreImg;
-
 	@Column(name = "technology")
 	@SerializedName("technology")
 	@Expose
@@ -97,6 +92,7 @@ public class AvailableExercise {
 
 	@SerializedName("trophy")
 	@Expose
+	@Cascade({CascadeType.ALL})
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "trophyId")
 	private Trophy trophy;
@@ -113,19 +109,17 @@ public class AvailableExercise {
 
 	@SerializedName("resources")
 	@Expose
+	@Cascade({CascadeType.ALL})
     @ElementCollection(targetClass = String.class,fetch=FetchType.EAGER)
 	@CollectionTable(name = "availableExercises_resources")
 	@MapKeyColumn(name="resource")
 	@Column(name="address")
 	private Map<String, String> resources = new HashMap<String, String>();
-
-	@Column(name = "instanceDuration")
-	private Integer instanceDuration;
-
+	
 	@SerializedName("info")
 	@LazilySerialized
 	@Expose
-	@Cascade({CascadeType.SAVE_UPDATE})
+	@Cascade({CascadeType.ALL})
 	@ManyToMany(fetch = FetchType.LAZY)
 	@OrderBy("infoOrder")
 	private List<AvailableExerciseInfo> infoList = new ArrayList<AvailableExerciseInfo>();
@@ -135,14 +129,14 @@ public class AvailableExercise {
 	@HistoryDetails
 	@ChallengeDetails
 	@Expose
-	@Cascade({CascadeType.SAVE_UPDATE})
+	@Cascade({CascadeType.ALL})
 	@OneToMany(fetch = FetchType.LAZY)
 	private List<Flag> questionsList = new ArrayList<Flag>();
 
 	@SerializedName("referenceFile")
 	@LazilySerialized
 	@Expose
-	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.SAVE_UPDATE})
+	@Cascade({CascadeType.ALL})
 	@ManyToOne(fetch = FetchType.LAZY)
 	private AvailableExerciseReferenceFile referenceFile = new AvailableExerciseReferenceFile();
 
@@ -155,15 +149,10 @@ public class AvailableExercise {
 	@SerializedName("solutionFile")
 	@LazilySerialized
 	@Expose
-	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.SAVE_UPDATE})
+	@Cascade({CascadeType.ALL})
 	@ManyToOne(fetch = FetchType.LAZY)
 	private AvailableExerciseSolutionFile solutionFile = new AvailableExerciseSolutionFile();
 
-	@SerializedName("active")
-	@Expose
-	@Column(name = "active")
-	private boolean active;
-	
 	@SerializedName("status")
 	@Expose
 	@Column(name = "status")
@@ -314,23 +303,6 @@ public class AvailableExercise {
 		this.duration = duration;
 	}
 
-	/**
-	 * 
-	 * @return
-	 *     The info
-	 */
-	public List<AvailableExerciseInfo> getInfo() {
-		return infoList;
-	}
-
-	/**
-	 * 
-	 * @param info
-	 *     The info
-	 */
-	public void setInfo(List<AvailableExerciseInfo> info) {
-		this.infoList = info;
-	}
 
 	/**
 	 * 
@@ -350,28 +322,6 @@ public class AvailableExercise {
 		this.questionsList = flags;
 	}
 
-	public boolean isActive() {
-		return active;
-	}
-
-	public void setActive(boolean active) {
-		this.active = active;
-	}
-
-	public Integer getInstanceDuration() {
-		return instanceDuration;
-	}
-	public void setInstanceDuration(Integer duration) {
-		this.instanceDuration = duration;
-	}
-
-	public String getScoreImg() {
-		return scoreImg;
-	}
-
-	public void setScoreImg(String scoreImg) {
-		this.scoreImg = scoreImg;
-	}
 
 	public List<AvailableExerciseInfo> getInfoList() {
 		return infoList;
@@ -419,6 +369,22 @@ public class AvailableExercise {
 
 	public void setResources(Map<String, String> resources) {
 		this.resources = resources;
+	}
+
+	public AvailableExerciseType getExerciseType() {
+		return exerciseType;
+	}
+
+	public void setExerciseType(AvailableExerciseType exerciseType) {
+		this.exerciseType = exerciseType;
+	}
+
+	public AvailableExerciseStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(AvailableExerciseStatus status) {
+		this.status = status;
 	}
 
 }

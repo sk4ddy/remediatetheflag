@@ -56,8 +56,8 @@ public class PollReservationUpdate extends IAction {
 		Integer reservationId = json.get(Constants.ACTION_PARAM_ID).getAsInt();
 		
 		RTFInstanceReservation reservation = hpc.getReservation(reservationId);
-	
-		if(!reservation.getUser().getIdUser().equals(user.getIdUser())){
+
+		if(null==reservation || reservation.getError() || !reservation.getUser().getIdUser().equals(user.getIdUser())){
 			MessageGenerator.sendErrorMessage("NotFound", response);
 			return;
 		}

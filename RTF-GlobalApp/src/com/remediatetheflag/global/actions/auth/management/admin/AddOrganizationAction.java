@@ -41,39 +41,27 @@ public class AddOrganizationAction extends IAction {
 
 	@Override
 	public void doAction(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		
+			
 		JsonObject json = (JsonObject) request.getAttribute(Constants.REQUEST_JSON);
 
 		JsonElement nameElement = json.get(Constants.ACTION_PARAM_NAME);
-		JsonElement contactEmailElement = json.get(Constants.ACTION_PARAM_CONTACT_EMAIL);
+		JsonElement contactEmailElement = json.get(Constants.ACTION_PARAM_EMAIL);
 		JsonElement maxUsersElement = json.get(Constants.ACTION_PARAM_MAX_USERS);
-		//JsonElement allowedDomainsElement = json.get(Constants.ACTION_PARAM_ALLOWED_DOMAINS);
 		
 		String name = nameElement.getAsString();
 		String contactEmail = contactEmailElement.getAsString();
 		Integer maxUsers = maxUsersElement.getAsInt();
-		
-		/*
-		List<String> allowedDomains = new LinkedList<String>();
 
-		for(JsonElement domainElement : allowedDomainsElement.getAsJsonArray()){
-			allowedDomains.add(domainElement.getAsString());
-		}
-		*/
-		
 		Organization o = new Organization();
 		
 		Calendar c = Calendar.getInstance();
 		c.setTime(new Date());
 		o.setDateJoined(c.getTime());
 		c.add(Calendar.YEAR, 2); 
-		o.setDateExpiration(c.getTime());
 		o.setName(name);
-		o.setContactEmail(contactEmail);
+		o.setEmail(contactEmail);
 		o.setMaxUsers(maxUsers);
 		o.setStatus(OrganizationStatus.ACTIVE);
-		//o.setAllowedEmailDomains(allowedDomains);s
 		
 		Integer id = hpc.addOrganization(o);
 		if(null!=id){

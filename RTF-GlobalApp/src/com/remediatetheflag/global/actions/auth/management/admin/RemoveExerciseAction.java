@@ -26,26 +26,29 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.remediatetheflag.global.actions.IAction;
 import com.remediatetheflag.global.messages.MessageGenerator;
-import com.remediatetheflag.global.model.Organization;
 import com.remediatetheflag.global.persistence.HibernatePersistenceFacade;
 import com.remediatetheflag.global.utils.Constants;
 
-public class CheckOrganizationNameAvailable extends IAction {
+public class RemoveExerciseAction extends IAction {
+
 
 	private HibernatePersistenceFacade hpc = new HibernatePersistenceFacade();
 
+	@Override
 	public void doAction(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		JsonObject json = (JsonObject) request.getAttribute(Constants.REQUEST_JSON);
-					
-		JsonElement nameElement = json.get(Constants.ACTION_PARAM_NAME);
-		String name = nameElement.getAsString();
 
-		Organization existingOrg = hpc.getOrganizationByName(name);
-		if (existingOrg != null) {
-			MessageGenerator.sendAvailable(false, response);
-		} else {
-			MessageGenerator.sendAvailable(true, response);
+		JsonObject json = (JsonObject) request.getAttribute(Constants.REQUEST_JSON);
+
+		JsonElement idExerciseElement = json.get(Constants.ACTION_PARAM_EXERCISE_ID);
+		Integer idExercise = idExerciseElement.getAsInt();
+		
+		Boolean result = hpc.removeAvailableExercise(idExercise);
+		if(!result) {
+			logger.warn("Could not remove exercise "+idExercise);
+			MessageGenerator.sendErrorMessage("ExerciseRemoveFailed", response);
 		}
+		MessageGenerator.sendSuccessMessage(response);
+		return;	
 	}
 
 }

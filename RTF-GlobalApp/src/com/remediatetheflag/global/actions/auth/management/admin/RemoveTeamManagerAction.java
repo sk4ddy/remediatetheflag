@@ -19,6 +19,8 @@
  */
 package com.remediatetheflag.global.actions.auth.management.admin;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -53,6 +55,11 @@ public class RemoveTeamManagerAction extends IAction {
 		User user = hpc.getUserFromUsername(username,sessionUser.getManagedOrganizations());
 		if(null!=user){
 			hpc.removeFromTeamManager(team.getIdTeam(),user);
+			List<Team> teams = hpc.geTeamsManagedBy(sessionUser);
+			if(teams.isEmpty() && user.getRole().equals(Constants.ROLE_TEAM_MANAGER)) {
+				user.setRole(Constants.ROLE_USER);
+				hpc.updateUserInfo(user);
+			}
 			MessageGenerator.sendSuccessMessage(response);
 		}
 		else{

@@ -410,50 +410,6 @@ a:hover, a:focus {
 	text-align: center;
 }
 
-/* Testimonials Wrap */
-#twrap {
-	background: url(../img/t-back.jpg) no-repeat center top;
-	margin-top: 0px;
-	padding-top: 60px;
-	text-align: center;
-	background-attachment: relative;
-	background-position: center center;
-	min-height: 450px;
-	width: 100%;
-	-webkit-background-size: 100%;
-	-moz-background-size: 100%;
-	-o-background-size: 100%;
-	background-size: 100%;
-	-webkit-background-size: cover;
-	-moz-background-size: cover;
-	-o-background-size: cover;
-	background-size: cover;
-}
-
-#twrap i {
-	font-size: 50px;
-	color: white;
-	margin-bottom: 25px;
-}
-
-#twrap p {
-	color: white;
-	font-size: 15px;
-	line-height: 30px;
-}
-
-/* clients logo */
-#cwrap {
-	background: #f7f7f7;
-	margin-top: 0px;
-	padding-top: 80px;
-	padding-bottom: 100px;
-}
-
-#cwrap h3 {
-	margin-bottom: 60px;
-}
-
 /* Footer */
 #footerwrap {
 	padding-top: 8px;
@@ -523,26 +479,6 @@ csmall2 {
 
 .badge-theme {
 	background: #00b3fe;
-}
-
-/* Contact Page */
-#contactwrap {
-	background: url(../img/contact.jpg) no-repeat center top;
-	margin-top: -60px;
-	padding-top: 0px;
-	text-align: center;
-	background-attachment: relative;
-	background-position: center center;
-	min-height: 400px;
-	width: 100%;
-	-webkit-background-size: 100%;
-	-moz-background-size: 100%;
-	-o-background-size: 100%;
-	background-size: 100%;
-	-webkit-background-size: cover;
-	-moz-background-size: cover;
-	-o-background-size: cover;
-	background-size: cover;
 }
 
 /* Blog Page */
@@ -873,7 +809,13 @@ csmall2 {
 	
 	
 	
+	
+	
+	
 	 
+	
+	
+	
 	
 	
 	
@@ -911,6 +853,12 @@ csmall2 {
 	
 	
 	
+	
+	
+	
+	
+	
+	
 	:not
 	
 	
@@ -924,7 +872,13 @@ csmall2 {
 	
 	
 	
+	
+	
+	
 	 
+	
+	
+	
 	
 	
 	
@@ -951,7 +905,13 @@ csmall2 {
 	
 	
 	
+	
+	
+	
 	 
+	
+	
+	
 	
 	
 	
@@ -978,7 +938,13 @@ csmall2 {
 	
 	
 	
+	
+	
+	
 	 
+	
+	
+	
 	
 	
 	
@@ -1005,7 +971,13 @@ csmall2 {
 	
 	
 	
+	
+	
+	
 	 
+	
+	
+	
 	
 	
 	
@@ -1045,6 +1017,12 @@ csmall2 {
 	
 	
 	
+	
+	
+	
+	
+	
+	
 	:
 	
 	
@@ -1058,7 +1036,13 @@ csmall2 {
 	
 	
 	
+	
+	
+	
 	 
+	
+	
+	
 	
 	
 	
@@ -1521,8 +1505,10 @@ csmall2 {
 }
 
 .alertPLead {
-	color: rgba(255, 0, 0, 0.6);
-	margin-left: 15px;
+color: rgba(255, 0, 0, 0.81);
+    font-size: 18px;
+    text-align: center;
+    font-weight: bold;
 }
 
 .historyButtons {
@@ -2077,7 +2063,7 @@ a.dropdown-item {
 }
 
 .navbar-nav {
-    width: 103%;
+	width: 103%;
 	height: 55px;
 	text-align: center;
 }
@@ -2147,6 +2133,18 @@ a.dropdown-item {
 	
 }
 
+.exerciseToggle {
+	
+}
+
+.exerciseToggle .toggle.btn.btn-default.off {
+	width: 120px !important;
+}
+
+.exerciseToggle .toggle.btn.btn-success {
+	width: 120px !important;
+}
+
 .gatewayToggle .toggle.btn.btn-default.off {
 	width: 100px !important;
 }
@@ -2169,8 +2167,30 @@ a.dropdown-item {
 	min-height: 101%;
 }
 
+.marginBottom2 {
+	margin-bottom: 2px;
+}
+
+.marginTop6 {
+	margin-top: 6px;
+}
+
 .regionsModal {
-	height: 430px;
+	height: 420px;
+	padding-top: 2px;
+}
+
+.sectionModal {
+	height: 394px;
+}
+
+.exercisesModal {
+	height: 487px;
+	padding-top: 2px;
+}
+
+.sectionsModal {
+	height: 420px;
 	padding-top: 2px;
 }
 
@@ -2187,9 +2207,108 @@ a.dropdown-item {
 	margin-bottom: 5px;
 }
 
+.suggestedReadingsTable {
+	overflow-y: scroll;
+	max-height: 165px;
+}
+
 .width83 {
 	width: 83%;
 }
-.marginTop3P{
-	margin-top:3%;
+
+.marginTop3P {
+	margin-top: 3%;
+}
+
+.resourceNumber {
+	padding-right: 0px;
+	padding-left: 14px;
+}
+
+.titleColumn {
+	padding-right: 0px;
+	padding-left: 10px;
+}
+
+.hrNewExercise {
+	margin-top: 12px !important;
+	margin-bottom: 5px !important;
+}
+.suggestedAvailable{
+	margin-top: 12px !important;
+    margin-bottom: 15px !important;
+}
+span.step {
+	background: #cccccc;
+	border-radius: 0.8em;
+	-moz-border-radius: 0.8em;
+	-webkit-border-radius: 0.8em;
+	color: #ffffff;
+	display: inline-block;
+	font-weight: bold;
+	line-height: 1.6em;
+	margin-right: 5px;
+	text-align: center;
+	width: 1.6em;
+}
+
+.trophySVG {
+	margin-bottom: 10px;
+	margin-top: 10px;
+	width: 100px;
+	height: 100px;
+}
+
+.exerciseModal {
+	padding-top: 5px !important;
+}
+
+#addNewExerciseModal .modal-dialog.modal-lg {
+	margin-top: 10px !important;
+}
+
+#addNewExerciseModal .modal-content {
+	height: 620px !important;
+}
+
+#addNewExerciseModal .modal-footer {
+	padding-bottom: 0px;
+	padding-top: 7px;
+	margin-top: 30px;
+}
+
+#newFlagsTable {
+	max-height: 330px;
+	overflow-y: scroll;
+}
+
+.borderAll {
+    list-style: none;
+    padding: 3px 10px;
+    border: 1px solid #eee;
+    margin-bottom: 3px;
+    border-radius: 10px;
+}
+
+.borderDescr {
+	padding: 5px 10px;
+}
+.floatRight{
+	float:right;
+}
+.floatLeft{
+	float:left;
+}
+.ulInfoList {
+	overflow-y: scroll;
+	max-height: 165px;
+}
+.fInput[disabled] {
+    opacity: 0.5;
+}
+.marginLeft11P{
+	    margin-left: 11%;
+}
+.marginLeft10P{
+	    margin-left: 10%;
 }

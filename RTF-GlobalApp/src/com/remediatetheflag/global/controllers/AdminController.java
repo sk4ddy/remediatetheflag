@@ -33,13 +33,100 @@ public class AdminController extends ActionsController {
 	@SuppressWarnings({ "rawtypes", "serial" })
 	public AdminController(){
 		
+		type2action.put("getInvitationCodes", com.remediatetheflag.global.actions.auth.management.admin.GetInvitationCodesAction.class);
+		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.GetInvitationCodesAction.class, new HashMap<String, Class[]>() {{
+			put(Constants.ACTION_PARAM_ORG_ID, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			}
+					);
+		}});
+		type2action.put("generateInvitation", com.remediatetheflag.global.actions.auth.management.admin.GenerateInvitationCodeAction.class);
+		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.GenerateInvitationCodeAction.class, new HashMap<String, Class[]>() {{
+			put(Constants.ACTION_PARAM_ORG_ID, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			}
+					);
+			put(Constants.ACTION_PARAM_MAX_USERS, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			}
+					);
+		}});
+		type2action.put("removeInvitation", com.remediatetheflag.global.actions.auth.management.admin.RemoveInvitationCodeAction.class);
+		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.RemoveInvitationCodeAction.class, new HashMap<String, Class[]>() {{
+			put(Constants.ACTION_PARAM_ORG_ID, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			}
+					);
+			put(Constants.ACTION_PARAM_ORG_CODE, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+		}});
+		type2action.put("addExercise", com.remediatetheflag.global.actions.auth.management.admin.AddExerciseAction.class);
+		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.AddExerciseAction.class, new HashMap<String, Class[]>() {{
+			put(Constants.ACTION_PARAM_TOPICS, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_DIFFICULTY, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_TITLE, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_DESCRIPTION, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_STATUS, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			}
+					);
+			put(Constants.ACTION_PARAM_TECHNOLOGY, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_DURATION, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			}
+					);
+			put(Constants.ACTION_PARAM_SCORE, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			}
+					);
+			put(Constants.ACTION_PARAM_TROPHY_TITLE, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_TROPHY_DESCRIPTION, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+		}});
 		type2action.put("removeUser", com.remediatetheflag.global.actions.auth.management.admin.RemoveUserAction.class);
-		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.ResetUserPasswordAction.class, new HashMap<String, Class[]>() {{
+		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.RemoveUserAction.class, new HashMap<String, Class[]>() {{
 			put(Constants.ACTION_PARAM_USERNAME, new Class[]{
 					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
 			}
 					);
 		}});
+		type2action.put("removeOrganization", com.remediatetheflag.global.actions.auth.management.admin.RemoveOrganizationAction.class);
+		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.RemoveOrganizationAction.class, new HashMap<String, Class[]>() {{
+			put(Constants.ACTION_PARAM_ORG_ID, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			}
+					);
+		}});
+		type2action.put("removeExercise", com.remediatetheflag.global.actions.auth.management.admin.RemoveExerciseAction.class);
+		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.RemoveExerciseAction.class, new HashMap<String, Class[]>() {{
+			put(Constants.ACTION_PARAM_EXERCISE_ID, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			}
+					);
+		}});
+		
 		type2action.put("addTaskDefinition", com.remediatetheflag.global.actions.auth.management.admin.AddExerciseInRegionAction.class);
 		type2classValidator.put("addTaskDefinition", com.remediatetheflag.global.actions.auth.management.admin.validators.AddExerciseInRegionValidator.class);
 		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.AddExerciseInRegionAction.class, new HashMap<String, Class[]>() {{
@@ -123,8 +210,17 @@ public class AdminController extends ActionsController {
 					);
 		}});
 		type2action.put("getOrganizations", com.remediatetheflag.global.actions.auth.management.admin.GetOrganizationsAction.class);
-		type2action.put("checkOrganizationNameAvailable", com.remediatetheflag.global.actions.auth.management.admin.CheckOrganizationNameAvailable.class);
-		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.CheckOrganizationNameAvailable.class, new HashMap<String, Class[]>() {{
+		
+		type2action.put("checkExerciseNameAvailable", com.remediatetheflag.global.actions.auth.management.admin.CheckExerciseNameAvailableAction.class);
+		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.CheckExerciseNameAvailableAction.class, new HashMap<String, Class[]>() {{
+			put(Constants.ACTION_PARAM_NAME, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+		}});
+		
+		type2action.put("checkOrganizationNameAvailable", com.remediatetheflag.global.actions.auth.management.admin.CheckOrganizationNameAvailableAction.class);
+		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.CheckOrganizationNameAvailableAction.class, new HashMap<String, Class[]>() {{
 			put(Constants.ACTION_PARAM_NAME, new Class[]{
 					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
 			}
@@ -189,19 +285,10 @@ public class AdminController extends ActionsController {
 					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
 			}
 					);
-			put(Constants.ACTION_PARAM_CONTACT_NAME, new Class[]{
+			put(Constants.ACTION_PARAM_EMAIL, new Class[]{
 					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
 			}
 					);
-			put(Constants.ACTION_PARAM_CONTACT_PHONE, new Class[]{
-					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
-			}
-					);
-			put(Constants.ACTION_PARAM_CONTACT_EMAIL, new Class[]{
-					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
-			}
-					);
-
 		}});
 		type2action.put("removeTeamManager", com.remediatetheflag.global.actions.auth.management.admin.RemoveTeamManagerAction.class);
 		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.RemoveTeamManagerAction.class, new HashMap<String, Class[]>() {{
@@ -250,4 +337,7 @@ public class AdminController extends ActionsController {
 		}
 		return true;
 	}
+	
+	
+	
 }

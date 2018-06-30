@@ -233,7 +233,7 @@ rtf.directive('complexPassword', function() {
 rtf.service('server',function($http,$timeout,$rootScope,notificationService,$interval){
 
 	this.countries = [];
-	
+
 	this.getCountries = function($this){
 
 		var msg = {};
@@ -251,8 +251,8 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		});
 
 	}
-	
-	
+
+
 	this.removeUser = function(){
 		var msg = {};
 		msg.action = 'removeUser';
@@ -268,7 +268,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		});
 	}
 
-	
+
 
 	this.getUserStats = function(username){
 		var msg = {};
@@ -495,11 +495,11 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 	}
 	this.isExerciseIsInChallenge = function(exerciseId){
-		
+
 		var msg = {};
 		msg.action = 'isExerciseInChallenge';
 		msg.id = exerciseId;
-	
+
 		var req = {
 				method: 'POST',
 				url: '/user/handler',
@@ -511,8 +511,8 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 			console.log('ajax error');
 		});
 	}
-		
-		
+
+
 	this.getExerciseDetails = function(id){
 
 		var msg = {};
@@ -736,6 +736,21 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 				$('.waitLoader').hide();
 				$("#startExerciseModal").modal('hide');
 			}
+			else if(response.data.errorMsg == "NoResourcesAvailable"){
+				notificationService.error("The are no resources available to start the exercise in the selected region, please try again later or select a different region.");
+				$('.waitLoader').hide();
+				$("#startExerciseModal").modal('hide');
+			}
+			else if(response.data.errorMsg == "GWUnavailable" || response.data.errorMsg == "RegionNotFound"){
+				notificationService.error("The environment could not be started in the selected region as the gateway is not responding, please try selecting a different region.");
+				$('.waitLoader').hide();
+				$("#startExerciseModal").modal('hide');
+			}
+			else if(response.data.errorMsg == "ExerciseUnavailable"){
+				notificationService.error("The exercise requested is unavailable for your organization, please try again or contact support.");
+				$('.waitLoader').hide();
+				$("#startExerciseModal").modal('hide');
+			}
 			else if(response.data.errorMsg!=undefined){
 				notificationService.error("The RTF environment could not be started, please try again or contact support.");
 				$('.waitLoader').hide();
@@ -749,10 +764,10 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 			console.log('ajax error');
 		});
 	}
-	
+
 	this.getUserReservations = function(){
-		
-		
+
+
 		var msg = {};
 		msg.action = 'getUserReservations';   
 
@@ -880,7 +895,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 			if(undefined!=response.data && !response.data.errorMsg )
 				notificationService.success('Feedback sent, thank you.');
 			else
-				notificationService.notice('Your feedback could not be sent, please try again.');
+				notificationService.notice('Your feedback could not be sent, please try again. You can submit one feedback per exercise');
 
 		}, function errorCallback(response) {
 			console.log('ajax error');
@@ -1025,7 +1040,6 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http',f
 				if(Number.isInteger(parseInt(target[2])) && undefined==$rootScope.exerciseDetails.id){
 					getExDetails(parseInt(target[2]));
 				}
-
 			}
 			else{
 				$rootScope.visibility.welcome = false;
@@ -1038,8 +1052,8 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http',f
 				$rootScope.visibility.exerciseDetails = false;
 				$rootScope.visibility.runningExercises = false;    
 				$rootScope.visibility.leaderboard = false;
+				$(window).scrollTop(0);
 			}
-			$(window).scrollTop(0);
 			break;
 		case "running":
 			$rootScope.visibility.welcome = false;
@@ -1134,7 +1148,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http',f
 		}
 		$http(req).then(function successCallback(response) {
 			$rootScope.ctoken = response.data.ctoken;
-		
+
 			server.getExerciseDetails(id);
 			server.getRegionsForExercise(id);
 			server.getInitialData();
@@ -1215,6 +1229,22 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 	$scope.selectedRegion = "";
 	$scope.assignedExercises = [];
 	$rootScope.takenExercises = [];
+
+	$scope.getColorForScore = function(score){
+		if(score<=20)
+			return "#7693c1f0"
+			if(score<=50)
+				return "#9e4a72de"
+				if(score<=75)
+					return "#7676c1f0"
+					if(score<=100)
+						return "#6a6a7dde"
+						if(score<=125)
+							return "#381f08de"
+							return "#bd6c22de";
+	}
+
+
 	$scope.stopExercise = function(id){
 		$('.waitLoader').show();
 		server.stopInstance(id);
@@ -1349,8 +1379,8 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 	$scope.downloadAPIReference = function(id){
 		server.downloadExerciseReference(id);
 	}
-	
-		
+
+
 	$scope.getSelfChekResult = function(selfCheckName){
 		if(undefined==selfCheckName || undefined==$scope.resultStatusData.length || $scope.resultStatusData.length==0){
 			return "Not Available";
@@ -1372,9 +1402,9 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 	$scope.isAvailable = function(selfCheckStatus){
 		if(undefined==selfCheckStatus)
 			return false
-		return true;
+			return true;
 	}
-	
+
 
 	$scope.$on('resultStatusReceived:updated', function(event,data) {
 		$('.waitLoader').hide();
@@ -1415,7 +1445,7 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 			$scope.resultStatusData = selfcheckData;
 			$scope.asNotStarted = false;
 		}
-		
+
 	});
 
 
@@ -1429,17 +1459,50 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 
 				switch(data[j]) {
 				case "EU_WEST_1":
-					region = "Emea";
+					region = "EU (Ireland)";
 					break;
 				case "US_EAST_1":
-					region = "North America"
+					region = "US East (N. Virginia)"
 						break;
 				case "AP_SOUTH_1":
-					region = "Apac - India"
+					region = "Asia Pacific (Mumbai)"
 						break;
 				case "AP_SOUTHEAST_1":
-					region = "Apac - Singapore"
+					region = "Asia Pacific (Singapore)"
 						break;
+				case "US_EAST_2":
+					region = "US East (Ohio)";
+					break;
+				case "US_WEST_2":
+					region = "US West (Oregon)";
+					break;
+				case "US_WEST_1":
+					region = "US West (N. California)";
+					break;
+				case "CA_CENTRAL_1":
+					region = "Canada (Central)";
+					break;
+				case "EU_CENTRAL_1":
+					region = "EU (Frankfurt)";
+					break;
+				case "EU_WEST_2":
+					region = "EU (London)";
+					break;
+				case "EU_WEST_3":
+					region = "EU (Paris)";
+					break;
+				case "AP_NORTHEAST_2":
+					region = "Asia Pacific (Seoul)";
+					break;
+				case "AP_NORTHEAST_1":
+					region = "Asia Pacific (Tokyo)";
+					break;
+				case "AP_SOUTHEAST_2":
+					region = "Asia Pacific (Sydney)";
+					break;
+				case "SA_EAST_1":
+					region = "South America (São Paulo)";
+					break;
 				default:
 					break;
 				}
@@ -1484,7 +1547,7 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 		$scope.exerciseIsInChallenge = false;
 		server.isExerciseIsInChallenge(exerciseId);
 	}
-	
+
 	$scope.$on('exerciseIsInChallenge:updated', function(event,data) {
 		$('.waitLoader').hide();
 		$scope.exerciseIsInChallenge = data.result;
@@ -1494,24 +1557,57 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 
 		regionString = $scope.selectedRegion;
 		switch(regionString) {
-		case "Emea":
-			regionRaw = "EU_WEST_1";
+		case "EU (Ireland)":
+			region = "EU_WEST_1";
 			break;
-		case "North America":
-			regionRaw = "US_EAST_1";
+		case "US East (N. Virginia)":
+			region = "US_EAST_1"
+				break;
+		case "Asia Pacific (Mumbai)":
+			region = "AP_SOUTH_1"
+				break;
+		case "Asia Pacific (Singapore)":
+			region = "AP_SOUTHEAST_1"
+				break;
+		case "US East (Ohio)":
+			region = "US_EAST_2";
 			break;
-		case "Apac - India":
-			regionRaw = "AP_SOUTH_1";
+		case "US West (Oregon)":
+			region = "US_WEST_2";
 			break;
-		case "Apac - Singapore":
-			regionRaw = "AP_SOUTHEAST_1";
+		case "US West (N. California)":
+			region = "US_WEST_1";
+			break;
+		case "Canada (Central)":
+			region = "CA_CENTRAL_1";
+			break;
+		case "EU (Frankfurt)":
+			region = "EU_CENTRAL_1";
+			break;
+		case "EU (London)":
+			region = "EU_WEST_2";
+			break;
+		case "EU (Paris)":
+			region = "EU_WEST_3";
+			break;
+		case "Asia Pacific (Seoul)":
+			region = "AP_NORTHEAST_2";
+			break;
+		case "Asia Pacific (Tokyo)":
+			region = "AP_NORTHEAST_1";
+			break;
+		case "Asia Pacific (Sydney)":
+			region = "AP_SOUTHEAST_2";
+			break;
+		case "South America (São Paulo)":
+			region = "SA_EAST_1";
 			break;
 		default:
 			$("#startExerciseModal").modal('hide');
 		return;
 		}
 		$('.waitLoader').show();
-		server.startInstance(id, regionRaw);
+		server.startInstance(id, region);
 	}
 
 	var popupBlockerChecker = {
@@ -1550,7 +1646,7 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 		if(w<600){
 			return "0"+Math.floor(w/60)+":"+(w % 60);
 		}
-			
+
 	}
 
 
@@ -1577,7 +1673,7 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 		$rootScope.visibility.leaderboard = false;
 		$rootScope.visibility.runningExercises = true;
 	});
-	
+
 	$scope.reservationPolled = false;
 
 	function handleInstanceStart(data){
@@ -1609,7 +1705,7 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 							$scope.reservationPolled = false;
 							notificationService.notify({
 								text: 'Your RTF environment is ready.',
-								type: 'success',
+								type: 'success'
 							});
 							$scope.asNotStarted = false;
 							return;
@@ -1629,10 +1725,10 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 			$('.waitLoader').hide();
 			$("#startExerciseModal").modal('hide');
 		}
-		else if(!data.fulfilled && !data.error){
+		else if(data.fulfilled==false && data.error==false){
 			$rootScope.exerciseStarted = true;
 			$scope.countdown = getCountdownString(data.waitSeconds);
-			
+
 			$rootScope.environmentReady = false;
 			if($scope.reservationPolled)
 				notificationService.notice("Your RTF environment is not yet ready, please hold on...");
@@ -1667,28 +1763,29 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 			$("#startExerciseModal").modal('hide');
 		}
 		else{
-			notificationService.error('Something went wrong...');
+			notificationService.error('Something went wrong. The exercise could not be launched, please try again.');
 		}
 	}
-	
+
 	$scope.$on('userReservations:updated', function(event,data) {
 		for(var i=0;i<data.length;i++){
-			pollReservation(data[i].idReservation);
+			if(data[i].error==false){
+				pollReservation(data[i].idReservation);
+			}
 		}
 	});
 
 	function pollReservation(data){
 		server.pollReservation(data)
-	}
+	};
 
 	$scope.$on('instanceStarted:updated', function(event,data) {
-
 		// new reservation logic
-
-		if(undefined!=data){
+		if(undefined!=data && data!=""){
 			handleInstanceStart(data);
 		}
 	});
+
 	$scope.preloaded=false;
 	function setupPreload(){
 		if($scope.preloaded)
@@ -1714,11 +1811,11 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 		$scope.hintFlagQuestionId = id;
 		$('#getHintModal').modal('show');
 	};
-	
+
 	$scope.getResult = function(selfCheckName){
 		return "Not Available";
 	};
-	
+
 }])
 rtf.controller('history',['$scope','server','$rootScope','$filter',function($scope,server,$rootScope,$filter){
 	$scope.user = server.user;
@@ -1966,6 +2063,7 @@ rtf.controller('history',['$scope','server','$rootScope','$filter',function($sco
 			scrollTop: offset.top + 200,
 			scrollLeft: offset.left
 		});
+		var tba = "";
 
 		JSZipUtils.getBinaryContent($scope.userHistoryDetails.id,$rootScope.ctoken, '/user/handler','getUserHistoryDetailsFile', function(err, data) {
 			if(err) {
@@ -1995,10 +2093,10 @@ rtf.controller('history',['$scope','server','$rootScope','$filter',function($sco
 							}
 						})                        
 					}
-					else if(file.indexOf('rtf.log')>-1){
+					else if(file.indexOf('.log')>-1){
 						zip.file(file).async("string").then(function success(content) {
 							var resultString = content;
-							if(resultString==""){
+							if(resultString=="" && tba==""){
 								$scope.emptyLog = true;
 								$('#rtfLogText').empty()
 								return;
@@ -2006,7 +2104,6 @@ rtf.controller('history',['$scope','server','$rootScope','$filter',function($sco
 
 							rtfLog = resultString;
 							var datas = rtfLog.split("\n");
-							var tba = "";
 							for (var i = 0; i < datas.length; i++) {
 								if (datas[i] !== "") {
 									tba += '<li ng-non-bindable class="list-group-item">' + htmlEncode(datas[i]) + '</li>';
@@ -2203,16 +2300,16 @@ rtf.controller('settings',['$scope','server','$timeout',function($scope,server,$
 		server.removeUser();
 		$('#userRemoveModal').modal('hide');
 	}
-	
+
 	$scope.openRemoveModal = function(){
 		$('#userRemoveModal').modal('show');
-		
+
 	}
-	
+
 	$scope.$on('removeUser:updated', function(event,data) {
 		document.location = "/index.html";
 	})
-	
+
 	$scope.updateUserPassword = function(){
 		server.updateUserPassword($scope.userPasswordForm.oldPassword.$modelValue, $scope.userPasswordForm.newPassword.$modelValue);
 		$scope.oldPassword = "";

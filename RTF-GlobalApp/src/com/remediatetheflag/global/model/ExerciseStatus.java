@@ -27,7 +27,7 @@ public enum ExerciseStatus {
 	NOT_STARTED(0),
 	NOT_IN_USE_1(1),
 	RUNNING(2),
-	NOT_IN_USE_2(3),
+	STOPPING(3),
 	STOPPED(4),
 	REVIEWED(5), 
 	CANCELLED(6)

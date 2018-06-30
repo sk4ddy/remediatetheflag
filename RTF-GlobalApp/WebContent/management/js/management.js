@@ -41,6 +41,7 @@ Object.size = function(obj) {
 	}
 	return size;
 };
+
 function getSum(total, num) {
 	return total + num;
 }
@@ -155,7 +156,7 @@ $(document).ready(function(){
 		});
 	})
 });
-var rtf = angular.module('rtfNg',['nya.bootstrap.select','jlareau.pnotify','ngRoute','ui.toggle','angular-table','chart.js','angular-notification-icons','angularSpinner','720kb.tooltips']);
+var rtf = angular.module('rtfNg',['nya.bootstrap.select','jlareau.pnotify','ngRoute','ui.toggle','angular-table','chart.js','angular-notification-icons','angularSpinner','720kb.tooltips','ng-file-model','ngDragToReorder']);
 
 
 //register the interceptor as a service
@@ -216,6 +217,31 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 	this.supportedAwsRegions = [];
 	this.definedGateways = [];
+	this.definedGatewaysRegions = [];
+
+	this.addExercise = function(obj){
+
+		obj.action = 'addExercise';
+
+		var req = {
+				method: 'POST',
+				url: '/management/admin/handler',
+				data: obj,
+		}
+		$http(req).then(function successCallback(response) {
+			if(response.data.result=="success"){
+				notificationService.success('Exercise added.');
+				$rootScope.$broadcast('exerciseAdded:updated',response.data);
+			}
+			else
+				notificationService.notice('Updated failed, please try again.');
+
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+
+	}
+
 	this.addOrganization = function(obj){
 
 		obj.action = 'addOrganization';
@@ -237,14 +263,78 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		});
 
 	}
-	
+
+	this.getInvitationCodes = function(id){
+
+		var obj = {};
+		obj.orgId = id;
+		obj.action = 'getInvitationCodes';
+
+		var req = {
+				method: 'POST',
+				url: '/management/admin/handler',
+				data: obj,
+		}
+		$http(req).then(function successCallback(response) {
+			$rootScope.$broadcast('invitationCodes:updated',response.data);
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+
+	}
+
+	this.generateInvitationCode = function(obj){
+
+		obj.action = 'generateInvitation';
+
+		var req = {
+				method: 'POST',
+				url: '/management/admin/handler',
+				data: obj,
+		}
+		$http(req).then(function successCallback(response) {
+			if(response.data.result=="success")
+				notificationService.success('Invitation Code generated.');
+			else
+				notificationService.notice('Generation failed, please try again.');
+			$rootScope.$broadcast('invitationGenerated:updated',response.data);
+
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+
+	}
+
+	this.removeInvitationCode = function(obj){
+
+		obj.action = 'removeInvitation';
+
+		var req = {
+				method: 'POST',
+				url: '/management/admin/handler',
+				data: obj,
+		}
+		$http(req).then(function successCallback(response) {
+			if(response.data.result=="success")
+				notificationService.success('Invitation code removed.');
+			else
+				notificationService.notice('Removal failed, please try again.');
+			$rootScope.$broadcast('invitationRemoved:updated',response.data);
+
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+
+	}
+
+
 	this.deleteUserAccount = function(usr){
 		var msg = {};
 		msg.action = 'removeUser';
 		msg.username = usr;
 		var req = {
 				method: 'POST',
-				url: '/admin/handler',
+				url: '/management/admin/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -340,7 +430,6 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 
 	this.addTaskDefinition = function(msg){
-		msg.region = msg.region.code;
 		msg.action = "addTaskDefinition";
 		var req = {
 				method: 'POST',
@@ -473,9 +562,12 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		}
 		$http(req).then(function successCallback(response) {
 			replaceObjectContent($this.definedGateways,response.data);
-
+			var tmpGatewaysRegions = [];
+			for(var i=0;i<response.data.length;i++){
+				tmpGatewaysRegions.push(response.data[i].region);
+			}
+			replaceArrayContent($this.definedGatewaysRegions,tmpGatewaysRegions);
 			$rootScope.$broadcast('gateways:updated',response.data);
-
 		}, function errorCallback(response) {
 			console.log('ajax error');
 		});
@@ -548,10 +640,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 				data: msg
 		}
 		$http(req).then(function successCallback(response) {
-			if(response.data.length==0)
-				$rootScope.$broadcast('challenges:updated',null);
-			else
-				$rootScope.$broadcast('challenges:updated',response.data);
+			$rootScope.$broadcast('challenges:updated',response.data);
 		}, function errorCallback(response) {
 			console.log('ajax error');
 		});
@@ -621,6 +710,53 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		});
 
 	}
+
+	this.removeExercise = function(id){
+		var msg = {};
+		msg.action = "removeExercise";
+		msg.exerciseId = id;
+		var req = {
+				method: 'POST',
+				url: '/management/admin/handler',
+				data: msg,
+		}
+		$('.waitLoader').show();
+		$http(req).then(function successCallback(response) {
+			$('.waitLoader').hide();
+			if(response.data.result=="error"){
+				notificationService.notice('Updated failed, please try again. You can remove an exercise if it\'s not referenced by any user, team, run exercises. For further help, please contact support.');
+			}
+			else{
+				notificationService.success('Exercise removed.');
+				$rootScope.$broadcast('exerciseRemoved:updated',response.data);
+			}
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+	};
+	this.removeOrganization = function(id){
+		var msg = {};
+		msg.action = "removeOrganization";
+		msg.orgId = id;
+		var req = {
+				method: 'POST',
+				url: '/management/admin/handler',
+				data: msg,
+		}
+		$('.waitLoader').show();
+		$http(req).then(function successCallback(response) {
+			$('.waitLoader').hide();
+			if(response.data.result=="error"){
+				notificationService.notice('Updated failed, please try again. You can remove an organization if it\'s not referenced by any user, team, run/available exercises. For further help, please contact support.');
+			}
+			else{
+				notificationService.success('Organization removed.');
+				$rootScope.$broadcast('organizationRemoved:updated',response.data);
+			}
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+	};
 
 	this.addUser = function(user){
 		var msg = {};
@@ -702,7 +838,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 			console.log('ajax error');
 		});
 	}
-	
+
 	this.getRunningExercises = function(){
 		var msg = {};
 		msg.action = 'getAllRunningExercises';
@@ -757,6 +893,24 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		}, function errorCallback(response) {
 			console.log('ajax error');
 		});
+	}
+
+	this.isExerciseNameAvailable = function(name){
+
+		var msg = {};
+		msg.action = 'checkExerciseNameAvailable';
+		msg.name = name;
+		var req = {
+				method: 'POST',
+				url: '/management/admin/handler',
+				data: msg,
+		}
+		$http(req).then(function successCallback(response) {
+			$rootScope.$broadcast('exerciseNameAvailable:updated',response.data);
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+
 	}
 
 	this.isOrgNameAvailable = function(name){
@@ -1509,6 +1663,105 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 	}
 
+	this.returnPicturesInQueue = function(queue){
+
+		var currentImage = queue.pop()
+
+		var req = {
+			method: 'GET',
+			url: '/user/image?type=exerciseInfo&id='+currentImage,
+			responseType: "blob"
+		}
+		$http(req).then(function successCallback(response) {
+			var blob = new Blob([response.data], { type:"image/png;" });		
+
+			var reader = new FileReader();
+			reader.readAsDataURL(blob); 
+			reader.onloadend = function() {
+
+				var obj = {};
+				obj.id = currentImage;
+				obj.data = reader.result; 
+				$rootScope.exportInfoListImages.push(obj);
+				if(queue.length==0){
+					$rootScope.$broadcast('infoListPicturesReturned:updated',$rootScope.exportInfoListImages.length);
+				}
+				else{
+					$this.returnPicturesInQueue(queue);
+				}
+			}
+
+
+
+
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+	}
+
+	this.returnExerciseSolutions = function(id){
+
+		var msg = {};
+		msg.action = 'getSolutionFile';
+		msg.id = id;
+
+		var req = {
+				method: 'POST',
+				url: '/management/team/handler',
+				data: msg,
+				responseType: "blob"
+		}
+		$http(req).then(function successCallback(response) {
+			var filename = "";                   
+			var disposition = response.headers("Content-Disposition")
+			var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+			var matches = filenameRegex.exec(disposition);
+			if (matches !== null && matches[1]) 
+				filename = matches[1].replace(/['"]/g, '');
+
+			var blob = new Blob([response.data], { type:"application/pdf;" });		
+			var obj = {};
+			obj.name = filename;
+			obj.data = blob;
+			$rootScope.$broadcast('exerciseSolutionReturned:updated',obj);
+
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+
+	}
+
+	this.returnExerciseReference = function(id){
+
+		var msg = {};
+		msg.action = 'getReferenceFile';
+		msg.id = id;
+
+		var req = {
+				method: 'POST',
+				url: '/management/team/handler',
+				data: msg,
+				responseType: "blob"
+		}
+		$http(req).then(function successCallback(response) {
+			var filename = "";                   
+			var disposition = response.headers("Content-Disposition")
+			var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+			var matches = filenameRegex.exec(disposition);
+			if (matches !== null && matches[1]) 
+				filename = matches[1].replace(/['"]/g, '');
+
+			var blob = new Blob([response.data], { type:"application/pdf;" });	
+			var obj = {};
+			obj.name = filename;
+			obj.data = blob;
+			$rootScope.$broadcast('exerciseReferenceReturned:updated',obj);
+
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+	}
+
 	this.downloadExerciseReference = function(id){
 
 		var msg = {};
@@ -1582,6 +1835,17 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http','
 		if($rootScope.ctoken == ""){
 			return;
 		}
+		if($('.modal.in').length>0){
+			console.log('modal open, skipping data udpdate...')
+
+			return;
+		}
+		if($rootScope.visibility.review){
+			console.log('review tab open, skipping data udpdate...')
+
+			return;
+		}
+		
 		console.log('updating data...')
 
 		server.getTeams();
@@ -1875,6 +2139,9 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http','
 			$(window).scrollTop(0);
 			break;
 		case "available-exercises":
+			if(target[1]=="new"){
+				return;
+			}
 			if(target[3]=="flags" || target[3] == "info"){
 				return;
 			}
@@ -2063,6 +2330,36 @@ rtf.controller('organizations',['$scope','server','$filter',function($scope,serv
 			itemsPerPage: 10,
 			fillLastPage: false
 	}
+
+	$scope.newCodeMaxReedeems = '';
+	$scope.invitationCodes = [];
+
+	$scope.generateInvitationCode = function(){
+		var obj = {};
+		obj.orgId = $scope.selectedOrg.id;
+		obj.maxUsers = $scope.newCodeMaxReedeems;
+		server.generateInvitationCode(obj);
+	}
+	$scope.$on('invitationGenerated:updated', function(event,data) {
+		$scope.newCodeMaxReedeems = ''
+			server.getInvitationCodes($scope.selectedOrg.id);
+	});
+	$scope.removeInvitationCode = function(code){
+		var obj = {};
+		obj.orgId = $scope.selectedOrg.id;
+		obj.orgCode = code;
+		server.removeInvitationCode(obj);
+	}
+
+	$scope.$on('invitationRemoved:updated', function(event,data) {
+		server.getInvitationCodes($scope.selectedOrg.id);
+	});
+
+	$scope.$on('invitationCodes:updated', function(event,data) {
+		$scope.invitationCodes = data;
+	});
+
+
 	$scope.getReviewedDate = function(date){
 		if(null!=date && undefined != date)
 			return moment(date).format("MMM D, YYYY")
@@ -2088,39 +2385,59 @@ rtf.controller('organizations',['$scope','server','$filter',function($scope,serv
 	$scope.orgNameAvailable = true;
 	$scope.newOrg = {};
 	$scope.newOrg.name = "";
-	$scope.newOrg.contactName = "";
-	$scope.newOrg.contactTelephone = "";
-	$scope.newOrg.contactEmail = "";
+	$scope.newOrg.email = "";
 	$scope.newOrg.maxUsers = 100;
-	$scope.newOrg.allowedDomains = "";
+	$scope.organizationDetails = false;
+
+	$scope.showOrganizationDetails = function(org){
+		$scope.selectedOrg = org;
+		server.getInvitationCodes($scope.selectedOrg.id);
+		$scope.organizationDetails = true;
+	}
+
+	$scope.backToOrgList = function(){
+		$scope.organizationDetails = false;
+		$scope.selectedOrg = "";
+	}
 
 	$scope.addOrganizationModal= function(){
 		$('#addOrgModal').modal('show');
 	}
 
+	var tmpOrgToBeRemoved = -1;
+
+	$scope.removeOrganization = function(){
+		$('#removeOrganizationModal').modal('hide');
+		server.removeOrganization(tmpOrgToBeRemoved);
+		tmpOrgToBeRemoved = -1;
+
+	}
+	$scope.removeOrganizationModal = function(id,name){
+		$scope.tmpOrgToBeRemovedName = name;
+		tmpOrgToBeRemoved = id;
+		$('#removeOrganizationModal').modal('show');
+	}
+
 	$scope.addOrganization = function(){
 		var obj = {};
-		/*var arr = $scope.newOrg.allowedDomains.replaceAll(" ","").replaceAll("\n","").replaceAll("\t","").split(",");
-		if(arr[0]==undefined)
-			obj.allowedDomains = "*";
-		else
-			obj.allowedDomains = arr;*/
 		obj.name = $scope.newOrg.name;
-		//obj.contactName = $scope.newOrg.contactName;
-		//obj.contactPhone = $scope.newOrg.contactTelephone;
-		obj.contactEmail = $scope.newOrg.contactEmail;
+		obj.email = $scope.newOrg.email;
 		obj.maxUsers = $scope.newOrg.maxUsers;
 		server.addOrganization(obj);
+
 		$('#addOrgModal').modal('hide');
 
 		$scope.newOrg.name = "";
-		//$scope.newOrg.contactTelephone = "";
-		//$scope.newOrg.contactName = "";
-		$scope.newOrg.contactEmail = "";
-		//$scope.newOrg.allowedDomains = "";
+		$scope.newOrg.email = "";
 		$scope.newOrg.maxUsers = 100;
 	}
 
+	$scope.$on('organizationRemoved:updated', function(event,data) {
+		if(data.result=="success"){
+			server.getOrganizations();
+			server.getUserProfileInfo();
+		}
+	});
 
 	$scope.$on('organizationAdded:updated', function(event,data) {
 		if(data.result=="success"){
@@ -2434,6 +2751,7 @@ rtf.controller('completedExercises',['$scope','server','$rootScope','$filter',fu
 		$scope.completedEmptyDiff = false;
 
 
+		var tba = "";
 
 		JSZipUtils.getBinaryContent($scope.completedItemDetails.id,$rootScope.ctoken,'/management/team/handler','getReviewFile', function(err, data) {
 			if(err) {
@@ -2463,17 +2781,16 @@ rtf.controller('completedExercises',['$scope','server','$rootScope','$filter',fu
 							}
 						})                        
 					}
-					else if(file.indexOf('rtf.log')>-1){
+					else if(file.indexOf('.log')>-1){
 						zip.file(file).async("string").then(function success(content) {
 							var resultString = content;
-							if(resultString==""){
+							if(resultString=="" && tba==""){
 								$scope.completedEmptyLog = true;
 								$('#completedRtfLogText').empty()
 								return;
 							}
 							rtfLog = resultString;
 							var datas = rtfLog.split("\n");
-							var tba = "";
 							for (var i = 0; i < datas.length; i++) {
 								if (datas[i] !== "") {
 									tba += '<li class="list-group-item">' + htmlEncode(datas[i]) + '</li>';
@@ -2621,7 +2938,7 @@ rtf.controller('users',['$scope','server','$location','$rootScope','$filter',fun
 	$scope.newUser.lastName = "";
 	$scope.newUser.email = "";
 	$scope.newUser.country = "";
-	$scope.newUser.role = "";
+	$scope.newUser.role = { id:7, name:"User"};
 	$scope.newUser.concurrentExercisesLimit = 1;
 	$scope.newUser.password = "";
 	$scope.newUser.emailVerified = true;
@@ -2659,7 +2976,7 @@ rtf.controller('users',['$scope','server','$location','$rootScope','$filter',fun
 		$scope.newUser.lastName = "";
 		$scope.newUser.email = "";
 		$scope.newUser.country = "";
-		$scope.newUser.role = "";
+		$scope.newUser.role = { id:7, name:"User"};
 		$scope.newUser.concurrentExercisesLimit = 1;
 		$scope.newUser.password = "";
 		$scope.newUser.emailVerified = true;
@@ -2673,7 +2990,7 @@ rtf.controller('users',['$scope','server','$location','$rootScope','$filter',fun
 	$scope.$on('usersList:updated', function(event,data) {
 		$scope.masterUsersList = data;
 		$scope.filteredUsersList = $filter("filter")($scope.masterUsersList, $scope.query);
-	});
+	});	
 	$scope.usertableconfig = {
 			itemsPerPage: 20,
 			fillLastPage: false
@@ -2826,20 +3143,20 @@ rtf.controller('users',['$scope','server','$location','$rootScope','$filter',fun
 			}
 		}
 	});
-	
+
 	$scope.deleteUserAccount = function(username){
 		server.deleteUserAccount(username);
 		$('#deleteUserAccountModal').modal('hide');
 	}
-	
+
 	$scope.openRemoveModal = function(){
 		$('#deleteUserAccountModal').modal('show');
 	}
-	
+
 	$scope.$on('userDeleted:updated', function(event,data) {
 		server.getUsers();
 	})
-	
+
 	$scope.$on('userDetails:updated', function(event,data) {
 		switch(data.r){
 		case 0:
@@ -2880,9 +3197,482 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 	$scope.showDetails = false;
 	$scope.supportedAwsRegions = server.supportedAwsRegions;
 	$scope.definedGateways = server.definedGateways;
-		
-	
+	$scope.definedGatewaysRegions = server.definedGatewaysRegions;
 
+	$scope.newExerciseFlagList = true;
+	$scope.saveFlow = false;
+
+	$scope.tmpNewExercise = {}
+	$scope.tmpNewExercise.referenceFile = {};
+	$scope.tmpNewExercise.solutionFile = {};
+	$scope.tmpNewExercise.difficulty = "";
+	$scope.tmpNewExercise.status = "";
+	$scope.tmpNewExercise.technology = "";
+	$scope.tmpNewExercise.duration = "";
+	$scope.tmpNewExercise.description = "";
+	$scope.tmpNewExercise.flags = []
+	$scope.tmpNewExercise.infoList = [];
+	$scope.tmpNewExercise.topics = "";
+	$scope.tmpNewExercise.title = "";
+	$scope.tmpNewExercise.score = ""; 
+	$scope.tmpNewExercise.trophyTitle = ""; 
+	$scope.tmpNewExercise.trophyDescription = ""; 
+	$scope.tmpNewExercise.resources = []
+
+	$scope.tmpResourceUrl = "";
+	$scope.tmpResourceTitle = "";
+	$scope.tmpRemFlag = {};
+	$scope.tmpRemFlag.selfCheck = "";
+	$scope.tmpRemFlag.selfCheckAvailable = false;
+	$scope.tmpRemFlag.hint = "";
+	$scope.tmpRemFlag.hintAvailable  = false;
+	$scope.tmpRemFlag.instructions = "";
+	$scope.tmpExpFlag = {};
+	$scope.tmpExpFlag.selfCheck = "";
+	$scope.tmpExpFlag.selfCheckAvailable = false;
+	$scope.tmpExpFlag.hint = "";
+	$scope.tmpExpFlag.hintAvailable  = false;
+	$scope.tmpExpFlag.instructions = "";
+
+	$scope.tmpInfoDescription = "";
+	$scope.tmpInfoFile = {};
+	$scope.tmpInfoTitle = "";
+
+	$scope.exerciseNameAvailable = true;
+
+	$scope.isExerciseNameAvailable = function(){
+		if($scope.tmpNewExercise.title != "" )
+			server.isExerciseNameAvailable($scope.tmpNewExercise.title);
+	}
+	$scope.$on('exerciseNameAvailable:updated', function(event,data) {
+		$scope.exerciseNameAvailable = data.result;
+	});
+
+
+	$scope.addExerciseInfoToList = function(){
+		var obj = {};
+		obj.title = $scope.tmpInfoTitle;
+		obj.image = $scope.tmpInfoFile;
+		obj.description = $scope.tmpInfoDescription;
+		if(obj.title!="" && !(Object.keys(obj.image).length === 0 && obj.image.constructor === Object) && obj.description != ""){
+			$scope.tmpNewExercise.infoList.push(obj);
+			$scope.tmpInfoTitle = "";
+			$scope.tmpInfoFile = {};
+			$scope.tmpInfoDescription = "";
+		}	
+		else{
+			notificationService.notice("Please provide title, description and a picture.")
+		}
+	}
+
+	$scope.removeExerciseInfoToList = function(t,d){
+
+		for(var i=0; i<$scope.tmpNewExercise.infoList.length; i++){
+			if($scope.tmpNewExercise.infoList[i].title == t && $scope.tmpNewExercise.infoList[i].description == d){
+				$scope.tmpNewExercise.infoList.remove(i,i);
+				return;
+			}
+		}
+	}
+
+
+	$scope.exerciseStatusList = ["AVAILABLE","UPDATED","COMING SOON","INACTIVE"]
+	$scope.difficultyLevelList = ["Easy","Moderate","Hard"];
+	$scope.technologyList = ["Java","NodeJS","C/C++","ASP.NET","Python","Ruby","Golang"];
+	$scope.showAddExerciseModal = function(){
+		$scope.saveFlow = false;
+		$('#addNewExerciseModal').modal('show');
+	}
+
+	function getStatusCodeFromText(text){
+		if(text!=undefined && text!="")
+			text = text.toLowerCase();
+		else
+			return ""
+			switch(text){
+			case 'available':
+				return 0;
+			case 'updated':
+				return 1;
+			case 'coming soon':
+				return 2;
+			case 'inactive':
+				return 3;
+			}
+	}	
+
+	$scope.addNewExercise = function(){
+
+
+		if(Object.keys($scope.tmpNewExercise.referenceFile).length==0) {
+			notificationService.notice('Please provide a reference file.');
+			return;
+		}
+		if(Object.keys($scope.tmpNewExercise.solutionFile).length==0) {
+			notificationService.notice('Please provide a solution file.');
+			return;
+		}
+		if($scope.tmpNewExercise.infoList.length==0){
+			notificationService.notice('Please define at list one exercise info.');
+			return;
+		}
+		if($scope.tmpNewExercise.flags.length==0){
+			notificationService.notice('Please define at list one exercise flag.');
+			return;
+
+		}
+		if($scope.tmpNewExercise.difficulty == ""){
+			notificationService.notice('Please provide exercise difficulty.');
+			return;
+		}
+		if($scope.tmpNewExercise.status == ""){
+			notificationService.notice('Please provide exercise status.');
+			return;
+		}
+		if($scope.tmpNewExercise.technology == ""){
+			notificationService.notice('Please provide exercise technology.');
+			return;
+		}
+		if($scope.tmpNewExercise.duration == ""){
+			notificationService.notice('Please provide exercise duration.');
+			return;
+		}
+		if($scope.tmpNewExercise.description == ""){
+			notificationService.notice('Please provide exercise description.');
+			return;
+		}
+		if($scope.tmpNewExercise.topics == ""){
+			notificationService.notice('Please provide exercise topics.');
+			return;
+		}
+		if($scope.tmpNewExercise.title == ""){
+			notificationService.notice('Please provide exercise title.');
+			return;
+		}
+		if($scope.tmpNewExercise.score == ""){
+			notificationService.notice('Please provide exercise score.');
+			return;
+		}
+		if($scope.tmpNewExercise.trophyTitle == ""){
+			notificationService.notice('Please provide trophy title.');
+			return;
+		}
+		if($scope.tmpNewExercise.trophyDescription == ""){
+			notificationService.notice('Please provide trophy description.');
+			return;
+		}
+
+
+		$scope.tmpNewExercise.status = getStatusCodeFromText($scope.tmpNewExercise.status)
+		server.addExercise($scope.tmpNewExercise);
+	}
+
+	$scope.$on('exerciseRemoved:updated', function(event,data) {
+		server.getAvailableExercises();
+	});
+
+
+	$scope.loadedExerciseFile = {}
+	$scope.showLoadExerciseModal = function(){
+		$('#addNewExerciseModal').modal('hide');
+
+		$('#loadExerciseModal').modal('show');
+	}
+
+	$scope.editExercise = function(id){
+		$scope.saveFlow = true;
+
+		$scope.tmpNewExercise.difficulty = $rootScope.exerciseDetails.difficulty;
+		$scope.tmpNewExercise.status = $scope.getExerciseStatusString($rootScope.exerciseDetails.status).toUpperCase();
+		$scope.tmpNewExercise.technology = $rootScope.exerciseDetails.technology;
+		$scope.tmpNewExercise.duration = $rootScope.exerciseDetails.duration;
+		$scope.tmpNewExercise.description =$rootScope.exerciseDetails.description;
+		$scope.tmpNewExercise.topics = $rootScope.exerciseDetails.subtitle;
+		$scope.tmpNewExercise.title = $rootScope.exerciseDetails.title;
+		$scope.tmpNewExercise.score = $rootScope.exerciseDetails.score;
+		$scope.tmpNewExercise.trophyTitle = $rootScope.exerciseDetails.trophy.name;  
+		$scope.tmpNewExercise.trophyDescription = $rootScope.exerciseDetails.trophy.description;
+		$scope.tmpNewExercise.infoList = $rootScope.exerciseDetails.info;
+		$scope.tmpNewExercise.flags = $rootScope.exerciseDetails.flags;
+		for(var i in $scope.tmpNewExercise.flags){
+			if($scope.tmpNewExercise.flags.hasOwnProperty(i)){
+				$scope.tmpNewExercise.flags[i].questions = $scope.tmpNewExercise.flags[i].flagList;
+				delete $scope.tmpNewExercise.flags[i].flagList;
+			}
+		}
+		$scope.tmpNewExercise.resources = [];
+		for(var i in $rootScope.exerciseDetails.resources){
+			if($rootScope.exerciseDetails.resources.hasOwnProperty(i)){
+				var tmpObj = {};
+				tmpObj.title = i;
+				tmpObj.url = $rootScope.exerciseDetails.resources[i];
+				$scope.tmpNewExercise.resources.push(tmpObj);
+			}
+		}
+
+		$scope.tmpNewExercise.referenceFile = {};
+		$scope.tmpNewExercise.solutionFile = {};
+
+		$('#addNewExerciseModal').modal('show');
+
+	}
+
+	$scope.$on('infoListPicturesReturned:updated', function(event,data) {
+
+		for(var j in $scope.exportExercise.infoList){
+			if($scope.exportExercise.infoList.hasOwnProperty(j)){
+				for(var i in $rootScope.exportInfoListImages){
+					if($rootScope.exportInfoListImages.hasOwnProperty(i)){
+						if($scope.exportExercise.infoList[j].id==$rootScope.exportInfoListImages[i].id){
+							$scope.exportExercise.infoList[j].image = $rootScope.exportInfoListImages[i].data;
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		server.returnExerciseReference($rootScope.exerciseDetails.id)
+	});
+
+	$scope.$on('exerciseReferenceReturned:updated', function(event,data) {
+		$scope.exportExercise.referenceFile = {}
+		$scope.exportExercise.referenceFile.name = data.name;
+		var reader = new FileReader();
+		reader.readAsDataURL(data.data); 
+		reader.onloadend = function() {
+			$scope.exportExercise.referenceFile.data = reader.result;    
+			server.returnExerciseSolutions($rootScope.exerciseDetails.id)
+		}
+	});
+
+	$scope.$on('exerciseSolutionReturned:updated', function(event,data) {
+
+		$scope.exportExercise.solutionFile = {}
+		$scope.exportExercise.solutionFile.name = data.name;
+		var reader = new FileReader();
+		reader.readAsDataURL(data.data); 
+		reader.onloadend = function() {
+			$('.waitLoader').hide();
+
+			$scope.exportExercise.solutionFile.data = reader.result;   
+			var blob = new Blob([JSON.stringify($scope.exportExercise)], { type:"application/json;" });		
+			if (navigator.appVersion.toString().indexOf('.NET') > 0){
+				window.navigator.msSaveBlob(blob, "exercise.json");
+			}
+			else{
+				var downloadLink = angular.element('<a></a>');
+				downloadLink.attr('href',window.URL.createObjectURL(blob));
+				downloadLink.attr('download', "exercise.json");
+				downloadLink[0].click();
+			}
+		}
+	});
+
+	$scope.exportCurrentExercise = function(){
+
+		$('.waitLoader').show();
+
+		var exercise = {};
+		exercise.difficulty = $rootScope.exerciseDetails.difficulty;
+		exercise.status = $scope.getExerciseStatusString($rootScope.exerciseDetails.status).toUpperCase();
+		exercise.technology = $rootScope.exerciseDetails.technology;
+		exercise.duration = $rootScope.exerciseDetails.duration;
+		exercise.description =$rootScope.exerciseDetails.description;
+		exercise.topics = $rootScope.exerciseDetails.subtitle;
+		exercise.title = $rootScope.exerciseDetails.title;
+		exercise.score = $rootScope.exerciseDetails.score;
+		exercise.trophyTitle = $rootScope.exerciseDetails.trophy.name;  
+		exercise.trophyDescription = $rootScope.exerciseDetails.trophy.description;
+		exercise.infoList = $rootScope.exerciseDetails.info;
+		var queue = [];
+		for(var i in exercise.infoList){
+			if(exercise.infoList.hasOwnProperty(i)){
+				queue.push(exercise.infoList[i].id)
+				delete exercise.infoList[i]["$$hashKey"];
+			}
+		}
+		exercise.flags = $rootScope.exerciseDetails.flags;
+		for(var i in exercise.flags){
+			if(exercise.flags.hasOwnProperty(i)){
+				exercise.flags[i].questions = exercise.flags[i].flagList;
+				delete exercise.flags[i].flagList;
+				delete exercise.flags[i]["$$hashKey"];
+				for(var j in exercise.flags[i].questions){
+					if(exercise.flags[i].questions.hasOwnProperty(j)){
+						delete exercise.flags[i].questions[j]["$$hashKey"];
+					}
+				}
+			}
+		}
+		exercise.resources = [];
+		for(var i in exercise.resources){
+			if(exercise.resources.hasOwnProperty(i)){
+				var tmpObj = {};
+				tmpObj.title = i;
+				tmpObj.url = $rootScope.exerciseDetails.resources[i];
+				exercise.resources.push(tmpObj);
+			}
+		}
+
+		$rootScope.exportInfoListImages = [];
+		$scope.exportExercise = exercise;
+
+		server.returnPicturesInQueue(queue)
+
+	}
+
+	$scope.loadExercise = function(){
+		$('#loadExerciseModal').modal('hide');
+		console.log($scope.loadedExerciseFile);
+
+		$('#addNewExerciseModal').modal('hide');
+
+	}
+
+
+
+
+	$scope.$on('exerciseAdded:updated', function(event,data) {
+
+		$scope.tmpNewExercise = {}
+		$scope.tmpNewExercise.referenceFile = {};
+		$scope.tmpNewExercise.solutionFile = {};
+		$scope.tmpNewExercise.difficulty = "";
+		$scope.tmpNewExercise.status = "";
+		$scope.tmpNewExercise.technology = "";
+		$scope.tmpNewExercise.duration = "";
+		$scope.tmpNewExercise.description = "";
+		$scope.tmpNewExercise.flags = []
+		$scope.tmpNewExercise.infoList = [];
+		$scope.tmpNewExercise.resources = []
+		$scope.tmpNewExercise.topics = "";
+		$scope.tmpNewExercise.title = "";
+		$scope.tmpNewExercise.score = ""; 
+		$scope.tmpNewExercise.trophyTitle = ""; 
+		$scope.tmpNewExercise.trophyDescription = ""; 
+
+		$scope.newExerciseFlagList = true;
+
+		$scope.tmpResourceUrl = "";
+		$scope.tmpResourceTitle = "";
+		$scope.tmpRemFlag = {};
+		$scope.tmpRemFlag.selfCheck = "";
+		$scope.tmpRemFlag.selfCheckAvailable = false;
+		$scope.tmpRemFlag.hint = "";
+		$scope.tmpRemFlag.hintAvailable  = false;
+		$scope.tmpRemFlag.instructions = "";
+		$scope.tmpExpFlag = {};
+		$scope.tmpExpFlag.selfCheck = "";
+		$scope.tmpExpFlag.selfCheckAvailable = false;
+		$scope.tmpExpFlag.hint = "";
+		$scope.tmpExpFlag.hintAvailable  = false;
+		$scope.tmpExpFlag.instructions = "";
+		$scope.tmpInfoDescription = "";
+		$scope.tmpInfoFile = {};
+		$scope.tmpInfoTitle = "";
+
+		$('#addNewExerciseModal').modal('hide');
+		server.getAvailableExercises();
+
+	});
+
+
+	$scope.addToNewExerciseResources = function(){
+		var tmpObj = {};
+		tmpObj.title = $scope.tmpResourceTitle;
+		tmpObj.url = $scope.tmpResourceUrl;
+		if(tmpObj.title!="" && tmpObj.url!=""){
+			$scope.tmpNewExercise.resources.push(tmpObj);
+			$scope.tmpResourceUrl = "";
+			$scope.tmpResourceTitle = "";
+		}
+	}
+
+	$scope.removeFromNewExerciseResources = function(t,u){
+		for(var i=0; i<$scope.tmpNewExercise.resources.length; i++){
+			if($scope.tmpNewExercise.resources[i].title == t && $scope.tmpNewExercise.resources[i].url == u){
+				$scope.tmpNewExercise.resources.remove(i,i);
+				return;
+			}
+		}
+	}
+
+	$scope.removeNewFlag = function(t,c){
+		for(var i=0; i<$scope.tmpNewExercise.flags.length; i++){
+			if($scope.tmpNewExercise.flags[i].title == t && $scope.tmpNewExercise.flags[i].category == c){
+				$scope.tmpNewExercise.flags.remove(i,i);
+				return;
+			}
+		}
+	}
+
+	$scope.addNewFlag = function(){
+		var obj1 = {};
+		var obj2 = {};
+		var obj = {};
+
+		obj.title = $scope.tmpFlagTitle;
+		obj.category = $scope.tmpFlagCategory;
+		obj.questions = [];
+		obj1.selfCheck = $scope.tmpRemFlag.selfCheck;
+		obj1.selfCheckAvailable = $scope.tmpRemFlag.selfCheckAvailable;
+		obj1.hint = $scope.tmpRemFlag.hint;
+		obj1.hintAvailable = $scope.tmpRemFlag.hintAvailable;
+		obj1.instructions = $scope.tmpRemFlag.instructions;
+		obj1.type = "REMEDIATION";
+
+		obj2.selfCheck = $scope.tmpExpFlag.selfCheck;
+		obj2.selfCheckAvailable = $scope.tmpExpFlag.selfCheckAvailable;
+		obj2.hint = $scope.tmpExpFlag.hint;
+		obj2.hintAvailable = $scope.tmpExpFlag.hintAvailable;
+		obj2.instructions = $scope.tmpExpFlag.instructions;
+		obj2.type = "EXPLOITATION";
+
+		obj.questions.push(obj1);
+		obj.questions.push(obj2);
+
+		$scope.tmpNewExercise.flags.push(obj);
+
+		$scope.newExerciseFlagList = true;
+
+		$scope.tmpRemFlag.selfCheck = "";
+		$scope.tmpRemFlag.selfCheckAvailable = false;
+		$scope.tmpRemFlag.hint = "";
+		$scope.tmpRemFlag.hintAvailable  = false;
+		$scope.tmpRemFlag.instructions = "";
+		$scope.tmpExpFlag.selfCheck = "";
+		$scope.tmpExpFlag.selfCheckAvailable = false;
+		$scope.tmpExpFlag.hint = "";
+		$scope.tmpExpFlag.hintAvailable  = false;
+		$scope.tmpExpFlag.instructions = "";
+		$scope.tmpFlagTitle = "";
+		$scope.tmpFlagCategory = "";
+
+	}
+
+
+	$scope.addNewFlagDialog = function(){
+		if($scope.newExerciseFlagList)
+			$scope.newExerciseFlagList = false;	
+		else
+			$scope.newExerciseFlagList = true;
+	}
+
+
+	$scope.getColorForScore = function(score){
+		if(score<=20)
+			return "#7693c1f0";
+		if(score<=50)
+			return "#9e4a72de";
+		if(score<=75)
+			return "#7676c1f0";
+		if(score<=100)
+			return "#6a6a7dde";
+		if(score<=125)
+			return "#381f08de";
+		return "#bd6c22de";
+	}
 
 	$scope.newTaskDefinition = {};
 
@@ -2935,7 +3725,7 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 		var reg = {};
 		reg.name = data.region;
 		reg.code = regionCodeFromName(reg.name);
-		$scope.newTaskDefinition.region = reg;
+		$scope.newTaskDefinition.region = reg.code;
 		$scope.newTaskDefinition.softMemory = data.softMemoryLimit;
 		$scope.newTaskDefinition.hardMemory = data.hardMemoryLimit;
 		$scope.newTaskDefinition.status = true;
@@ -2973,6 +3763,7 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 	});
 
 	$scope.regionNameFromCode = function(regionCode){
+		var region = "";
 		switch(regionCode) {
 		case "EU_WEST_1":
 			region = "EU (Ireland)";
@@ -3024,7 +3815,7 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 		}
 		return region;
 	}
-	
+
 	function regionCodeFromName(regionName){
 		switch(regionName) {
 		case "EU (Ireland)":
@@ -3182,6 +3973,17 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 	}
 	$scope.removeExerciseInRegion = function(exerciseId, taskId){
 		server.removeExerciseInRegion(exerciseId, taskId);
+	}
+	var tmpExerciseToRemove = -1;
+	$scope.removeExerciseModal = function(id,name){
+		tmpExerciseToRemove = id;
+		$scope.tmpExerciseToBeRemovedName = name
+		$('#removeExerciseModal').modal('show');
+	}
+	$scope.removeExercise = function(){
+		server.removeExercise(tmpExerciseToRemove);
+		tmpExerciseToRemove = -1;
+		$('#removeExerciseModal').modal('hide');
 	}
 
 	$scope.backToList = function(){
@@ -3575,8 +4377,8 @@ rtf.controller('teams',['$scope','server','$rootScope','$location','$filter','no
 				var tmpName = $scope.remediationRatePerCategory[j].options.title.text;
 				$scope.remediatedPerCategory.labels.push(tmpName);
 				$scope.remediatedPerCategory.data[0].push(tmpPercentage);
-				$scope.remediatedPerCategory.data[1].push(Math.ceil(data.totalMinutesPerIssueCategory[tmpName]/60));
-				$scope.remediatedPerCategory.data[2].push(data.avgMinutesPerIssueCategory[tmpName]);
+				$scope.remediatedPerCategory.data[1].push(Math.ceil(data.totalMinutesPerIssueCategory[regionCodeFromName(tmpName)]/60));
+				$scope.remediatedPerCategory.data[2].push(data.avgMinutesPerIssueCategory[regionCodeFromName(tmpName)]);
 			}
 		}
 		$scope.remediatedPerCategory.options = cloneObj($scope.radarOptions);
@@ -3823,6 +4625,7 @@ rtf.controller('review',['$scope','server','$rootScope','$filter',function($scop
 		$scope.showResults = true;
 
 
+		var tba = "";
 
 		JSZipUtils.getBinaryContent($scope.pendingItemDetails.id,$rootScope.ctoken,'/management/team/handler','getReviewFile', function(err, data) {
 			if(err) {
@@ -3852,17 +4655,16 @@ rtf.controller('review',['$scope','server','$rootScope','$filter',function($scop
 							}
 						})                        
 					}
-					else if(file.indexOf('rtf.log')>-1){
+					else if(file.indexOf('.log')>-1){
 						zip.file(file).async("string").then(function success(content) {
 							var resultString = content;
-							if(resultString==""){
+							if(resultString=="" && tba==""){
 								$scope.emptyLog = true;
 								$('#rtfLogText').empty()
 								return;
 							}
 							rtfLog = resultString;
 							var datas = rtfLog.split("\n");
-							var tba = "";
 							for (var i = 0; i < datas.length; i++) {
 								if (datas[i] !== "") {
 									tba += '<li class="list-group-item">' + htmlEncode(datas[i]) + '</li>';
@@ -4021,7 +4823,62 @@ rtf.controller('stats',['$scope','server',function($scope,server){
 
 	$scope.$on('stats:updated', function(event,data) {
 
+
+
 		$scope.statsObj = data;
+
+		function regionCodeFromName(regionName){
+			switch(regionName) {
+			case "EU (Ireland)":
+				region = "EU_WEST_1";
+				break;
+			case "US East (N. Virginia)":
+				region = "US_EAST_1"
+					break;
+			case "Asia Pacific (Mumbai)":
+				region = "AP_SOUTH_1"
+					break;
+			case "Asia Pacific (Singapore)":
+				region = "AP_SOUTHEAST_1"
+					break;
+			case "US East (Ohio)":
+				region = "US_EAST_2";
+				break;
+			case "US West (Oregon)":
+				region = "US_WEST_2";
+				break;
+			case "US West (N. California)":
+				region = "US_WEST_1";
+				break;
+			case "Canada (Central)":
+				region = "CA_CENTRAL_1";
+				break;
+			case "EU (Frankfurt)":
+				region = "EU_CENTRAL_1";
+				break;
+			case "EU (London)":
+				region = "EU_WEST_2";
+				break;
+			case "EU (Paris)":
+				region = "EU_WEST_3";
+				break;
+			case "Asia Pacific (Seoul)":
+				region = "AP_NORTHEAST_2";
+				break;
+			case "Asia Pacific (Tokyo)":
+				region = "AP_NORTHEAST_1";
+				break;
+			case "Asia Pacific (Sydney)":
+				region = "AP_SOUTHEAST_2";
+				break;
+			case "South America (São Paulo)":
+				region = "SA_EAST_1";
+				break;
+			default:
+				break;
+			}
+			return region;
+		}
 
 		$scope.remediationRatePerTeam = [];
 		for (var property in data.teamRemediationRate) {
@@ -4218,11 +5075,11 @@ rtf.controller('stats',['$scope','server',function($scope,server){
 				var tmpRem = $scope.remediationRatePerRegion[j].data[0]
 				var tmpTot = $scope.remediationRatePerRegion[j].data.reduce(getSum);
 				var tmpPercentage =  Math.floor((tmpRem * 100) / tmpTot);
-				var tmpName = $scope.remediationRatePerRegion[j].options.title.text.replaceAll(" ","_");
+				var tmpName = $scope.remediationRatePerRegion[j].options.title.text;
 				$scope.remediatedPerRegion.labels.push($scope.remediationRatePerRegion[j].options.title.text);
 				$scope.remediatedPerRegion.data[0].push(tmpPercentage);
-				$scope.remediatedPerRegion.data[1].push(Math.ceil(data.totalMinutesPerRegion[tmpName]/60));
-				$scope.remediatedPerRegion.data[2].push(data.avgMinutesPerRegion[tmpName]);
+				$scope.remediatedPerRegion.data[1].push(Math.ceil(data.totalMinutesPerRegion[regionCodeFromName(tmpName)]/60));
+				$scope.remediatedPerRegion.data[2].push(data.avgMinutesPerRegion[regionCodeFromName(tmpName)]);
 			}
 		}
 		$scope.remediatedPerRegion.options = cloneObj($scope.radarOptions);
@@ -4257,7 +5114,7 @@ rtf.controller('settings',['$scope','server','$timeout',function($scope,server,$
 	$scope.$on('removeUser:updated', function(event,data) {
 		document.location = "/index.html";
 	})
-	
+
 }]);
 rtf.controller('runningExercises',['$scope','server','$rootScope','$location','$filter',function($scope,server,$rootScope,$location,$filter){
 
@@ -4271,12 +5128,12 @@ rtf.controller('runningExercises',['$scope','server','$rootScope','$location','$
 	$scope.updateFilteredList = function() {
 		$scope.filteredRunningList = $filter("filter")($scope.masterRunning, $scope.query);
 	};
-	
+
 	$scope.$on('runningExercises:updated', function(event,data) {
 		$scope.masterRunning = data;
 		$scope.filteredRunningList = $scope.masterRunning;
 	});
-	
+
 	$scope.getRegionFromCode = function(code){
 		if(code==undefined || code == "")
 			return "";
@@ -4332,9 +5189,9 @@ rtf.controller('runningExercises',['$scope','server','$rootScope','$location','$
 		return region;
 
 	}
-	
-	
-	
+
+
+
 }]);
 rtf.controller('challenges',['$scope','server','$rootScope','$location','$filter',function($scope,server,$rootScope,$location,$filter){
 

@@ -40,7 +40,7 @@ import com.remediatetheflag.global.persistence.HibernatePersistenceFacade;
 import com.remediatetheflag.global.utils.Constants;
 import com.remediatetheflag.global.utils.NotificationsHelper;
 import com.remediatetheflag.global.utils.PasswordComplexityUtil;
-import com.remediatetheflag.global.utils.SaltGenerator;
+import com.remediatetheflag.global.utils.RandomGenerator;
 
 public class DoSignupUserAction  extends IAction{
 
@@ -97,11 +97,12 @@ public class DoSignupUserAction  extends IAction{
 		}
 		User user = new User();
 		user.setEmail(email);
+		user.setInvitationCodeRedeemed(orgInvitationCode);
 		user.setLastName(lastName);
 		user.setUsername(username);
 		user.setFirstName(firstName);
 		user.setRole(Constants.ROLE_USER);		
-		String salt = SaltGenerator.getNextSalt();
+		String salt = RandomGenerator.getNextSalt();
 		String pwd = DigestUtils.sha512Hex(password.concat(salt)); 
 		user.setSalt(salt);
 		user.setPassword(pwd);
@@ -117,6 +118,7 @@ public class DoSignupUserAction  extends IAction{
 		user.setDefaultOrganization(o);
 		Integer id = hpc.addUser(user);
 		if(null!=id && id>0){
+			hpc.decreseOrganizationCodeRedeem(o,orgInvitationCode);
 			NotificationsHelper helper = new NotificationsHelper();
 			helper.addNewUserAdded(user);
 			helper.addWelcomeToRTFNotification(user);

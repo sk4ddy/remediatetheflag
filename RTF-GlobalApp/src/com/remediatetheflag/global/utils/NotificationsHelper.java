@@ -43,7 +43,7 @@ public class NotificationsHelper {
 		n.setIdUser(user.getIdUser());
 		n.setLink(Constants.NOTIFICATION_LINK_COMPLETED_REVIEW);
 		String text = Constants.NOTIFICATION_TEXT_COMPLETED_REVIEW;
-		text.replace("{EXERCISE}", e.getTitle());
+		text = text.replace("{EXERCISE}", e.getTitle());
 		n.setText(text);
 		n.setUserRead(false);
 		return hpc.addNotification(n);

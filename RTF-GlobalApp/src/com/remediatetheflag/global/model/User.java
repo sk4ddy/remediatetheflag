@@ -135,11 +135,9 @@ public class User implements HttpSessionBindingListener {
 	private Integer instanceLimit;
 	
 	@Column(name="emailVerified")
-	@Expose
 	private Boolean emailVerified;
 	
 	@Column(name="forceChangePassword")
-	@Expose
 	private Boolean forceChangePassword;
 	
 	@Column(name="joinDateTime")
@@ -147,11 +145,9 @@ public class User implements HttpSessionBindingListener {
 	private Date joinedDateTime;
 	
 	@Column(name="personalDataUpdateDateTime")
-	@Expose
 	private Date personalDataUpdateDateTime;
 	
 	@Column(name="personalDataAnonymisedDateTime")
-	@Expose
 	private Date personalDataAnonymisedDateTime;
 	
 	@SerializedName("organizations")
@@ -165,6 +161,10 @@ public class User implements HttpSessionBindingListener {
 	@Expose
 	@UserStatusList
 	private Organization defaultOrganization;
+	
+	@Column(name="invitationCodeRedeemed")
+	private String invitationCodeRedeemed;
+	
 	
 	@Transient
 	private static Map<User, HttpSession> logins = new HashMap<User, HttpSession>(); 
@@ -366,6 +366,12 @@ public class User implements HttpSessionBindingListener {
 	}
 	public void setPersonalDataAnonymisedDateTime(Date personalDataAnonymisedDateTime) {
 		this.personalDataAnonymisedDateTime = personalDataAnonymisedDateTime;
+	}
+	public String getInvitationCodeRedeemed() {
+		return invitationCodeRedeemed;
+	}
+	public void setInvitationCodeRedeemed(String invitationCodeRedeemed) {
+		this.invitationCodeRedeemed = invitationCodeRedeemed;
 	}
 
 }

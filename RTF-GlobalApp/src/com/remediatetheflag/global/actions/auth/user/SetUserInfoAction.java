@@ -59,7 +59,6 @@ public class SetUserInfoAction extends IAction{
 			User sessionUser = (User) request.getSession().getAttribute(Constants.ATTRIBUTE_SECURITY_CONTEXT);
 			sessionUser.setCountry(c);
 			sessionUser.setEmail(email);
-			sessionUser.setUsername(email);
 			sessionUser.setPersonalDataUpdateDateTime(new Date());
 			sessionUser.setFirstName(firstName);
 			sessionUser.setLastName(lastName);

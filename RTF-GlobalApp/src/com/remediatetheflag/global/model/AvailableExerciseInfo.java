@@ -19,23 +19,18 @@
  */
 package com.remediatetheflag.global.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-@Entity
+@Entity( name = "AvailableExercisesInfo")
 @Table( name = "availableExercisesInfo" )
 public class AvailableExerciseInfo {
 
@@ -56,12 +51,22 @@ public class AvailableExerciseInfo {
 	@Column(name = "title")
     private String title;
     
-    @SerializedName("text")
+    @SerializedName("image")
+    @Lob
+    @Column(name = "image")
+    private byte[] image;
+ 
+    @SerializedName("description")
     @Expose
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<AvailableExerciseInfoText> text = new ArrayList<AvailableExerciseInfoText>();
-
-
+    @Lob
+    @Column(name = "description")	
+    private String description;
+    
+    
+   
+    
+    
+    
     /**
      * 
      * @return
@@ -98,30 +103,28 @@ public class AvailableExerciseInfo {
         this.title = title;
     }
 
-    /**
-     * 
-     * @return
-     *     The text
-     */
-    public List<AvailableExerciseInfoText> getText() {
-        return text;
-    }
-
-    /**
-     * 
-     * @param text
-     *     The text
-     */
-    public void setText(List<AvailableExerciseInfoText> text) {
-        this.text = text;
-    }
-
-	public Integer getOrder() {
+	public Integer getInfoOrder() {
 		return infoOrder;
 	}
 
-	public void setOrder(Integer order) {
-		this.infoOrder = order;
+	public void setInfoOrder(Integer infoOrder) {
+		this.infoOrder = infoOrder;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public byte[] getImage() {
+		return image;
+	}
+
+	public void setImage(byte[] image) {
+		this.image = image;
 	}
 
 }

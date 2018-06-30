@@ -158,6 +158,7 @@ public class GuacamoleHelper {
 		HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
 		con.setRequestMethod("POST");
 		con.setDoOutput(true);
+		con.setConnectTimeout(4000);
 		DataOutputStream wr = new DataOutputStream(con.getOutputStream());
 		wr.writeBytes(payload);
 		wr.flush();

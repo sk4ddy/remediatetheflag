@@ -1,6 +1,6 @@
 /*
  *  
- * REMEDIATE THE FLAG
+w * REMEDIATE THE FLAG
  * Copyright 2018 - Andrea Scaduto 
  * remediatetheflag@gmail.com
  * 
@@ -19,12 +19,9 @@
  */
 package com.remediatetheflag.global.model;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -34,7 +31,6 @@ import javax.persistence.Table;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.remediatetheflag.global.messages.annotations.BriefDetails;
-import com.remediatetheflag.global.messages.annotations.LazilySerialized;
 import com.remediatetheflag.global.messages.annotations.UserStatusList;
 
 @Entity( name = "Organization" )
@@ -60,10 +56,6 @@ public class Organization {
 	@SerializedName("dateJoined")
 	private Date dateJoined;
 	
-	@Column(name = "dateExpiration")
-	@SerializedName("dateExpiration")
-	private Date dateExpiration;
-	
 	@Column(name = "status")
 	@SerializedName("status")
 	private OrganizationStatus status;
@@ -73,12 +65,8 @@ public class Organization {
 	private Integer maxUsers;
 	
 	@Column(name = "email")
-	@SerializedName("contactEmail")
-	private String contactEmail;
-	
-	@ElementCollection
-	@LazilySerialized
-	List<String> allowedEmailDomains = new ArrayList<String>();
+	@SerializedName("email")
+	private String email;
 
 	public Integer getId() {
 		return id;
@@ -104,30 +92,16 @@ public class Organization {
 	public void setMaxUsers(Integer maxUsers) {
 		this.maxUsers = maxUsers;
 	}
-	
-	public String getContactEmail() {
-		return contactEmail;
+	public String getEmail() {
+		return email;
 	}
-	public void setContactEmail(String email) {
-		this.contactEmail = email;
-	}
-	public Date getDateExpiration() {
-		return dateExpiration;
-	}
-	public void setDateExpiration(Date dateExpiration) {
-		this.dateExpiration = dateExpiration;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 	public OrganizationStatus getStatus() {
 		return status;
 	}
 	public void setStatus(OrganizationStatus status) {
 		this.status = status;
-	}
-
-	public List<String> getAllowedEmailDomains() {
-		return allowedEmailDomains;
-	}
-	public void setAllowedEmailDomains(List<String> allowedEmailDomains) {
-		this.allowedEmailDomains = allowedEmailDomains;
 	}
 }

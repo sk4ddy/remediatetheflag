@@ -59,6 +59,7 @@ import com.remediatetheflag.global.model.ExerciseSelfCheckResult;
 import com.remediatetheflag.global.model.ExerciseStatus;
 import com.remediatetheflag.global.model.Feedback;
 import com.remediatetheflag.global.model.FlagQuestionHint;
+import com.remediatetheflag.global.model.InvitationCodeForOrganization;
 import com.remediatetheflag.global.model.Notification;
 import com.remediatetheflag.global.model.Organization;
 import com.remediatetheflag.global.model.PendingReview;
@@ -192,7 +193,7 @@ public class MessageGenerator {
 			response.setContentType("application/json");
 			PrintWriter out = response.getWriter();
 			out.print(msg.toString());
-			out.flush();
+			out.close();
 		} catch (IOException e) {
 			logger.error("HTTP Response. Exception: " + e.getMessage());
 		}
@@ -334,6 +335,16 @@ public class MessageGenerator {
 		Gson gson = new GsonBuilder().addSerializationExclusionStrategy(excludedLazyObjects).excludeFieldsWithoutExposeAnnotation().create();
 		String json = gson.toJson(res);
 		send(json,response);
+	}
+	
+	public static void sendImageFileMessage(byte[] image, HttpServletResponse response) {
+		response.setContentType("image/png");
+		response.setContentLength((int) image.length);
+		try {
+			response.getOutputStream().write(image);
+		} catch (IOException e) {
+			logger.error("Failed to send image file: "+e.getMessage());
+		}
 	}
 
 	public static void sendExerciseSolutionFileMessage(ExerciseInstance instance, HttpServletResponse response) {
@@ -543,5 +554,13 @@ public class MessageGenerator {
 		Gson gson = new GsonBuilder().addSerializationExclusionStrategy(excludedLazyObjects).excludeFieldsWithoutExposeAnnotation().create();
 		String json = gson.toJson(runningExercises);
 		send(json,response);
+	}
+
+	public static void sendInvitationCodesMessage(List<InvitationCodeForOrganization> codes,
+			HttpServletResponse response) {
+		Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+		String json = gson.toJson(codes);
+		send(json,response);
+		
 	}
 }

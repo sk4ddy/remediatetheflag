@@ -23,13 +23,22 @@ import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Random;
 
-public class SaltGenerator {
+public class RandomGenerator {
 
 	private static final Random RANDOM = new SecureRandom();
-
+	private static final String symbols = "ABCDEFGJKLMNPRSTUVWXYZ0123456789"; 
+	
 	public static String getNextSalt() {
 		byte[] salt = new byte[16];
 		RANDOM.nextBytes(salt);
 		return Base64.getEncoder().encodeToString(salt);
 	}
+
+	public static String getNextString(Integer length){
+		char[] buf = new char[length];
+		for (int idx = 0; idx < buf.length; ++idx) 
+			buf[idx] = symbols.charAt(RANDOM.nextInt(symbols.length()));
+		return new String(buf);
+	}
+
 }

@@ -45,16 +45,10 @@ public class Trophy {
     @Column(name="name", nullable = false)
     private String name;
    
-  
     @SerializedName("description")
     @Expose
     @Column(name="description", nullable = false)
     private String description;
-    
-    @SerializedName("img")
-    @Expose
-    @Column(name="image", nullable = false)
-    private String img;
     
     @SerializedName("technology")
     @Expose
@@ -95,14 +89,6 @@ public class Trophy {
 		this.description = description;
 	}
 
-	public String getImg() {
-		return img;
-	}
-
-	public void setImg(String img) {
-		this.img = img;
-	}
-
 	public String getTechnology() {
 		return technology;
 	}
@@ -110,7 +96,4 @@ public class Trophy {
 	public void setTechnology(String technology) {
 		this.technology = technology;
 	}
-
-
-
 }

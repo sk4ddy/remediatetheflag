@@ -42,6 +42,20 @@ public class UserController extends ActionsController{
 		}};
 		type2action.put("removeUser", com.remediatetheflag.global.actions.auth.user.RemoveUserAction.class);
 
+		type2action.put("getReferenceFile", com.remediatetheflag.global.actions.auth.user.GetAvailableExerciseReferenceFileAction.class);
+		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.user.GetAvailableExerciseReferenceFileAction.class, new HashMap<String, Class[]>() {{
+			put(Constants.ACTION_PARAM_ID, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			}
+					);
+		}});
+		type2action.put("getSolutionFile", com.remediatetheflag.global.actions.auth.user.GetAvailableExerciseSolutionFileAction.class);
+		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.user.GetAvailableExerciseSolutionFileAction.class, new HashMap<String, Class[]>() {{
+			put(Constants.ACTION_PARAM_ID, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			}
+					);
+		}});
 		type2action.put("getUserReservations", com.remediatetheflag.global.actions.auth.user.GetUserReservationsAction.class);
 
 		type2action.put("isExerciseInChallenge", com.remediatetheflag.global.actions.auth.user.IsExerciseInChallengeAction.class);

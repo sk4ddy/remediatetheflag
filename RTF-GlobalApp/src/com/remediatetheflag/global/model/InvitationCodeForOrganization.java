@@ -31,7 +31,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 import com.remediatetheflag.global.messages.annotations.UserStatusList;
 
 
@@ -42,20 +41,20 @@ public class InvitationCodeForOrganization {
 	@Id
 	@Column(name = "id")
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@SerializedName("id")
-	@Expose
 	private Integer id;
 	
 	@Column(name="code", unique = true)
-	@SerializedName("code")
 	@Expose
 	private String code;
 	
 	@ManyToOne(fetch=FetchType.EAGER, cascade=CascadeType.PERSIST)
 	@JoinColumn(name = "organizationId")
-	@Expose
 	@UserStatusList
 	private Organization organization;
+	
+	@Column(name="leftToRedeem")
+	@Expose
+	private Integer leftToRedeem;
 	
 	public String getCode() {
 		return code;
@@ -74,6 +73,12 @@ public class InvitationCodeForOrganization {
 	}
 	public void setId(Integer id) {
 		this.id = id;
+	}
+	public Integer getLeftToRedeem() {
+		return leftToRedeem;
+	}
+	public void setLeftToRedeem(Integer leftToRedeem) {
+		this.leftToRedeem = leftToRedeem;
 	}
 	
 	

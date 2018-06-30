@@ -31,6 +31,7 @@ import com.google.gson.JsonObject;
 import com.remediatetheflag.global.actions.IAction;
 import com.remediatetheflag.global.messages.MessageGenerator;
 import com.remediatetheflag.global.model.AvailableExercise;
+import com.remediatetheflag.global.model.AvailableExerciseStatus;
 import com.remediatetheflag.global.model.ExerciseInstance;
 import com.remediatetheflag.global.model.RTFECSTaskDefinition;
 import com.remediatetheflag.global.model.RTFGateway;
@@ -81,12 +82,12 @@ public class LaunchExerciseInstanceAction extends IAction{
 		}
 		GuacamoleHelper guacHelper = new GuacamoleHelper();
 		if(!guacHelper.isGuacOnline(gw)){
-			MessageGenerator.sendErrorMessage("GuacUnavailable", response);
+			MessageGenerator.sendErrorMessage("GWUnavailable", response);
 			logger.error("User "+user.getIdUser()+" could not launch instance as Guac is not available in region: "+awsRegion);
 			return;
 		}
 		AvailableExercise exercise = hpc.getAvailableExercise(exerciseId,user.getDefaultOrganization());
-		if(null==exercise || !exercise.isActive()){
+		if(null==exercise || (!exercise.getStatus().equals(AvailableExerciseStatus.AVAILABLE) && !exercise.getStatus().equals(AvailableExerciseStatus.UPDATED))){
 			MessageGenerator.sendErrorMessage("ExerciseUnavailable", response);
 			logger.error("User "+user.getIdUser()+" requested an unavailable exercise: "+exerciseId);
 			return;
@@ -99,7 +100,7 @@ public class LaunchExerciseInstanceAction extends IAction{
 		}
 		else {
 			String otp = UUID.randomUUID().toString().replaceAll("-", "");
-			LaunchStrategy strategy = new AWSECSLaunchStrategy(user, exercise.getInstanceDuration(), RTFConfig.getExercisesCluster(), otp, taskDefinition, exercise);
+			LaunchStrategy strategy = new AWSECSLaunchStrategy(user, exercise.getDuration(), RTFConfig.getExercisesCluster(), otp, taskDefinition, exercise);
 			RTFInstanceReservation reservation = awsHelper.createRTFInstance(strategy);
 			if(!reservation.getError()) {
 				logger.info("Reservation "+reservation.getId()+" for user "+user.getIdUser()+"  launching exercise: "+exerciseId+" in region "+awsRegion);

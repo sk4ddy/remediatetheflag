@@ -58,6 +58,11 @@ public class FlagQuestion {
     @Column(name = "hintAvailable")
     private Boolean hintAvailable;
     
+    @SerializedName("selfCheckAvailable")
+    @Expose
+    @Column(name = "selfCheckAvailable")
+    private Boolean selfCheckAvailable;
+    
     @SerializedName("selfCheckName")
     @Expose
     @Column(name = "selfCheckName")
@@ -69,7 +74,7 @@ public class FlagQuestion {
     private String type;
     
     @LazilyHint
-    @Cascade({CascadeType.SAVE_UPDATE})
+    @Cascade({CascadeType.ALL})
     @OneToOne(fetch = FetchType.EAGER)
     @Expose    
     private FlagQuestionHint hint;
@@ -160,6 +165,14 @@ public class FlagQuestion {
 
 	public void setSelfCheckName(String selfCheckName) {
 		this.selfCheckName = selfCheckName;
+	}
+
+	public Boolean getSelfCheckAvailable() {
+		return selfCheckAvailable;
+	}
+
+	public void setSelfCheckAvailable(Boolean selfCheckAvailable) {
+		this.selfCheckAvailable = selfCheckAvailable;
 	}
 
 }

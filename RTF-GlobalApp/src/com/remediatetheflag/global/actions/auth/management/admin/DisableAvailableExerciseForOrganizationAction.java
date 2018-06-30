@@ -46,19 +46,12 @@ public class DisableAvailableExerciseForOrganizationAction extends IAction {
 		JsonElement idOrganizationElement = json.get(Constants.ACTION_PARAM_ORG_ID);
 		Integer idOrganization = idOrganizationElement.getAsInt();
 		
-		//check if user can manage specified org
 		Organization org = hpc.getOrganizationById(idOrganization);
-		boolean isManager = false;
-		for(Organization mOrg : sessionUser.getManagedOrganizations()){
-			if(org.getId().equals(mOrg.getId())){
-				isManager = true;
-				break;
-			}
-		}
-		if(null==org || !isManager){
+		if(!isManagingOrg(sessionUser,org)){
 			MessageGenerator.sendErrorMessage("NotFound", response);
 			return;
 		}
+		
 		JsonElement idExerciseElement = json.get(Constants.ACTION_PARAM_EXERCISE);
 		Integer idExercise = idExerciseElement.getAsInt();
 		
@@ -70,5 +63,15 @@ public class DisableAvailableExerciseForOrganizationAction extends IAction {
 		hpc.removeAvailableExerciseForOrganization(org,ex);
 		MessageGenerator.sendSuccessMessage(response);
 	}
+	
+	private Boolean isManagingOrg(User user, Organization org) {
+		for(Organization managed : user.getManagedOrganizations()) {
+			if(managed.getId().equals(org.getId())) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 
 }

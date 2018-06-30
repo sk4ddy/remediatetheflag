@@ -40,7 +40,7 @@ import com.remediatetheflag.global.persistence.HibernatePersistenceFacade;
 import com.remediatetheflag.global.utils.Constants;
 import com.remediatetheflag.global.utils.NotificationsHelper;
 import com.remediatetheflag.global.utils.PasswordComplexityUtil;
-import com.remediatetheflag.global.utils.SaltGenerator;
+import com.remediatetheflag.global.utils.RandomGenerator;
 
 public class AddUserAction extends IAction {
 
@@ -53,18 +53,18 @@ public class AddUserAction extends IAction {
 
 		User sessionUser = (User)request.getSession().getAttribute(Constants.ATTRIBUTE_SECURITY_CONTEXT);
 
-		JsonElement usernameElement = json.get("username");
-		JsonElement firstNameElement = json.get("firstName");
-		JsonElement lastNameElement = json.get("lastName");
-		JsonElement emailElement = json.get("email");
-		JsonElement countryElement = json.get("country");
-		JsonElement passwordElement = json.get("password");
-		JsonElement orgElement = json.get("orgId");
+		JsonElement usernameElement = json.get(Constants.ACTION_PARAM_USERNAME);
+		JsonElement firstNameElement = json.get(Constants.ACTION_PARAM_FIRST_NAME);
+		JsonElement lastNameElement = json.get(Constants.ACTION_PARAM_LAST_NAME);
+		JsonElement emailElement = json.get(Constants.ACTION_PARAM_EMAIL);
+		JsonElement countryElement = json.get(Constants.ACTION_PARAM_COUNTRY);
+		JsonElement passwordElement = json.get(Constants.ACTION_PARAM_PASSWORD);
+		JsonElement orgElement = json.get(Constants.ACTION_PARAM_ORG_ID);
 
-		JsonElement roleElement = json.get("roleId");
-		JsonElement concurrentExerciseLimitElement = json.get("concurrentExercisesLimit");
-		JsonElement emailVerifiedElement = json.get("emailVerified");
-		JsonElement passwordChangeElement = json.get("forcePasswordChange");
+		JsonElement roleElement = json.get(Constants.ACTION_PARAM_ROLE_ID);
+		JsonElement concurrentExerciseLimitElement = json.get(Constants.ACTION_PARAM_CONCURRENT_EXERCISE_LIMIT);
+		//JsonElement emailVerifiedElement = json.get("emailVerified");
+		JsonElement passwordChangeElement = json.get(Constants.ACTION_PARAM_FORCE_PASSWORD_CHANGE);
 
 		String username = usernameElement.getAsString();
 		String firstName = firstNameElement.getAsString();
@@ -76,7 +76,7 @@ public class AddUserAction extends IAction {
 
 		Integer roleId = roleElement.getAsInt();
 		Integer concurrentExercisesLimit = concurrentExerciseLimitElement.getAsInt();
-		Boolean emailVerified = emailVerifiedElement.getAsBoolean();
+		Boolean emailVerified = true; //emailVerifiedElement.getAsBoolean();
 		Boolean forcePasswordChange = passwordChangeElement.getAsBoolean();
 
 		Integer usrRole = -1;
@@ -147,7 +147,7 @@ public class AddUserAction extends IAction {
 		user.setUsername(username);
 		user.setFirstName(firstName);
 		user.setRole(usrRole);
-		String salt = SaltGenerator.getNextSalt();
+		String salt = RandomGenerator.getNextSalt();
 		String pwd = DigestUtils.sha512Hex(password.concat(salt));
 		user.setSalt(salt);
 		user.setPassword(pwd);

@@ -68,21 +68,28 @@ public class RTFInstancesAutoShutdown implements Runnable {
 					found = true;
 					if(ei.getEndTime().getTime() < System.currentTimeMillis()) {
 						logger.debug("Exercise "+ei.getIdExerciseInstance()+" needs to be shutdown");
-						if(!ei.getStatus().equals(ExerciseStatus.REVIEWED)){
-							logger.debug("Pulling exercise result file for exercise instance "+ei.getIdExerciseInstance());
-							ExerciseResultFile fr = gwHelper.getResultFile(ei);
-							ei.setResultFile(fr);
-							logger.debug("Pulling exercise results for exercise instance "+ei.getIdExerciseInstance());
-							List<ExerciseResult> results = gwHelper.getResultStatus(ei);
-							ei.setResults(results);
-							ei.setStatus(ExerciseStatus.STOPPED);
-							ei.getEcsInstance().setStatus(Constants.STATUS_TERMINATED);
-							Calendar cal = Calendar.getInstance();
-							ei.setEndTime(cal.getTime());
-							ei.getEcsInstance().setShutdownTime(cal.getTime());
-							hpc.updateExerciseInstance(ei);
-						}
-						awsHelper.terminateTask(ei.getEcsInstance());
+						Thread stopExerciseThread = new Thread(new Runnable() {
+							@Override
+							public void run() {
+								if(!ei.getStatus().equals(ExerciseStatus.REVIEWED)){
+									logger.debug("Pulling exercise result file for exercise instance "+ei.getIdExerciseInstance());
+									ExerciseResultFile fr = gwHelper.getResultFile(ei);
+									ei.setResultFile(fr);
+									logger.debug("Pulling exercise results for exercise instance "+ei.getIdExerciseInstance());
+									List<ExerciseResult> results = gwHelper.getResultStatus(ei);
+									ei.setResults(results);
+									ei.setStatus(ExerciseStatus.STOPPED);
+									ei.getEcsInstance().setStatus(Constants.STATUS_TERMINATED);
+									Calendar cal = Calendar.getInstance();
+									ei.setEndTime(cal.getTime());
+									ei.getEcsInstance().setShutdownTime(cal.getTime());
+									hpc.updateExerciseInstance(ei);
+								}
+								awsHelper.terminateTask(ei.getEcsInstance());
+							}});
+						stopExerciseThread.start();
+						ei.setStatus(ExerciseStatus.STOPPING);
+						hpc.updateExerciseInstance(ei);
 					}
 				}
 			}
@@ -90,7 +97,7 @@ public class RTFInstancesAutoShutdown implements Runnable {
 				Date createdTime = awsHelper.getRunningECSTaskStartTime(taskArn);
 				long time = System.currentTimeMillis();
 				if(time-createdTime.getTime() >= 1200000) {
-					logger.debug("Exercise "+taskArn+" is orphan and needs to be shutdown");
+					logger.warn("Exercise "+taskArn+" is orphan and needs to be shutdown");
 					awsHelper.terminateTask(taskArn);		
 				}
 				else {
