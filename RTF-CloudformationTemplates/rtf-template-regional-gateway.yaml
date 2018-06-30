@@ -42,8 +42,6 @@ Resources:
                 EnvironmentName: RTF-Services
                  #Choose EC2 Instance Type to run RTF-Services
                 InstanceType: t2.medium
-                #Remove SpotPrice to use On-Demand Instances, choose Spot Price equal to On-Demand to be sure it's always fullfilled
-                SpotPrice: "0.06"
                 #EC2 Autoscaling Min/Max Instances
                 MinClusterSize: 1
                 MaxClusterSize: 4
@@ -61,8 +59,6 @@ Resources:
                 EnvironmentName: RTF-Exercises
                 #Choose EC2 Instance Type to run RTF-Services
                 InstanceType: m4.large
-                #Remove SpotPrice to use On-Demand Instances, choose Spot Price equal to On-Demand to be sure it's always fullfilled
-                SpotPrice: "0.12"
                 #EC2 Autoscaling Min/Max Instances
                 MinClusterSize: 1
                 MaxClusterSize: 4

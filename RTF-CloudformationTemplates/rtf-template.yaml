@@ -59,8 +59,6 @@ Resources:
                 EnvironmentName: RTF-Services
                 #Choose EC2 Instance Type to run RTF-Services
                 InstanceType: t2.medium
-                #Remove SpotPrice to use On-Demand Instances, choose Spot Price equal to On-Demand to be sure it's always fullfilled
-                SpotPrice: "0.06"
                 #EC2 Autoscaling Min/Max Instances
                 MinClusterSize: 1
                 MaxClusterSize: 4
@@ -76,10 +74,8 @@ Resources:
             TemplateURL: https://s3-eu-west-1.amazonaws.com/rtf-public-templates/rtf-ecs-exercises.yaml
             Parameters:
                 EnvironmentName: RTF-Exercises
-                #Choose EC2 Instance Type to run RTF-Services
+                #Choose EC2 Instance Type to run RTF-Exercises
                 InstanceType: m4.large
-                #Remove SpotPrice to use On-Demand Instances, choose Spot Price equal to On-Demand to be sure it's always fullfilled
-                SpotPrice: "0.12"
                 #EC2 Autoscaling Min/Max Instances
                 MinClusterSize: 1
                 MaxClusterSize: 4
@@ -113,11 +109,11 @@ Resources:
                 VPC: !GetAtt VPC.Outputs.VPC
                 Cluster: !GetAtt ServicesECS.Outputs.Cluster
                 RTFMySQL: !GetAtt MysqlService.Outputs.MySQLService
+                ListenerHTTP: !GetAtt ALB.Outputs.ListenerHTTP
+                ListenerHTTPS: !GetAtt ALB.Outputs.ListenerHTTPS
                 #ECS Service Autoscaling, Min/Max number of concurrent tasks for Global Service
                 DesiredCount: 1
                 MaxCount: 4
-                ListenerHTTP: !GetAtt ALB.Outputs.ListenerHTTP
-                ListenerHTTPS: !GetAtt ALB.Outputs.ListenerHTTPS
                 #Replace AWS Key ID/Secret information, reference Github for required permissions
                 AwsKeyID: REPLACE-AWS-KEY-ID
                 AwsSecretKey: REPLACE-AWS-SECRET-KEY

@@ -26,9 +26,6 @@ Parameters:
   SecurityGroup:
     Description: Select the Security Group to use for the ECS cluster hosts
     Type: 'AWS::EC2::SecurityGroup::Id'
-  SpotPrice: 
-    Description: Maximum Spot Instance Bidding price
-    Type: String
 Mappings:
   AWSRegionToAMI:
     us-east-2:
@@ -117,7 +114,6 @@ Resources:
         - !Ref 'AWS::Region'
         - AMI
       InstanceType: !Ref InstanceType
-      SpotPrice: !Ref SpotPrice
       #KeyName: KeyPairNameForInteractiveAccess
       SecurityGroups:
         - !Ref SecurityGroup
