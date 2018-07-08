@@ -2,7 +2,7 @@
 
 RTF is based on a micro-services architecture which can be automatically deployed on AWS through CloudFormation.
 
-![Architecture](img/rtf-architecture-overview.png)
+![Architecture](img/rtf_architecture_overview.png)
 
   - **RTF VPC & Security Groups:** 
     Made up of 2 RTF Services subnets + 2 RTF Exercise subnets spread across two [availability zones](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-regions-availability-zones). 
