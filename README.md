@@ -3,15 +3,6 @@
 
 # Remediate the Flag
 
-    + [(Practical) Application Security Training Platform](#user-content-practical-application-security-training-platform)
-    + [Functionalities](#user-content-functionalities)
-    + [How Does it Work?](#user-content-how-does-it-work-)
-    + [Architecture](#user-content-architecture)
-    + [Platform Installation](#user-content-platform-installation)
-    + [Platform Configuration](#user-content-platform-configuration)
-    + [Create New Exercise](#user-content-create-new-exercise)
-    + [TODO](#user-content-todo)
-    + [Contacts](#user-content-contacts)
 
 ### (Practical) Application Security Training Platform
 
