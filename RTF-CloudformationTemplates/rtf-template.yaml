@@ -132,7 +132,7 @@ Resources:
         Type: AWS::CloudFormation::Stack
         Properties:
             #Optionally replace PATH to S3 Repository where CloudFormation Templates were uploaded
-            TemplateURL: https://s3-eu-west-1.amazonaws.com/rtf-public-templates/rtf-service-mysql.yaml
+            TemplateURL: https://s3-eu-west-1.amazonaws.com/rtf-public-templates/rtf-service-gateway.yaml
             Parameters:
                 RTFMySQL: !GetAtt MysqlService.Outputs.MySQLService
                 VPC: !GetAtt VPC.Outputs.VPC
