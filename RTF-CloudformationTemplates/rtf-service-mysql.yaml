@@ -78,7 +78,7 @@ Resources:
               Value: !Ref MySQLWaitHandle
           MountPoints:
             - ContainerPath: /var/lib/mysql
-              SourceVolume: `efs
+              SourceVolume: efs
           Memory: 2000
           MemoryReservation: 800
           Image: !Ref MysqlImage
