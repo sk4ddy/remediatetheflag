@@ -3,20 +3,26 @@
 1. **Create AWS Account**
     If you already have an AWS account, skip this step. Reference the [tutorial](https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-account/).
 
-2. **(Optional) Register a New Domain** 
+2. **Choose an AWS Region where to deploy**
+
+    Choose a region for your main deployment. Some AWS Services required by RTF are not available in all AWS Regions. Check this [table](<https://aws.amazon.com/about-aws/global-infrastructure/regional-product-services>) and choose an AWS Region which supports:
+
+    ECS, ECR, EFS and SQS, Fargate for the new upcoming RTF release.
+
+3. **(Optional) Register a New Domain** 
     To run RTF you will need to have a domain, the ability to create subdomains and manage DNS records.  If you already have a domain name, skip this step. AWS Route 53 provides this [service](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/domain-register.html) as well.
 
-3. **Get SSL/TLS Certificate for Domain**
+4. **Get SSL/TLS Certificate for Domain**
     You can request a publicly trusted certificate issued by AWS Certificate Manager or import an existing certificate. Reference the [tutorial](https://docs.aws.amazon.com/acm/latest/userguide/gs-acm-request-public.html).
 
     ![arn_acm_cert](img/arn_acm_cert.png)
 
     ###### Save the ARN for the generated/imported certificate
 
-4. **(Optional) Create Key Pair**
+5. **(Optional) Create Key Pair**
     If you require SSH access to the EC2 instances created as part of the RTF deployment, generate a Key Pair. Reference the [tutorial](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair).
 
-5. **Import and tweak AWS CloudFormation template**
+6. **Import and tweak AWS CloudFormation template**
     On the AWS console, browse to CloudFormation. You will need to import, tweak and run the [RTF master template](https://s3-eu-west-1.amazonaws.com/rtf-public-templates/rtf-template.yaml). This will automatically create the RTF infrastructure and deploy all services. Reference the [tutorial](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-using-console-create-stack-template.html).
 
    - Click on "Create New Stack"

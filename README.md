@@ -71,27 +71,14 @@ The platform allows to add new exercises, and technologies and target any specif
 
 
 
-### Todo ###
+### NEW RELEASE COMING SOON ###
 
-  - Platform
-    * ~~Complete Challenges use cases~~
-    * ~~Complete User update use case~~
-    * ~~Complete Organization update use case~~
-    * ~~Complete Exercise update / import / export use case~~
-    * Change Containers Secrets Injection Strategy (SOPS?)
-    * ~~Drop Capabilities for Linux Containers (drop NET_RAW, add NET_ADMIN for iptables support)~~
-    * ~~Create IAM User for Programmatic Access in CloudFormation~~
-    * ~~Reduce assigned permissions for Programmatic Access~~
-    * Improve Documentation
-    * Definition End-to-end test strategy 
-    * Automated EC2 scale out in Exercises Instances (the AWS EC2 Scaling service, upon scale in terminates instances even if there are running containers)
-  - Exercises
-    * ~~Publish existing exercises as importable JSON~~
-    * ~~Complete Reference and Solution documents for existing exercises~~
-    * Create metadata and tests for NodeJS VulnerableChat application
-    * Create metadata for Ruby vulnerable application and integrate tests
-    * Create C/C++/Python/Golang/PHP/ASP.NET base exercise images
-    * Integrate Static Analysis capabilities in RTF Agent
+RTF v1.5 Highlights:
+
+  - Exercises in Java, .NET, Ruby, NodeJS, GoLang, Python, Solidity
+  - SDK for easy exercise creation
+  - Improved Tournaments
+  - Support for cluster-less deployments (Fargate)
 
 
 
