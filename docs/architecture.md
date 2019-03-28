@@ -39,7 +39,7 @@ RTF is based on a micro-services architecture which can be automatically deploye
 
 **Exercise Flow**
 
-When a User select an Exercise to run, the RTF Portal launches a Container (Task) in the Excercise ECS Cluster based on the TaskDefinition for the selected exercise (previously registered on the platform, see [Configuration](configure.md)). The RTF Portal then issues a request to the RTF Gateway to create a temporary user and a temporary connection for this temporary user to the newly created exercise Task (Docker container). The RTF Portal then issues another request to the RTF Gateway, authenticating on behalf of the temporary user (server-to-server) and returning an authorisation token to the user. The user's browser connects to the RTF Gateway using the authorisation token, the RTF Gateway mediates the access to RTF Exercise running in the Exercise ECS Cluster through an RDP connection.
+When a User selects an Exercise to run, the RTF Portal launches a Container (Task) in the Excercise ECS Cluster based on the TaskDefinition for the selected exercise (previously registered on the platform, see [Configuration](configure.md)). The RTF Portal then issues a request to the RTF Gateway to create a temporary user and a temporary connection for this temporary user to the newly created exercise Task (Docker container). The RTF Portal then issues another request to the RTF Gateway, authenticating on behalf of the temporary user (server-to-server) and returning an authorisation token to the user. The user's browser connects to the RTF Gateway using the authorisation token, the RTF Gateway mediates the access to RTF Exercise running in the Exercise ECS Cluster through an RDP connection.
 
 
 
