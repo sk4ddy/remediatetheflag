@@ -108,6 +108,11 @@ Resources:
       PolicyType: SimpleScaling
       ScalingAdjustment: 1
       AutoScalingGroupName: !Ref ExercisesAutoScalingGroup
+  ExercisesLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties: 
+      LogGroupName: RTF-Instances
+      RetentionInDays: 30
   ExercisesAlarmMemoryReservation:
     Type: 'AWS::CloudWatch::Alarm'
     Properties:
