@@ -1,6 +1,6 @@
 ### Platform Configuration ###
 
-The platform comes installed with an admin user (its password is set on the RTF Master Template in CloudFormation), a sample organization and a team. Setup the platform by creating organizations, teams and users to mirror your internal structure. It is also possible to invite users to signup to a specific organization by generating invitation codes that users can redeem. 
+The platform comes installed with an admin user (its password is set on the RTF Master Template in CloudFormation), a sample organization and a team. Sign into the admin account with username `admin` and the password set for `GlobalRTFAdminUserPassword` in the CloudFormation template. Setup the platform by creating organizations, teams and users to mirror your internal structure. It is also possible to invite users to signup to a specific organization by generating invitation codes that users can redeem.
 
 
 
