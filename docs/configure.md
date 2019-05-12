@@ -130,7 +130,7 @@ The platform comes installed with an admin user (its password is set on the RTF 
     - Tag your image so you can push the image to this repository:
 
       ```
-      docker tag remediatetheflag/rtf-exercises:latest 1234567891234.dkr.ecr.us-east-2.amazonaws.com/remediatetheflag/exercises:vulnerableappjava-1.0
+      docker tag remediatetheflag/exercise-vulnerableappjava:1.0 1234567891234.dkr.ecr.us-east-2.amazonaws.com/remediatetheflag/exercises:vulnerableappjava-1.0
       ```
 
     - Run the following command to push this image to your newly created AWS repository:
