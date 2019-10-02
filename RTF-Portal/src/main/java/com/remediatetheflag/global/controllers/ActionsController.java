@@ -20,6 +20,8 @@
 package com.remediatetheflag.global.controllers;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -159,7 +161,9 @@ public abstract class ActionsController {
 			request.setAttribute(Constants.REQUEST_ATTRIBUTE_JSON, jsonObject);
 			action.doAction(request,response);	
 		} catch ( Exception  e) {
-			logger.error("Action Exception: "+actionClass.toString()+" for user: "+usr+"\n" + e.getMessage() );
+			StringWriter errors = new StringWriter();
+			e.printStackTrace(new PrintWriter(errors));
+			logger.error("Action Exception: "+actionClass.toString()+" for user: "+usr+"\n" + e.getMessage()+"\n"+errors.toString() );
 			MessageGenerator.sendErrorMessage(Constants.JSON_VALUE_ERROR_ACTION_EXCEPTION, response);
 		}
 
