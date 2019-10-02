@@ -36,6 +36,15 @@ public class StatsUtils {
 		long diffInMillies = date2.getTime() - date1.getTime();
 		return TimeUnit.MILLISECONDS.toMinutes(diffInMillies); 
 	}
+	
+	private HashMap<String,Integer> initializeMapWithExerciseResultStatus(){
+		HashMap<String,Integer> tmpMap = new HashMap<String,Integer>();
+		for(ExerciseResultStatus ers: ExerciseResultStatus.values()) {
+			tmpMap.put(ers.toString(),0);
+		}
+		return tmpMap;
+	}
+	
 	public void setTimePerCategory(List<ExerciseInstance> exerciseInstances, Stats stats){
 		
 		Map<String, Long> totalTimeEach = new HashMap<String, Long>();
@@ -123,11 +132,7 @@ public class StatsUtils {
 
 		for(ExerciseInstance ei : exerciseInstances){
 			if(!irr.containsKey(ei.getRegion().toString())){
-				Map<String,Integer> tmpMap = new HashMap<String,Integer>();
-				tmpMap.put(ExerciseResultStatus.NOT_VULNERABLE.toString(),0);
-				tmpMap.put(ExerciseResultStatus.VULNERABLE.toString(),0);
-				tmpMap.put(ExerciseResultStatus.BROKEN_FUNCTIONALITY.toString(),0);
-				tmpMap.put(ExerciseResultStatus.NOT_ADDRESSED.toString(),0);
+				Map<String,Integer> tmpMap = initializeMapWithExerciseResultStatus();
 				irr.put(ei.getRegion().toString(), tmpMap);
 			}
 			Map<String,Integer> tmpStatus = irr.get(ei.getRegion().toString());
@@ -145,11 +150,7 @@ public class StatsUtils {
 			if(null==ei.getUser().getTeam())
 				continue;
 			if(!irr.containsKey(ei.getUser().getTeam().getName())){
-				Map<String,Integer> tmpMap = new HashMap<String,Integer>();
-				tmpMap.put(ExerciseResultStatus.NOT_VULNERABLE.toString(),0);
-				tmpMap.put(ExerciseResultStatus.VULNERABLE.toString(),0);
-				tmpMap.put(ExerciseResultStatus.BROKEN_FUNCTIONALITY.toString(),0);
-				tmpMap.put(ExerciseResultStatus.NOT_ADDRESSED.toString(),0);
+				Map<String,Integer> tmpMap = initializeMapWithExerciseResultStatus();
 				irr.put(ei.getUser().getTeam().getName(), tmpMap);
 			}
 			Map<String,Integer> tmpStatus = irr.get(ei.getUser().getTeam().getName());
@@ -166,11 +167,7 @@ public class StatsUtils {
 		for(ExerciseInstance ei : exerciseInstances){
 			for(ExerciseResult er : ei.getResults()){
 				if(!irr.containsKey(er.getCategory())){
-					Map<String,Integer> tmpMap = new HashMap<String,Integer>();
-					tmpMap.put(ExerciseResultStatus.NOT_VULNERABLE.toString(),0);
-					tmpMap.put(ExerciseResultStatus.VULNERABLE.toString(),0);
-					tmpMap.put(ExerciseResultStatus.BROKEN_FUNCTIONALITY.toString(),0);
-					tmpMap.put(ExerciseResultStatus.NOT_ADDRESSED.toString(),0);
+					Map<String,Integer> tmpMap = initializeMapWithExerciseResultStatus();
 					irr.put(er.getCategory(), tmpMap);
 				}
 				Map<String,Integer> tmpStatus = irr.get(er.getCategory());
@@ -186,11 +183,7 @@ public class StatsUtils {
 		for(ExerciseInstance ei : exerciseInstances){
 			for(ExerciseResult er : ei.getResults()){
 				if(!irr.containsKey(er.getName())){
-					Map<String,Integer> tmpMap = new HashMap<String,Integer>();
-					tmpMap.put(ExerciseResultStatus.NOT_VULNERABLE.toString(),0);
-					tmpMap.put(ExerciseResultStatus.VULNERABLE.toString(),0);
-					tmpMap.put(ExerciseResultStatus.BROKEN_FUNCTIONALITY.toString(),0);
-					tmpMap.put(ExerciseResultStatus.NOT_ADDRESSED.toString(),0);
+					Map<String,Integer> tmpMap = initializeMapWithExerciseResultStatus();
 					irr.put(er.getName(), tmpMap);
 				}
 				Map<String,Integer> tmpStatus = irr.get(er.getName());
